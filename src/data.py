@@ -190,7 +190,7 @@ stepfx_default = [
 
 program.append({
     'name': 'basic',
-    'iterations': 10,
+    'iterations': 20,
     'step_size': 1.4,
     'octaves': 4,
     'octave_cutoff': 4,
