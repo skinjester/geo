@@ -1,0 +1,29 @@
+A1  10      Enter    Save Image (deprecated)
+A2  32      Space
+A3  80      Home
+A4  87      End      Reset
+
+B1  85      PgUp     Bank --
+B2  86      PgDown   Bank ++
+B3  81      l-arrow  Program --
+B4  83      r-arrow  Program ++
+
+C1  194     F5
+C2  195     F6
+C3  122     z        Layer --
+C4  120     x        Layer ++
+
+D1  196     F7
+D2  197     F8
+D3  44       ,       Feature -- 
+D4  46       .       Feature ++
+
+E1  91       [
+E2  93       ]
+E3  45       _      Motion Floor --
+E4  61       =      Motion Floor ++
+
+F1  190      F1     Toggle Camera
+F2  19       Pause  Toggle Motion
+F3  96       `      HUD
+F4  49       1      Monitor Motion

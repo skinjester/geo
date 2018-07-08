@@ -1,0 +1,86 @@
+### what is the octave cutoff point?
+### what is the step_size scaling factor?
+### what is the iteration scaling factor?
+
+BIOMORPH
+# parameters
+model_path = 'E:/Users/Gary/Documents/code/models/bvlc_googlenet/'
+net_fn = model_path + 'deploy.prototxt'
+caffemodel = 'bvlc_googlenet.caffemodel'
+param_fn = model_path + caffemodel
+jitter = int(cap_w/4)
+if iterations is None: iterations = 20
+if stepsize is None: stepsize = 0.1
+if octaves is None: octaves = 5
+if octave_scale is None: octave_scale = 1.5
+if end is None: end = 'inception_4d/output'
+
+MIAMIFLA
+# parameters
+### what is the octave cutoff point?
+model_path = 'E:/Users/Gary/Documents/code/models/bvlc_googlenet/'
+net_fn = model_path + 'deploy.prototxt'
+caffemodel = 'bvlc_googlenet.caffemodel'
+param_fn = model_path + caffemodel
+jitter = int(cap_w/4)
+if iterations is None: iterations = 20
+if stepsize is None: stepsize = 0.1
+if octaves is None: octaves = 5
+if octave_scale is None: octave_scale = 1.5
+if end is None: end = 'inception_4d/1x1'
+
+(think I saw an alien looking at me )
+
+BRIGHT ROOM 1
+    # parameters
+    model_path = 'E:/Users/Gary/Documents/code/models/bvlc_googlenet/'
+    net_fn = model_path + 'deploy.prototxt'
+    model = 'bvlc_googlenet.caffemodel'
+    param_fn = model_path + model
+    jitter = int(cap_w/4)
+    if iterations is None: iterations = 20
+    if stepsize is None: stepsize = 0.1
+    if octaves is None: octaves = 6
+    if octave_scale is None: octave_scale = 1.4
+    if end is None: end = 'inception_4d/pool_proj'
+
+step_size multiplier: 0.08
+iteration multiplier: 0.5
+iteration cutoff: 4
+
+
+BRIGHT ROOM 1 HI-FI
+
+    model_path = 'E:/Users/Gary/Documents/code/models/bvlc_googlenet/'
+    net_fn = model_path + 'deploy.prototxt'
+    model = 'bvlc_googlenet.caffemodel'
+    param_fn = model_path + model
+    jitter = int(cap_w/4)
+    if iterations is None: iterations = 20
+    if stepsize is None: stepsize = 0.1
+    if octaves is None: octaves = 6
+    if octave_scale is None: octave_scale = 1.4
+    if end is None: end = 'inception_4d/pool_proj'
+
+step_size multiplier: 0.05
+iteration multiplier: 0.2
+iteration cutoff: 4
+
+
+
+BRIGHT ROOM 2
+    model_path = 'E:/Users/Gary/Documents/code/models/bvlc_googlenet/'
+    net_fn = model_path + 'deploy.prototxt'
+    model = 'bvlc_googlenet.caffemodel'
+    param_fn = model_path + model
+    jitter = int(cap_w/4)
+    if iterations is None: iterations = 16
+    if stepsize is None: stepsize = 0.1
+    if octaves is None: octaves = 8
+    if octave_scale is None: octave_scale = 1.4
+    if end is None: end = 'inception_4d/pool_proj'
+
+step_size multiplier: 0.05
+iteration multiplier: 0.2
+iteration cutoff: 6
+

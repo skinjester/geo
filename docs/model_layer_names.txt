@@ -1,0 +1,273 @@
+BVLC ImageNet
+bvlc_googlenet model
+github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
+This is an implementation of the model described in the GoogleNet publication [Going Deeper with Convolutions](http://arxiv.org/abs/1409.4842), trained on Large Scale Visual Recognition Challenge dataset (ILSVRC 2012)
+This model was trained by Sergio Guadarrama @sguada
+
+ALL THESE WORLDS ARE YOURS
+conv1/7x7_s2
+conv2/3x3
+conv2/3x3_reduce
+conv2/norm2
+inception_3a/1x1
+inception_3a/3x3
+inception_3a/3x3_reduce
+inception_3a/5x5
+inception_3a/5x5_reduce
+inception_3a/output
+inception_3a/pool
+inception_3a/pool_proj
+inception_3b/1x1
+inception_3b/3x3
+* inception_3b/3x3_reduce
+* inception_3b/5x5
+* inception_3b/5x5_reduce
+inception_3b/output
+inception_3b/pool
+inception_3b/pool_proj
+inception_4a/1x1
+inception_4a/3x3
+inception_4a/3x3_reduce
+inception_4a/5x5
+inception_4a/5x5_reduce
+inception_4a/output
+inception_4a/pool
+inception_4a/pool_proj
+inception_4b/1x1
+* inception_4b/3x3 #spooky
+inception_4b/3x3_reduce
+* inception_4b/5x5
+inception_4b/5x5_reduce
+inception_4b/output
+inception_4b/pool
+inception_4b/pool_proj
+inception_4c/1x1
+inception_4c/3x3
+inception_4c/3x3_reduce
+inception_4c/5x5
+inception_4c/5x5_reduce
+inception_4c/output
+inception_4c/pool
+inception_4c/pool_proj
+inception_4d/1x1
+inception_4d/3x3
+inception_4d/3x3_reduce
+inception_4d/5x5
+inception_4d/5x5_reduce
+* inception_4d/output
+inception_4d/pool
+inception_4d/pool_proj
+inception_4e/1x1
+inception_4e/3x3
+inception_4e/3x3_reduce
+inception_4e/5x5
+inception_4e/5x5_reduce
+inception_4e/output
+inception_4e/pool
+inception_4e/pool_proj
+inception_5a/1x1
+inception_5a/3x3
+inception_5a/3x3_reduce
+inception_5a/5x5
+inception_5a/5x5_reduce
+inception_5a/output
+inception_5a/pool
+inception_5a/pool_proj
+inception_5b/1x1
+inception_5b/3x3
+inception_5b/3x3_reduce
+inception_5b/5x5
+inception_5b/5x5_reduce
+inception_5b/output
+inception_5b/pool
+inception_5b/pool_proj
+pool1/3x3_s2
+pool1/norm1
+pool2/3x3_s2
+pool3/3x3_s2
+pool4/3x3_s2
+
+
+
+MIT Places dataset
+Places205-GoogLeNet model
+http://places.csail.mit.edu/downloadCNN.html
+GoogLeNet CNN trained on 205 scene categories of MIT Places Database with  2.5 million images
+Please cite this work if you use the database or CNN:
+	B. Zhou, A. Lapedriza, J. Xiao, A. Torralba, and A. Oliva. “Learning Deep Features for Scene Recognition using Places Database.” Advances in Neural Information Processing Systems 27 (NIPS), 2014. PDF Supplementary Materials
+This model is released for unrestricted use.
+
+ALL THESE WORLDS ARE YOURS
+conv1/7x7_s2
+pool1/3x3_s2
+pool1/norm1
+conv2/3x3_reduce
+conv2/3x3
+conv2/norm2
+pool2/3x3_s2
+inception_3a/1x1
+inception_3a/3x3_reduce
+inception_3a/3x3
+inception_3a/5x5_reduce
+inception_3a/5x5
+inception_3a/pool
+inception_3a/pool_proj
+inception_3a/output
+inception_3b/1x1
+inception_3b/3x3_reduce
+inception_3b/3x3
+inception_3b/5x5_reduce
+inception_3b/5x5
+inception_3b/pool
+inception_3b/pool_proj
+inception_3b/output
+pool3/3x3_s2
+inception_4a/1x1
+inception_4a/3x3_reduce
+inception_4a/3x3
+inception_4a/5x5_reduce
+inception_4a/5x5
+inception_4a/pool
+inception_4a/pool_proj
+inception_4a/output
+inception_4b/1x1
+inception_4b/3x3_reduce
+inception_4b/3x3
+inception_4b/5x5_reduce
+inception_4b/5x5
+* inception_4b/pool
+* inception_4b/pool_proj
+inception_4b/output
+inception_4c/1x1
+inception_4c/3x3_reduce
+inception_4c/3x3
+inception_4c/5x5_reduce
+inception_4c/5x5
+inception_4c/pool
+inception_4c/pool_proj
+inception_4c/output
+inception_4d/1x1
+inception_4d/3x3_reduce
+inception_4d/3x3
+inception_4d/5x5_reduce
+inception_4d/5x5
+inception_4d/pool
+inception_4d/pool_proj
+inception_4d/output
+inception_4e/1x1
+inception_4e/3x3_reduce
+inception_4e/3x3
+inception_4e/5x5_reduce
+inception_4e/5x5
+* inception_4e/pool
+inception_4e/pool_proj
+inception_4e/output
+pool4/3x3_s2
+inception_5a/1x1
+inception_5a/3x3_reduce
+inception_5a/3x3
+inception_5a/5x5_reduce
+inception_5a/5x5
+inception_5a/pool
+inception_5a/pool_proj
+inception_5a/output
+inception_5b/1x1
+inception_5b/3x3_reduce
+inception_5b/3x3
+inception_5b/5x5_reduce
+inception_5b/5x5
+inception_5b/pool
+inception_5b/pool_proj
+inception_5b/output'
+
+CompCars dataset
+https://gist.github.com/bogger/b90eb88e31cd745525ae
+https://gist.github.com/bogger/b90eb88e31cd745525ae
+GoogLeNet CNN trained on 431 car models in CompCars dataset
+Please cite the following work if the model is useful for you:
+	A Large-Scale Car Dataset for Fine-Grained Categorization and Verification, L. Yang, P. Luo, C. C. Loy, X. Tang, arXiv:1506.08959, 2015
+This model is released for unrestricted use.
+
+ALL THESE WORLDS ARE YOURS
+conv1
+pool1
+norm1
+conv2_1x1
+conv2_3x3
+norm2
+pool2
+inception_3a_1x1
+inception_3a_3x3_reduce
+inception_3a_3x3
+inception_3a_5x5_reduce
+inception_3a_5x5
+inception_3a_pool
+inception_3a_pool_proj
+inception_3a_output
+*	inception_3b_1x1
+*	inception_3b_3x3_reduce
+inception_3b_3x3
+inception_3b_5x5_reduce
+inception_3b_5x5
+inception_3b_pool
+inception_3b_pool_proj
+inception_3b_output
+pool3
+inception_4a_1x1
+inception_4a_3x3_reduce
+inception_4a_3x3
+inception_4a_5x5_reduce
+inception_4a_5x5
+inception_4a_pool
+inception_4a_pool_proj
+inception_4a_output
+inception_4b_1x1
+inception_4b_3x3_reduce
+inception_4b_3x3
+inception_4b_5x5_reduce
+inception_4b_5x5
+inception_4b_pool
+inception_4b_pool_proj
+inception_4b_output
+inception_4c_1x1
+inception_4c_3x3_reduce
+inception_4c_3x3
+inception_4c_5x5_reduce
+inception_4c_5x5
+inception_4c_pool
+inception_4c_pool_proj
+inception_4c_output
+inception_4d_1x1
+inception_4d_3x3_reduce
+inception_4d_3x3
+inception_4d_5x5_reduce
+inception_4d_5x5
+inception_4d_pool
+inception_4d_pool_proj
+inception_4d_output
+inception_4e_1x1
+inception_4e_3x3_reduce
+inception_4e_3x3
+inception_4e_5x5_reduce
+inception_4e_5x5
+inception_4e_pool
+*	inception_4e_pool_proj
+inception_4e_output
+pool4
+inception_5a_1x1
+inception_5a_3x3_reduce
+inception_5a_3x3
+inception_5a_5x5_reduce
+inception_5a_5x5
+*	inception_5a_pool
+inception_5a_pool_proj
+inception_5a_output
+inception_5b_1x1
+inception_5b_3x3_reduce
+inception_5b_3x3
+inception_5b_5x5_reduce
+inception_5b_5x5
+inception_5b_pool
+inception_5b_pool_proj
+inception_5b_output
+
