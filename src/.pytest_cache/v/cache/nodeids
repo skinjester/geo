@@ -1,0 +1,10 @@
+[
+  "test_markdown_pytest.py::test_non_marked_lines", 
+  "test_markdown_pytest.py::test_em", 
+  "test_markdown_pytest.py::test_strong", 
+  "test_um_pytest.py::test_numbers_3_4", 
+  "test_um_pytest.py::test_numbers_again_4_8", 
+  "test_um_pytest.py::test_strings_a_3", 
+  "test_um_pytest.py::TestUM::()::test_numbers_5_6", 
+  "test_um_pytest.py::TestUM::()::test_strings_b_2"
+]

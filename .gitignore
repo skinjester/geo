@@ -58,5 +58,4 @@ docs/_build/
 target/
 
 dreamer/tmp\.prototxt
-
 models/
