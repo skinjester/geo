@@ -1,0 +1,4 @@
+{
+  "test_sample.py::test_answer": true, 
+  "test_um_pytest.py": true
+}
