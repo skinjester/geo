@@ -271,6 +271,7 @@ class Composer(object):
         self.mixbuffer = self.emptybuffer
         self.dreambuffer = self.emptybuffer
         self.opacity = 0
+        self.opacity_step = 0.1
         self.buffer3_opacity = 1.0
 
     def send(self, channel, image):
@@ -309,18 +310,16 @@ class Composer(object):
 
         if motion.delta > motion.delta_trigger:
             log.critical('starting new dream')
-            _deepdreamer.request_new()
+            _deepdreamer.request_wakeup()
 
         if motion.peak < motion.floor:
             self.opacity -= 0.1
-            if self.opacity <= 0.1:
+            if self.opacity < 0.0:
                 self.opacity = 0.0
         else:
-            self.opacity = data.remapValuetoRange(
-                motion.delta_history,
-                [0.0, 100000.0],
-                [0.0, 1.0]
-            )
+            if (self.opacity + self.opacity_step < 0.0) or (self.opacity + self.opacity_step > 1.0):
+                self.opacity_step = -1.0 * self.opacity_step
+            self.opacity += self.opacity_step
 
         log.critical(
             'count:{:>06} trigger:{:>06} peak:{:>06} opacity:{:03.2}'
@@ -744,7 +743,7 @@ def main():
         #     feature=Model.features[Model.current_feature]
         # )
 
-        new rem sleep test
+        # new rem sleep test
         Composer.dreambuffer = _deepdreamer.paint(
             net=Model.net,
             base_image=Composer.dreambuffer,

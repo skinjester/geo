@@ -175,7 +175,7 @@ class MotionDetector(object):
         self.is_paused = False
         self.floor = floor
         self.history = []
-        self.history_queue_length = 100
+        self.history_queue_length = 50
         self.monitor_msg = '****'
 
     def process(self, delta):
