@@ -732,34 +732,34 @@ def main():
                     FX.xform_array(Colmposer.dreambuffer, **fx['params'])
 
         # kicks off rem sleep
-        # Composer.dreambuffer = deepdream(
-        #     Model.net,
-        #     Composer.dreambuffer,
-        #     iteration_max=Model.iterations,
-        #     octave_n=Model.octaves,
-        #     octave_scale=Model.octave_scale,
-        #     end=Model.end,
-        #     objective=dreamer.objective_L2,
-        #     step_size=Model.stepsize_base,
-        #     feature=Model.features[Model.current_feature]
-        # )
+        Composer.dreambuffer = deepdream(
+            Model.net,
+            Composer.dreambuffer,
+            iteration_max=Model.iterations,
+            octave_n=Model.octaves,
+            octave_scale=Model.octave_scale,
+            end=Model.end,
+            objective=dreamer.objective_L2,
+            step_size=Model.stepsize_base,
+            feature=Model.features[Model.current_feature]
+        )
 
         # new rem sleep test
-        Composer.dreambuffer = _deepdreamer.paint(
-            net=Model.net,
-            base_image=Composer.dreambuffer,
-            iteration_max = Model.iterations,
-            octave_n = Model.octaves,
-            octave_scale= Model.octave_scale,
-            end = Model.end,
-            objective = dreamer.objective_L2,
-            step_size_base = Model.stepsize_base,
-            step_mult = Model.step_mult,
-            feature = Model.features[Model.current_feature],
-            Webcam=Webcam,
-            Composer=Composer,
-            Viewport=Viewport
-            )
+        # Composer.dreambuffer = _deepdreamer.paint(
+        #     net=Model.net,
+        #     base_image=Composer.dreambuffer,
+        #     iteration_max = Model.iterations,
+        #     octave_n = Model.octaves,
+        #     octave_scale= Model.octave_scale,
+        #     end = Model.end,
+        #     objective = dreamer.objective_L2,
+        #     step_size_base = Model.stepsize_base,
+        #     step_mult = Model.step_mult,
+        #     feature = Model.features[Model.current_feature],
+        #     Webcam=Webcam,
+        #     Composer=Composer,
+        #     Viewport=Viewport
+        #     )
 
         for fx in Model.cyclefx:
             if fx['name'] == 'inception_xform':
