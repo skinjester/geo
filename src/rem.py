@@ -25,176 +25,7 @@ from camerautils import WebcamVideoStream, Cameras
 from listener import listener
 from hud.console import console_log, console_draw
 import render.deepdream as dreamer
-# from model import Model
-
-class Model(object):
-    def __init__(self, current_layer=0, program_duration=30):
-        self.net = None
-        self.net_fn = None
-        self.param_fn = None
-        self.caffemodel = None
-        self.end = None
-        self.models = data.models
-        self.guides = data.guides
-        self.guide_features = self.guides[0]
-
-        self.features = None
-        self.current_feature = 0
-
-        self.current_guide = 0
-        self.current_layer = current_layer
-        self.layers = data.layers
-        self.first_time_through = True
-
-        self.program = data.program
-        self.current_program = 0
-        self.program_duration = program_duration
-        self.program_running = True
-        self.program_start_time = time.time()
-        self.installation_startup = time.time()  # keep track of runtime
-
-        # amplification
-        self.iterations = None
-        self.iteration_max = None
-        self.stepsize = None
-        self.stepsize_base = None
-        self.step_size_base = None
-        self.octaves = None
-        self.octave_n = None
-        self.octave_cutoff = None
-        self.octave_scale = None
-        self.iteration_mult = None
-        self.step_mult = None
-        self.jitter = 320
-        self.clip = True
-
-        # FX
-        self.package_name = None
-        self.cyclefx = None  # contains cyclefx list for current program
-        self.stepfx = None  # contains stepfx list for current program
-
-        # objective
-        self.objective = dreamer.objective_L2
-
-    def set_program(self, index):
-        Viewport.refresh()
-        self.package_name = data.program[index]['name']
-        self.iterations = data.program[index]['iterations']
-        self.iteration_max = data.program[index]['iterations']
-        self.stepsize_base = data.program[index]['step_size']
-        self.step_size_base = data.program[index]['step_size']
-        self.octaves = data.program[index]['octaves']
-        self.octave_n = data.program[index]['octaves']
-        self.octave_cutoff = data.program[index]['octave_cutoff']
-        self.octave_scale = data.program[index]['octave_scale']
-        self.iteration_mult = data.program[index]['iteration_mult']
-        self.step_mult = data.program[index]['step_mult']
-        self.layers = data.program[index]['layers']
-        self.features = data.program[index]['features']
-        self.current_feature = 0;
-        self.model = data.program[index]['model']
-        self.choose_model(self.model)
-        self.set_endlayer(self.layers[0])
-        self.cyclefx = data.program[index]['cyclefx']
-        self.stepfx = data.program[index]['stepfx']
-        self.program_start_time = time.time()
-        log.warning('program:{} started:{}'.format(
-            self.program[self.current_program]['name'],
-            self.program_start_time))
-
-    def choose_model(self, key):
-        self.net_fn = '{}/{}/{}'.format(self.models['path'],
-            self.models[key][0], self.models[key][1])
-        self.param_fn = '{}/{}/{}'.format(self.models['path'],
-            self.models[key][0], self.models[key][2])
-        self.caffemodel = self.models[key][2]
-
-        # Patch model to be able to compute gradients
-        # load the empty protobuf model
-        model = caffe.io.caffe_pb2.NetParameter()
-
-        # load the prototxt and place it in the empty model
-        text_format.Merge(open(self.net_fn).read(), model)
-
-        # add the force backward: true value
-        model.force_backward = True
-
-        # save it to a new file called tmp.prototxt
-        open('tmp.prototxt', 'w').write(str(model))
-
-        # the neural network model
-        self.net = caffe.Classifier('tmp.prototxt',
-            self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
-            channel_swap=(2, 1, 0))
-        # self.param_fn, mean=np.float32([20.0, 10.0,190.0]), channel_swap=(2, 1, 0))
-
-        console_log('model', self.caffemodel)
-
-    def show_network_details(self):
-        # outputs layer details to console
-        print self.net.blobs.keys()
-        print 'current layer:{} ({}) current feature:{}'.format(
-            self.end,
-            self.net.blobs[self.end].data.shape[1],
-            self.features[self.current_feature]
-        )
-
-    def set_endlayer(self, end):
-        self.end = end
-        Viewport.refresh()
-        log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
-        console_log('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
-
-    def prev_layer(self):
-        self.current_layer -= 1
-        if self.current_layer < 0:
-            self.current_layer = len(self.layers) - 1
-        self.set_endlayer(self.layers[self.current_layer])
-
-    def next_layer(self):
-        self.current_layer += 1
-        if self.current_layer > len(self.layers) - 1:
-            self.current_layer = 0
-        self.set_endlayer(self.layers[self.current_layer])
-
-    def set_featuremap(self):
-        log.warning('featuremap:{}'.format(self.features[self.current_feature]))
-        console_log('featuremap', self.features[self.current_feature])
-        Viewport.refresh()
-
-    def prev_feature(self):
-        max_feature_index = self.net.blobs[self.end].data.shape[1]
-        self.current_feature -= 1
-        if self.current_feature < 0:
-            self.current_feature = max_feature_index - 1
-        self.set_featuremap()
-
-    def next_feature(self):
-        max_feature_index = self.net.blobs[self.end].data.shape[1]
-        self.current_feature += 1
-        if self.current_feature > max_feature_index - 1:
-            self.current_feature = -1
-        self.set_featuremap()
-
-    def reset_feature(self):
-        pass
-
-    def prev_program(self):
-        self.current_program -= 1
-        if self.current_program < 0:
-            self.current_program = len(self.program) - 1
-        self.set_program(self.current_program)
-
-    def next_program(self):
-        self.current_program += 1
-        if self.current_program > len(self.program) - 1:
-            self.current_program = 0
-        self.set_program(self.current_program)
-
-    def toggle_program_cycle(self):
-        self.program_running = not self.program_running
-        if self.program_running:
-            self.next_program()
+import neuralnet
 
 class Viewport(object):
 
@@ -358,13 +189,13 @@ class FX(object):
         print '****'
         return image
 
-    def test_args(self, model=Model, step=0.05, min_scale=1.2, max_scale=1.6):
+    def test_args(self, model=neuralnet.Model, step=0.05, min_scale=1.2, max_scale=1.6):
         print 'model: ', model
         print 'step: ', step
         print 'min_scale: ', min_scale
         print 'max_scale: ', max_scale
 
-    def octave_scaler(self, model=Model, step=0.05, min_scale=1.2,
+    def octave_scaler(self, model=neuralnet.Model, step=0.05, min_scale=1.2,
         max_scale=1.6):
         # octave scaling cycle each rem cycle, maybe
         # if (int(time.time()) % 2):
@@ -730,19 +561,6 @@ def main():
                 if fx['name'] == 'xform_array':
                     FX.xform_array(Colmposer.dreambuffer, **fx['params'])
 
-        # kicks off rem sleep
-        # Composer.dreambuffer = deepdream(
-        #     Model.net,
-        #     Composer.dreambuffer,
-        #     iteration_max=Model.iterations,
-        #     octave_n=Model.octaves,
-        #     octave_scale=Model.octave_scale,
-        #     end=Model.end,
-        #     objective=dreamer.objective_L2,
-        #     step_size=Model.stepsize_base,
-        #     feature=Model.features[Model.current_feature]
-        # )
-
         # new rem sleep test
         Composer.dreambuffer = _deepdreamer.paint(
             net=Model.net,
@@ -792,10 +610,11 @@ if __name__ == "__main__":
     Webcam = Cameras(source=Camera, current_camera=0)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
-    Model = Model(program_duration=45)  # program duration (seconds) -1 is manual
-    Model.set_program(0)
+    Model = neuralnet.Model(program_duration=45, current_program=0)
     _deepdreamer = dreamer.Artist('test')
-    FX = FX()
-    main()
+    Webcam.get().stop()
+    sys.exit()
+    # FX = FX()
+    # main()
 
 
