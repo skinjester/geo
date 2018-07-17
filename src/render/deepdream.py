@@ -1,12 +1,9 @@
-from data import rgb2caffe, caffe2rgb
 import data
 from hud.console import console_log, console_draw
 import scipy.ndimage as nd
 import math, numpy as np
 from random import randint
 
-# def objective_L2(dst):
-#     dst.diff[:] = dst.data
 
 # def objective_guide(dst):
 #     x = dst.data[0].copy()
@@ -143,7 +140,7 @@ class Artist(object):
 
         # # SETUP OCTAVES
         src = net.blobs['data']
-        octaves = [rgb2caffe(net, base_image)]
+        octaves = [data.rgb2caffe(net, base_image)]
         log.critical('octave_n: {}'.format(octave_n))
         for i in xrange(octave_n - 1):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
@@ -160,7 +157,7 @@ class Artist(object):
             i = 0
             step_size=step_size_base
             while i < iteration_max:
-                if self.was_new_requested():
+                if self.was_wakeup_requested():
                     self.clear_request()
                     return Webcam.get().read()
 
@@ -171,7 +168,7 @@ class Artist(object):
                     objective=objective,
                     jitter=32)
 
-                vis = caffe2rgb(net,src.data[0])
+                vis = data.caffe2rgb(net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
 
@@ -196,20 +193,19 @@ class Artist(object):
         #         break
 
         log.warning('completed full rem cycle')
-        return caffe2rgb(net, src.data[0])
+        return data.caffe2rgb(net, src.data[0])
 
 
     def makestep(self):
         pass
 
 
-    def request_new(self):
+    def request_wakeup(self):
         self.b_wakeup = True
         log.critical('request new')
-        pass
 
 
-    def was_new_requested(self):
+    def was_wakeup_requested(self):
         return self.b_wakeup
 
 
