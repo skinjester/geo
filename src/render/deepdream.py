@@ -1,5 +1,5 @@
 import data
-from hud.console import console_log, console_draw
+import hud.console as console
 import scipy.ndimage as nd
 import math, numpy as np
 from random import randint
@@ -126,6 +126,7 @@ class Artist(object):
         base_image,
         iteration_max,
         octave_n,
+        octave_cutoff,
         octave_scale,
         end,
         objective,
@@ -137,11 +138,6 @@ class Artist(object):
         Viewport,
         clip=False
         ):
-
-        log.critical('iteration_max: {}'.format(iteration_max))
-        log.critical('iteration_max: {}'.format(iteration_max))
-        log.critical('octave_n: {}'.format(octave_n))
-        log.critical('octave_scale: {}'.format(octave_scale))
 
         # # SETUP OCTAVES
         src = net.blobs['data']
@@ -188,16 +184,16 @@ class Artist(object):
             # SETUP FOR NEXT OCTAVE
             detail = src.data[0] - octave_current
 
-        #     # calulate iteration count for the next octave
-        #     iteration_max = int(iteration_max - (iteration_max * Model.iteration_mult))
+            # calulate iteration count for the next octave
+            # iteration_max = int(iteration_max - (iteration_max * Model.iteration_mult))
 
-        #     # CUTOFF THOUGH?
-        #     # this turned out to be the last octave calculated in the series
-        #     if octave > Model.octave_cutoff:
-        #         log.warning('cutoff at octave: {}'.format(octave))
-        #         break
+            # CUTOFF THOUGH?
+            # this turned out to be the last octave calculated in the series
+            if octave > octave_cutoff - 1:
+                log.critical('cutoff at octave: {}'.format(octave))
+                break
 
-        log.warning('completed full rem cycle')
+        log.critical('completed full rem cycle')
         return data.caffe2rgb(net, src.data[0])
 
 

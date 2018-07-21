@@ -86,13 +86,13 @@ stepfx_default = [
 
 program.append({
     'name': 'basic',
-    'iterations': 20,
-    'step_size': 1.4,
-    'octaves': 5,
-    'octave_cutoff': 5,
-    'octave_scale': 1.6,
+    'iterations': 10,
+    'step_size': 1.2,
+    'octaves': 6,
+    'octave_cutoff': 4,
+    'octave_scale': 1.5,
     'iteration_mult': 0.0,
-    'step_mult': 0.0,
+    'step_mult': 0.01,
     'model': 'places365',
     'layers': [
         'inception_4c/output',
@@ -125,7 +125,7 @@ program.append({
     'stepfx': [
         {
             'name': 'nd_gaussian',
-            'params': {'sigma': 2.0, 'order': 0}
+            'params': {'sigma': 1.0, 'order': 0}
         },
     ]
 })

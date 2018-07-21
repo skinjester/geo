@@ -1,5 +1,5 @@
 import time, data, os, os.path, numpy as np
-from hud.console import console_log
+import hud.console as console
 
 # suppress verbose caffe logging before caffe import
 os.environ['GLOG_minloglevel'] = '2'
@@ -92,7 +92,7 @@ class Model(object):
             self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             channel_swap=(2, 1, 0))
 
-        console_log('model', models[modelname][2])
+        console.log_value('model', models[modelname][2])
 
     def show_network_details(self):
         # outputs layer details to console
@@ -107,7 +107,7 @@ class Model(object):
         self.end = end
         self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
-        console_log('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
+        console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
     def prev_layer(self):
         self.current_layer -= 1
@@ -123,7 +123,7 @@ class Model(object):
 
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
-        console_log('featuremap', self.features[self.current_feature])
+        console.log_value('featuremap', self.features[self.current_feature])
         self.Renderer.request_wakeup()
 
     def prev_feature(self):
@@ -151,7 +151,7 @@ class Model(object):
 
     def next_program(self):
         current_program = self.current_program + 1
-        if current_program > len(program) - 1:
+        if current_program > len(data.program) - 1:
             current_program = 0
         self.set_program(current_program)
 

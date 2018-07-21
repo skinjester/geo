@@ -6,7 +6,7 @@ import datetime
 from threading import Thread
 import sys
 import data
-from hud.console import console_log, console_draw
+import hud.console as console
 
 # Camera collection
 class Cameras(object):
@@ -190,8 +190,8 @@ class MotionDetector(object):
 
         lastmsg = '{:0>6}'.format(self.delta_history)
         nowmsg = '{:0>6}'.format(self.delta)
-        console_log('last', lastmsg)
-        console_log('now', nowmsg)
+        console.log_value('last', lastmsg)
+        console.log_value('now', nowmsg)
 
         #  track delta count history
         self.delta_history = self.delta
