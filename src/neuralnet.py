@@ -1,14 +1,17 @@
-import time
-from data import program
-import data
+import time, data, os, os.path, numpy as np
+from hud.console import console_log
+
+# suppress verbose caffe logging before caffe import
+os.environ['GLOG_minloglevel'] = '2'
+import caffe
+from google.protobuf import text_format
 
 class Model(object):
-    def __init__(self, program_duration=-1, current_program=0):
+    def __init__(self, program_duration, current_program, Renderer):
 
         self.net = None
         self.net_fn = None
         self.param_fn = None
-        self.caffemodel = None
         self.end = None
 
         # self.guide_features = guides[0]
@@ -25,13 +28,14 @@ class Model(object):
         self.program_running = True
         self.program_start_time = time.time()
 
-        # self.installation_startup = time.time()  # keep track of runtime
+        #
+        self.installation_startup = time.time()  # keep track of runtime
+        #
 
         self.iterations = None
         self.iteration_max = None
         self.stepsize = None
-        self.step_size_base = None
-        self.octaves = None
+        self.stepsize_base = None
         self.octave_n = None
         self.octave_cutoff = None
         self.octave_scale = None
@@ -39,44 +43,45 @@ class Model(object):
         self.step_mult = None
         self.jitter = 320
         self.clip = True
+        self.Renderer = Renderer
 
         # # FX
         # self.package_name = None
         # self.cyclefx = None  # contains cyclefx list for current program
         # self.stepfx = None  # contains stepfx list for current program
+        caffe.set_device(0)
+        caffe.set_mode_gpu()
+
+        self.set_program(current_program)
 
 
-    def set_program(self, index):
-        Viewport.refresh()
-        # current = program[current_program]
-        self.package_name = program[index]['name']
-        self.iterations = program[index]['iterations']
-        self.iteration_max = program[index]['iterations']
-        self.stepsize_base = program[index]['step_size']
-        self.step_size_base = program[index]['step_size']
-        self.octaves = program[index]['octaves']
-        self.octave_n = program[index]['octaves']
-        self.octave_cutoff = program[index]['octave_cutoff']
-        self.octave_scale = program[index]['octave_scale']
-        self.iteration_mult = program[index]['iteration_mult']
-        self.step_mult = program[index]['step_mult']
-        self.layers = program[index]['layers']
-        self.features = program[index]['features']
+    def set_program(self, current_program):
+        runtime = data.program[current_program]
+        self.current_program = current_program
+        self.package_name = runtime['name']
+        self.iterations = runtime['iterations']
+        self.iteration_max = runtime['iterations']
+        self.stepsize_base = runtime['step_size']
+        self.octave_n = runtime['octaves']
+        self.octave_cutoff = runtime['octave_cutoff']
+        self.octave_scale = runtime['octave_scale']
+        self.iteration_mult = runtime['iteration_mult']
+        self.step_mult = runtime['step_mult']
+        self.layers = runtime['layers']
+        self.features = runtime['features']
         self.current_feature = 0;
-        self.model = program[index]['model']
-        self.choose_model(self.model)
+        self.modelname = runtime['model']
+        self.choose_model(self.modelname)
         self.set_endlayer(self.layers[0])
-        self.cyclefx = program[index]['cyclefx']
-        self.stepfx = program[index]['stepfx']
+        self.cyclefx = runtime['cyclefx']
+        self.stepfx = runtime['stepfx']
         self.program_start_time = time.time()
-        log.warning('program:{} started:{}'.format(
-            program[self.current_program]['name'],
-            self.program_start_time))
+        log.warning('program:{} started:{}'.format(runtime['name'], self.program_start_time))
+        self.Renderer.request_wakeup()
 
-    def choose_model(self, key):
-        self.net_fn = '{}/{}/{}'.format(models['path'], models[key][0], models[key][1])
-        self.param_fn = '{}/{}/{}'.format(models['path'], models[key][0], models[key][2])
-        self.caffemodel = models[key][2]
+    def choose_model(self, modelname):
+        self.net_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][1])
+        self.param_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][2])
 
         model = caffe.io.caffe_pb2.NetParameter()
         text_format.Merge(open(self.net_fn).read(), model)
@@ -87,7 +92,7 @@ class Model(object):
             self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             channel_swap=(2, 1, 0))
 
-        console_log('model', self.caffemodel)
+        console_log('model', models[modelname][2])
 
     def show_network_details(self):
         # outputs layer details to console
@@ -100,7 +105,7 @@ class Model(object):
 
     def set_endlayer(self, end):
         self.end = end
-        Viewport.refresh()
+        self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console_log('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
@@ -119,7 +124,7 @@ class Model(object):
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
         console_log('featuremap', self.features[self.current_feature])
-        Viewport.refresh()
+        self.Renderer.request_wakeup()
 
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
@@ -139,16 +144,16 @@ class Model(object):
         pass
 
     def prev_program(self):
-        self.current_program -= 1
-        if self.current_program < 0:
-            self.current_program = len(program) - 1
-        self.set_program(self.current_program)
+        current_program = self.current_program - 1
+        if current_program < 0:
+            current_program = len(data.program) - 1
+        self.set_program(current_program)
 
     def next_program(self):
-        self.current_program += 1
-        if self.current_program > len(program) - 1:
-            self.current_program = 0
-        self.set_program(self.current_program)
+        current_program = self.current_program + 1
+        if current_program > len(program) - 1:
+            current_program = 0
+        self.set_program(current_program)
 
     def toggle_program_cycle(self):
         self.program_running = not self.program_running
@@ -273,3 +278,4 @@ guides = [
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
+

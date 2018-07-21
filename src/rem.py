@@ -12,11 +12,6 @@ import scipy.ndimage as nd, PIL.Image, cv2
 import math, numpy as np
 from random import randint
 
-# neural network
-os.environ[
-    'GLOG_minloglevel'] = '2'  # suppress verbose caffe logging before caffe import
-import caffe
-from google.protobuf import text_format
 
 # program modules
 import data
@@ -140,8 +135,8 @@ class Composer(object):
 
 
         if motion.delta > motion.delta_trigger:
-            log.critical('starting new dream')
-            _deepdreamer.request_wakeup()
+            log.warning('starting new dream')
+            _Deepdreamer.request_wakeup()
 
         if motion.peak < motion.floor:
             self.opacity -= 0.1
@@ -152,7 +147,7 @@ class Composer(object):
                 self.opacity_step = -1.0 * self.opacity_step
             self.opacity += self.opacity_step
 
-        log.critical(
+        log.warning(
             'count:{:>06} trigger:{:>06} peak:{:>06} opacity:{:03.2}'
                 .format(
                 motion.delta,
@@ -294,16 +289,14 @@ def monitor2():
 # -------
 def main():
     now = time.time()  # start timer
-    caffe.set_device(0)
-    caffe.set_mode_gpu()
+
     iterations = Model.iterations
     stepsize = Model.stepsize_base
-    octaves = Model.octaves
+    octave_n = Model.octave_n
     octave_scale = Model.octave_scale
     jitter = 300
 
     # logging
-    console_log('model', Model.caffemodel)
     console_log('username', data.username)
     console_log('settings', Model.package_name)
 
@@ -325,15 +318,15 @@ def main():
                     FX.xform_array(Colmposer.dreambuffer, **fx['params'])
 
         # new rem sleep test
-        Composer.dreambuffer = _deepdreamer.paint(
+        Composer.dreambuffer = _Deepdreamer.paint(
             net=Model.net,
             base_image=Composer.dreambuffer,
             iteration_max = Model.iterations,
-            octave_n = Model.octaves,
+            octave_n = Model.octave_n,
             octave_scale= Model.octave_scale,
             end = Model.end,
             objective = dreamer.objective_L2,
-            step_size_base = Model.stepsize_base,
+            stepsize_base = Model.stepsize_base,
             step_mult = Model.step_mult,
             feature = Model.features[Model.current_feature],
             Webcam=Webcam,
@@ -358,26 +351,26 @@ def main():
 # -------
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
-    log.setLevel(data.logging.INFO)  # CRITICAL ERROR WARNING INFO DEBUG
+    log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
     parser = argparse.ArgumentParser()
     parser.add_argument('--username', help='twitter userid for sharing')
-    parser.add_argument('--cameraID', help='camera device ID to use as video input')
     args = parser.parse_args()
     if args.username:
         data.username = args.username
-    Camera=[]
-    Camera.append(WebcamVideoStream(0, width=data.capturesize[0],
+    camera=[]
+    camera.append(WebcamVideoStream(0, width=data.capturesize[0],
         height=data.capturesize[1], portrait_alignment=False,
         flip_h=False, flip_v=False, gamma=0.5, floor=10000,
         threshold_filter=8).start())
-    Webcam = Cameras(source=Camera, current_camera=0)
+    Webcam = Cameras(source=camera, current_camera=0)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
-    Model = neuralnet.Model(program_duration=45, current_program=0)
-    _deepdreamer = dreamer.Artist('test')
-    Webcam.get().stop()
-    sys.exit()
-    # FX = FX()
-    # main()
+    FX = FX()
+    _Deepdreamer = dreamer.Artist('test')
+    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
+
+    # Webcam.get().stop()
+    # sys.exit()
+    main()
 
 
