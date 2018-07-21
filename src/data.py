@@ -88,8 +88,8 @@ program.append({
     'name': 'basic',
     'iterations': 20,
     'step_size': 1.4,
-    'octaves': 4,
-    'octave_cutoff': 4,
+    'octaves': 5,
+    'octave_cutoff': 5,
     'octave_scale': 1.6,
     'iteration_mult': 0.0,
     'step_mult': 0.0,
@@ -115,7 +115,7 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.2}
+            'params': {'scale': 0.05}
         },
         {
             'name': 'octave_scaler',
@@ -125,7 +125,7 @@ program.append({
     'stepfx': [
         {
             'name': 'nd_gaussian',
-            'params': {'sigma': 0.7, 'order': 0}
+            'params': {'sigma': 2.0, 'order': 0}
         },
     ]
 })
