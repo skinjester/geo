@@ -37,7 +37,7 @@ class Cameras(object):
         log.debug('cameraID: {}'.format(self.current_camera))
         return self.source[self.current_camera]
 
-    def get_cameras(self):
+    def get_camera_list(self):
         return self.source
 
 
