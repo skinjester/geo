@@ -1,96 +1,98 @@
-import time
-from data import program
+import time, data, os, os.path, numpy as np
+from hud.console import console_log
+
+# suppress verbose caffe logging before caffe import
+os.environ['GLOG_minloglevel'] = '2'
+import caffe
+from google.protobuf import text_format
 
 class Model(object):
-    def __init__(self, current_layer=0, program_duration=30):
+    def __init__(self, program_duration, current_program, Renderer):
+
         self.net = None
         self.net_fn = None
         self.param_fn = None
-        self.caffemodel = None
         self.end = None
-        self.models = models
-        self.guides = guides
-        self.guide_features = self.guides[0]
-        self.current_guide = 0
+
+        # self.guide_features = guides[0]
+        # self.current_guide = 0
+
         self.features = None
         self.current_feature = 0
-        self.layers = layers
-        self.current_layer = current_layer
-        self.first_time_through = True
 
-        self.program = program
-        self.current_program = 0
+        self.layers =None
+        self.current_layer = 0
+
+        self.current_program = current_program
         self.program_duration = program_duration
         self.program_running = True
         self.program_start_time = time.time()
-        self.installation_startup = time.time()  # keep track of runtime
 
-        # amplification
+        #
+        self.installation_startup = time.time()  # keep track of runtime
+        #
+
         self.iterations = None
+        self.iteration_max = None
         self.stepsize = None
         self.stepsize_base = None
-        self.octaves = None
+        self.octave_n = None
         self.octave_cutoff = None
         self.octave_scale = None
         self.iteration_mult = None
         self.step_mult = None
         self.jitter = 320
+        self.clip = True
+        self.Renderer = Renderer
 
-        # FX
-        self.package_name = None
-        self.cyclefx = None  # contains cyclefx list for current program
-        self.stepfx = None  # contains stepfx list for current program
+        # # FX
+        # self.package_name = None
+        # self.cyclefx = None  # contains cyclefx list for current program
+        # self.stepfx = None  # contains stepfx list for current program
+        caffe.set_device(0)
+        caffe.set_mode_gpu()
 
-    def set_program(self, index):
-        Viewport.refresh()
-        self.package_name = data.program[index]['name']
-        self.iterations = data.program[index]['iterations']
-        self.stepsize_base = data.program[index]['step_size']
-        self.octaves = data.program[index]['octaves']
-        self.octave_cutoff = data.program[index]['octave_cutoff']
-        self.octave_scale = data.program[index]['octave_scale']
-        self.iteration_mult = data.program[index]['iteration_mult']
-        self.step_mult = data.program[index]['step_mult']
-        self.layers = data.program[index]['layers']
-        self.features = data.program[index]['features']
+        self.set_program(current_program)
+
+
+    def set_program(self, current_program):
+        runtime = data.program[current_program]
+        self.current_program = current_program
+        self.package_name = runtime['name']
+        self.iterations = runtime['iterations']
+        self.iteration_max = runtime['iterations']
+        self.stepsize_base = runtime['step_size']
+        self.octave_n = runtime['octaves']
+        self.octave_cutoff = runtime['octave_cutoff']
+        self.octave_scale = runtime['octave_scale']
+        self.iteration_mult = runtime['iteration_mult']
+        self.step_mult = runtime['step_mult']
+        self.layers = runtime['layers']
+        self.features = runtime['features']
         self.current_feature = 0;
-        self.model = data.program[index]['model']
-        self.choose_model(self.model)
+        self.modelname = runtime['model']
+        self.choose_model(self.modelname)
         self.set_endlayer(self.layers[0])
-        self.cyclefx = data.program[index]['cyclefx']
-        self.stepfx = data.program[index]['stepfx']
+        self.cyclefx = runtime['cyclefx']
+        self.stepfx = runtime['stepfx']
         self.program_start_time = time.time()
-        log.warning('program:{} started:{}'.format(
-            self.program[self.current_program]['name'],
-            self.program_start_time))
+        log.warning('program:{} started:{}'.format(runtime['name'], self.program_start_time))
+        self.Renderer.request_wakeup()
 
-    def choose_model(self, key):
-        self.net_fn = '{}/{}/{}'.format(self.models['path'],
-            self.models[key][0], self.models[key][1])
-        self.param_fn = '{}/{}/{}'.format(self.models['path'],
-            self.models[key][0], self.models[key][2])
-        self.caffemodel = self.models[key][2]
+    def choose_model(self, modelname):
+        self.net_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][1])
+        self.param_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][2])
 
-        # Patch model to be able to compute gradients
-        # load the empty protobuf model
         model = caffe.io.caffe_pb2.NetParameter()
-
-        # load the prototxt and place it in the empty model
         text_format.Merge(open(self.net_fn).read(), model)
-
-        # add the force backward: true value
         model.force_backward = True
-
-        # save it to a new file called tmp.prototxt
         open('tmp.prototxt', 'w').write(str(model))
 
-        # the neural network model
         self.net = caffe.Classifier('tmp.prototxt',
             self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             channel_swap=(2, 1, 0))
-        # self.param_fn, mean=np.float32([20.0, 10.0,190.0]), channel_swap=(2, 1, 0))
 
-        console_log('model', self.caffemodel)
+        console_log('model', models[modelname][2])
 
     def show_network_details(self):
         # outputs layer details to console
@@ -103,7 +105,7 @@ class Model(object):
 
     def set_endlayer(self, end):
         self.end = end
-        Viewport.refresh()
+        self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console_log('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
@@ -122,7 +124,7 @@ class Model(object):
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
         console_log('featuremap', self.features[self.current_feature])
-        Viewport.refresh()
+        self.Renderer.request_wakeup()
 
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
@@ -142,16 +144,16 @@ class Model(object):
         pass
 
     def prev_program(self):
-        self.current_program -= 1
-        if self.current_program < 0:
-            self.current_program = len(self.program) - 1
-        self.set_program(self.current_program)
+        current_program = self.current_program - 1
+        if current_program < 0:
+            current_program = len(data.program) - 1
+        self.set_program(current_program)
 
     def next_program(self):
-        self.current_program += 1
-        if self.current_program > len(self.program) - 1:
-            self.current_program = 0
-        self.set_program(self.current_program)
+        current_program = self.current_program + 1
+        if current_program > len(program) - 1:
+            current_program = 0
+        self.set_program(current_program)
 
     def toggle_program_cycle(self):
         self.program_running = not self.program_running
@@ -269,3 +271,11 @@ guides = [
     'rabbit2.jpg',
     'eyeballs.jpg',
 ]
+
+# --------
+# INIT.
+# --------
+# CRITICAL ERROR WARNING INFO DEBUG
+log = data.logging.getLogger('mainlog')
+log.setLevel(data.logging.CRITICAL)
+

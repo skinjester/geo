@@ -119,7 +119,7 @@ class Artist(object):
     def __init__(self, id):
         self.id = id
         self.b_wakeup = True
-        print "dreaming with Render instance: {}".format(self.id)
+        log.debug('dreaming with Render instance: {}'.format(self.id))
 
     def paint(self,
         net,
@@ -129,7 +129,7 @@ class Artist(object):
         octave_scale,
         end,
         objective,
-        step_size_base,
+        stepsize_base,
         step_mult,
         feature,
         Webcam,
@@ -138,10 +138,15 @@ class Artist(object):
         clip=False
         ):
 
+        log.critical('iteration_max: {}'.format(iteration_max))
+        log.critical('iteration_max: {}'.format(iteration_max))
+        log.critical('octave_n: {}'.format(octave_n))
+        log.critical('octave_scale: {}'.format(octave_scale))
+
         # # SETUP OCTAVES
         src = net.blobs['data']
         octaves = [data.rgb2caffe(net, base_image)]
-        log.critical('octave_n: {}'.format(octave_n))
+        log.warning('octave_n: {}'.format(octave_n))
         for i in xrange(octave_n - 1):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
         detail = np.zeros_like(octaves[-1])
@@ -155,7 +160,7 @@ class Artist(object):
 
             # OCTAVE CYCLE
             i = 0
-            step_size=step_size_base
+            step_size=stepsize_base
             while i < iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
@@ -173,7 +178,7 @@ class Artist(object):
                 Composer.update(vis, Webcam)
 
                 # attenuate step size over rem cycle
-                step_size += step_size_base * step_mult
+                step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1
 
@@ -202,7 +207,7 @@ class Artist(object):
 
     def request_wakeup(self):
         self.b_wakeup = True
-        log.critical('request new')
+        log.warning('request new')
 
 
     def was_wakeup_requested(self):
