@@ -37,6 +37,9 @@ class Cameras(object):
         log.debug('cameraID: {}'.format(self.current_camera))
         return self.source[self.current_camera]
 
+    def get_cameras(self):
+        return self.source
+
 
 # camera object
 class WebcamVideoStream(object):

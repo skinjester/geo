@@ -79,8 +79,8 @@ class Viewport(object):
 
     def shutdown(self):
         cv2.destroyAllWindows()
-        for cam in Camera:
-            cam.stop()
+        for camera in Webcam.get_camera_list():
+            camera.stop()
         sys.exit()
 
 class Composer(object):
