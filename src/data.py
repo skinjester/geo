@@ -26,110 +26,6 @@ guides.append('./img/eyeballs.jpg')
 # I'm using it like a scratchpad, but initializes to None
 data_img = None
 
-models = {
-    'path':'../models',
-    'cars':(
-        'cars',
-        'deploy.prototxt',
-        'googlenet_finetune_web_car_iter_10000.caffemodel'
-    ),
-    'googlenet':(
-        'bvlc_googlenet',
-        'deploy.prototxt',
-        'bvlc_googlenet.caffemodel'
-    ),
-    'places': (
-        'googlenet_places205',
-        'deploy.prototxt',
-        'places205_train_iter_2400000.caffemodel'
-    ),
-    'places365': (
-        'googlenet_places365',
-        'deploy.prototxt',
-        'googlenet_places365.caffemodel'
-    ),
-    'vgg19': (
-        'VGG_ILSVRC_19',
-        'deploy.prototxt',
-        'VGG_ILSVRC_19_layers.caffemodel'
-    ),
-    'imagenet': (
-        'imagenet',
-        'deploy.prototxt',
-        'imagenet_googlenet.caffemodel'
-    ),
-}
-
-layers = [
-    'inception_4d/5x5_reduce',
-    'conv2/3x3',
-    'conv2/3x3_reduce',
-    'conv2/norm2',
-    'inception_3a/1x1',
-    'inception_3a/3x3',
-    'inception_3b/5x5',
-    'inception_3b/output',
-    'inception_3b/pool',
-    'inception_4a/1x1',
-    'inception_4a/3x3',
-    'inception_4b/3x3_reduce',
-    'inception_4b/5x5',
-    'inception_4b/5x5_reduce',
-    'inception_4b/output',
-    'inception_4b/pool',
-    'inception_4b/pool_proj',
-    'inception_4c/1x1',
-    'inception_4c/3x3',
-    'inception_4c/3x3_reduce',
-    'inception_4c/5x5',
-    'inception_4c/5x5_reduce',
-    'inception_4c/output',
-    'inception_4c/pool',
-    'inception_4d/3x3',
-    'inception_4d/5x5',
-    'inception_4d/5x5_reduce',
-    'inception_4d/output',
-    'inception_4d/pool',
-    'inception_4e/1x1',
-    'inception_4e/3x3',
-    'inception_4e/3x3_reduce',
-    'inception_4e/5x5',
-    'inception_4e/5x5_reduce',
-    'inception_4e/output',
-    'inception_4e/pool',
-    'inception_4e/pool_proj',
-    'inception_5a/1x1',
-    'inception_5a/3x3',
-    'inception_5a/3x3_reduce',
-    'inception_5a/5x5',
-    'inception_5a/5x5_reduce',
-    'inception_5a/output',
-    'inception_5a/pool',
-    'inception_5b/1x1',
-    'inception_5b/3x3',
-    'inception_5b/3x3_reduce',
-    'inception_5b/5x5',
-    'inception_5b/5x5_reduce',
-    'inception_5b/output',
-    'inception_5b/pool',
-    'inception_5b/pool_proj'
-]
-
-vgg19_layers = [
-    'conv3_1',
-    'conv3_2',
-    'conv3_3',
-    'conv3_4',
-    'conv4_1',
-    'conv4_2',
-    'conv4_3',
-    'conv4_4',
-    'conv5_1',
-    'conv5_2',
-    'conv5_3',
-    'conv5_4'
-]
-
 # a list of programs
 program = []
 
@@ -190,13 +86,89 @@ stepfx_default = [
 
 program.append({
     'name': 'basic',
-    'iterations': 20,
-    'step_size': 1.4,
-    'octaves': 4,
-    'octave_cutoff': 4,
-    'octave_scale': 1.6,
-    'iteration_mult': 0.0,
-    'step_mult': 0.0,
+    'iterations': 40,
+    'step_size': 2.0,
+    'octaves': 6,
+    'octave_cutoff': 6,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.1,
+    'step_mult': -0.1,
+    'model': 'places365',
+    'layers': [
+        'conv2/3x3',
+        'conv2/3x3_reduce',
+        'conv2/norm2',
+        'inception_3a/1x1',
+        'inception_3a/3x3',
+        'inception_3b/5x5',
+        'inception_3b/output',
+        'inception_3b/pool',
+        'inception_4a/1x1',
+        'inception_4a/3x3',
+        'inception_4b/3x3_reduce',
+        'inception_4b/5x5',
+        'inception_4b/5x5_reduce',
+        'inception_4b/output',
+        'inception_4b/pool',
+        'inception_4b/pool_proj',
+        'inception_4c/1x1',
+        'inception_4c/3x3',
+        'inception_4c/3x3_reduce',
+        'inception_4c/5x5',
+        'inception_4c/5x5_reduce',
+        'inception_4c/output',
+        'inception_4c/pool',
+        'inception_4d/3x3',
+        'inception_4d/5x5',
+        'inception_4d/5x5_reduce',
+        'inception_4d/output',
+        'inception_4d/pool',
+        'inception_4e/1x1',
+        'inception_4e/3x3',
+        'inception_4e/3x3_reduce',
+        'inception_4e/5x5',
+        'inception_4e/5x5_reduce',
+        'inception_4e/output',
+        'inception_4e/pool',
+        'inception_4e/pool_proj',
+        'inception_5a/1x1',
+        'inception_5a/3x3',
+        'inception_5a/3x3_reduce',
+        'inception_5a/5x5',
+        'inception_5a/5x5_reduce',
+        'inception_5a/output',
+        'inception_5a/pool',
+        'inception_5b/1x1',
+        'inception_5b/3x3',
+        'inception_5b/3x3_reduce',
+        'inception_5b/5x5',
+        'inception_5b/5x5_reduce',
+        'inception_5b/output',
+        'inception_5b/pool',
+        'inception_5b/pool_proj'
+    ],
+    'features': range(-1, 128),
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.05}
+        },
+    ],
+    'stepfx': []
+})
+
+'''
+program.append({
+    'name': 'basic',
+    'step_size': 2.0,
+
+    'octaves': (10,10,10,10),   # 4 octaves, 10 iterations each octave
+    'octaves': (10,10,5,2),     # 4 octaves, variable iterations per octave
+    'octaves': (10,10,5,5,0),   # 5 octaves, cutoff after octave 4
+    'octaves': (10,-1,5,5]      # 5 octaves, skip octave 2
+
+    'octave_scale': 1.5,
+    'step_mult': -0.1,
     'model': 'places365',
     'layers': [
         'inception_4c/output',
@@ -219,20 +191,12 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.2}
-        },
-        {
-            'name': 'octave_scaler',
-            'params': {'step': 0.1, 'min_scale': 1.5, 'max_scale': 2.0}
+            'params': {'scale': 0.05}
         },
     ],
-    'stepfx': [
-        {
-            'name': 'nd_gaussian',
-            'params': {'sigma': 0.7, 'order': 0}
-        },
-    ]
+    'stepfx': []
 })
+'''
 
 program.append({
     'name': 'kwisatzhaderach',

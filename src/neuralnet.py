@@ -1,5 +1,5 @@
 import time, data, os, os.path, numpy as np
-from hud.console import console_log
+import hud.console as console
 
 # suppress verbose caffe logging before caffe import
 os.environ['GLOG_minloglevel'] = '2'
@@ -56,27 +56,27 @@ class Model(object):
 
 
     def set_program(self, current_program):
-        runtime = data.program[current_program]
+        program = data.program[current_program]
         self.current_program = current_program
-        self.package_name = runtime['name']
-        self.iterations = runtime['iterations']
-        self.iteration_max = runtime['iterations']
-        self.stepsize_base = runtime['step_size']
-        self.octave_n = runtime['octaves']
-        self.octave_cutoff = runtime['octave_cutoff']
-        self.octave_scale = runtime['octave_scale']
-        self.iteration_mult = runtime['iteration_mult']
-        self.step_mult = runtime['step_mult']
-        self.layers = runtime['layers']
-        self.features = runtime['features']
+        self.package_name = program['name']
+        self.iterations = program['iterations']
+        self.iteration_max = program['iterations']
+        self.stepsize_base = program['step_size']
+        self.octave_n = program['octaves']
+        self.octave_cutoff = program['octave_cutoff']
+        self.octave_scale = program['octave_scale']
+        self.iteration_mult = program['iteration_mult']
+        self.step_mult = program['step_mult']
+        self.layers = program['layers']
+        self.features = program['features']
         self.current_feature = 0;
-        self.modelname = runtime['model']
+        self.modelname = program['model']
         self.choose_model(self.modelname)
         self.set_endlayer(self.layers[0])
-        self.cyclefx = runtime['cyclefx']
-        self.stepfx = runtime['stepfx']
+        self.cyclefx = program['cyclefx']
+        self.stepfx = program['stepfx']
         self.program_start_time = time.time()
-        log.warning('program:{} started:{}'.format(runtime['name'], self.program_start_time))
+        log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         self.Renderer.request_wakeup()
 
     def choose_model(self, modelname):
@@ -92,7 +92,7 @@ class Model(object):
             self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             channel_swap=(2, 1, 0))
 
-        console_log('model', models[modelname][2])
+        console.log_value('model', models[modelname][2])
 
     def show_network_details(self):
         # outputs layer details to console
@@ -107,7 +107,7 @@ class Model(object):
         self.end = end
         self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
-        console_log('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
+        console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
     def prev_layer(self):
         self.current_layer -= 1
@@ -123,7 +123,7 @@ class Model(object):
 
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
-        console_log('featuremap', self.features[self.current_feature])
+        console.log_value('featuremap', self.features[self.current_feature])
         self.Renderer.request_wakeup()
 
     def prev_feature(self):
@@ -151,7 +151,7 @@ class Model(object):
 
     def next_program(self):
         current_program = self.current_program + 1
-        if current_program > len(program) - 1:
+        if current_program > len(data.program) - 1:
             current_program = 0
         self.set_program(current_program)
 

@@ -18,7 +18,7 @@ import data
 from data import rgb2caffe
 from camerautils import WebcamVideoStream, Cameras
 from listener import listener
-from hud.console import console_log, console_draw
+import hud.console as console
 import render.deepdream as dreamer
 import neuralnet
 
@@ -39,10 +39,10 @@ class Viewport(object):
 
     def show(self, image):
         if self.b_show_HUD:
-            image = console_draw(image)
+            image = console.draw(image)
         cv2.imshow(self.window_name, image)
         self.monitor()
-        self.listener(Model, Webcam, Viewport, log, console_log)
+        self.listener(Model, Webcam, Viewport, log, console.log_value)
 
     def export(self, image):
         make_sure_path_exists(self.imagesavepath)
@@ -79,8 +79,8 @@ class Viewport(object):
 
     def shutdown(self):
         cv2.destroyAllWindows()
-        for cam in Camera:
-            cam.stop()
+        for camera in Webcam.get_camera_list():
+            camera.stop()
         sys.exit()
 
 class Composer(object):
@@ -168,6 +168,8 @@ class Composer(object):
         #         image = FX.inception_xform(image, **fx['params'])
         # return image
 
+        console.log_render_values()
+
 class FX(object):
     def __init__(self):
         self.direction = 1
@@ -198,7 +200,7 @@ class FX(object):
         # prevents values from getting stuck above or beneath min/max
         if model.octave_scale > max_scale or model.octave_scale <= min_scale:
             self.direction = -1 * self.direction
-        console_log('scale', model.octave_scale)
+        console.log_value('scale', model.octave_scale)
         log.debug('octave_scale: {}'.format(model.octave_scale))
 
     def inception_xform(self, image, scale):
@@ -297,8 +299,8 @@ def main():
     jitter = 300
 
     # logging
-    console_log('username', data.username)
-    console_log('settings', Model.package_name)
+    console.log_value('username', data.username)
+    console.log_value('settings', Model.package_name)
 
     # the madness begins
     initial_image = Webcam.get().read()
@@ -316,13 +318,17 @@ def main():
                     FX.octave_scaler(model=Model, **fx['params'])
                 if fx['name'] == 'xform_array':
                     FX.xform_array(Colmposer.dreambuffer, **fx['params'])
+                if fx['name'] == 'inception_xform':
+                    Composer.dreambuffer = FX.inception_xform(Composer.dreambuffer, **fx['params'])
 
         # new rem sleep test
         Composer.dreambuffer = _Deepdreamer.paint(
             net=Model.net,
             base_image=Composer.dreambuffer,
             iteration_max = Model.iterations,
+            iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
+            octave_cutoff = Model.octave_cutoff,
             octave_scale= Model.octave_scale,
             end = Model.end,
             objective = dreamer.objective_L2,
@@ -334,16 +340,16 @@ def main():
             Viewport=Viewport
             )
 
-        for fx in Model.cyclefx:
-            if fx['name'] == 'inception_xform':
-                Composer.dreambuffer = FX.inception_xform(Composer.dreambuffer, **fx['params'])
+        Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
+            (data.viewsize[0], data.viewsize[1]),
+            interpolation=cv2.INTER_LINEAR)
 
         # logging
         later = time.time()
         duration_msg = '{:.2f}s'.format(later - now)
         now = time.time()  # the new now
-        console_log('cycle_time', duration_msg)
-        log.warning('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
+        console.log_value('cycle_time', duration_msg)
+        log.critical('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
 
 
 # -------
