@@ -137,14 +137,36 @@ class Artist(object):
                     objective=objective,
                     jitter=32)
 
+                # console.log_render_values(
+                #     octave=octave+1,
+                #     octave_n=octave_n,
+                #     octave_cutoff=octave_cutoff,
+                #     width=w,
+                #     height=h,
+                #     i=i,
+                #     iteration_max=iteration_max,
+                #     iteration_mult=iteration_mult
+                #     )
+
+                console.console_log('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                console.console_log('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
+                console.console_log('step_size','{:02.3f} x{:02.3f}'.format(step_size, step_mult))
+                console.console_log('width', w)
+                console.console_log('height', h)
+                console.console_log('scale', octave_scale)
+
                 vis = data.caffe2rgb(net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
+
+
 
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1
                 i += 1
+
+
 
             detail = src.data[0] - octave_current
             iteration_max = int(iteration_max - (iteration_max * iteration_mult))
@@ -179,11 +201,7 @@ class Artist(object):
 
         # src.data[0] = postprocess_step(net, src.data[0])
 
-        # program sequencer. don't run if program_duration is -1 though
-        # elapsed = time.time() - Model.program_start_time
-        # if Model.program_running:
-        #     if elapsed > Model.program_duration:
-        #         Model.next_program()
+
 
 
     def request_wakeup(self):

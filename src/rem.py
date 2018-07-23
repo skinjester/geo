@@ -127,12 +127,9 @@ class Composer(object):
         return self.mixbuffer
 
     def update(self, vis, Webcam):
-
-        # motion detection
         motion = Webcam.get().motiondetector
         motion.peak_last = motion.peak
         motion.peak = motion.delta_history_peak
-
 
         if motion.delta > motion.delta_trigger:
             log.warning('starting new dream')
@@ -147,16 +144,6 @@ class Composer(object):
                 self.opacity_step = -1.0 * self.opacity_step
             self.opacity += self.opacity_step
 
-        log.warning(
-            'count:{:>06} trigger:{:>06} peak:{:>06} opacity:{:03.2}'
-                .format(
-                motion.delta,
-                motion.delta_trigger,
-                motion.delta_history_peak,
-                Composer.opacity
-            )
-        )
-
         # compositing
         self.send(0, vis)
         self.send(1, Webcam.get().read())
@@ -168,7 +155,16 @@ class Composer(object):
         #         image = FX.inception_xform(image, **fx['params'])
         # return image
 
-        console.log_render_values()
+        console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
+        console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - Model.program_start_time, 2), Model.program_duration))
+
+        # program sequencer. don't run if program_duration is -1 though
+        if Model.program_running and Model.program_duration > 0:
+            if time.time() - Model.program_start_time > Model.program_duration:
+                Model.next_program()
+
+
+
 
 class FX(object):
     def __init__(self):
@@ -193,6 +189,7 @@ class FX(object):
         print 'max_scale: ', max_scale
 
     def octave_scaler(self, model=neuralnet.Model, step=0.05, min_scale=1.2,
+
         max_scale=1.6):
         # octave scaling cycle each rem cycle, maybe
         # if (int(time.time()) % 2):
@@ -299,8 +296,8 @@ def main():
     jitter = 300
 
     # logging
-    console.log_value('username', data.username)
-    console.log_value('settings', Model.package_name)
+    console.log_value('username',data.username)
+    console.log_value('settings',Model.package_name)
 
     # the madness begins
     initial_image = Webcam.get().read()
@@ -348,7 +345,7 @@ def main():
         later = time.time()
         duration_msg = '{:.2f}s'.format(later - now)
         now = time.time()  # the new now
-        console.log_value('cycle_time', duration_msg)
+        console.log_value('cycle_time',duration_msg)
         log.critical('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
 
 
@@ -363,13 +360,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.username:
         data.username = args.username
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     camera=[]
     camera.append(WebcamVideoStream(0, width=data.capturesize[0],
         height=data.capturesize[1], portrait_alignment=False,
         flip_h=False, flip_v=False, gamma=0.5, floor=10000,
         threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
     FX = FX()
     _Deepdreamer = dreamer.Artist('test')
