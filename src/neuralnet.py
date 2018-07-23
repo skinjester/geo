@@ -13,25 +13,15 @@ class Model(object):
         self.net_fn = None
         self.param_fn = None
         self.end = None
-
-        # self.guide_features = guides[0]
-        # self.current_guide = 0
-
         self.features = None
         self.current_feature = 0
-
         self.layers =None
         self.current_layer = 0
-
         self.current_program = current_program
         self.program_duration = program_duration
         self.program_running = True
         self.program_start_time = time.time()
-
-        #
         self.installation_startup = time.time()  # keep track of runtime
-        #
-
         self.iterations = None
         self.iteration_max = None
         self.stepsize = None
@@ -78,6 +68,8 @@ class Model(object):
         self.program_start_time = time.time()
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         self.Renderer.request_wakeup()
+
+        console.console_log('program', self.package_name)
 
     def choose_model(self, modelname):
         self.net_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][1])

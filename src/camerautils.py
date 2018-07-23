@@ -8,6 +8,7 @@ import sys
 import data
 import hud.console as console
 
+
 # Camera collection
 class Cameras(object):
     def __init__(self, source=[], current_camera=0):
@@ -104,6 +105,7 @@ class WebcamVideoStream(object):
     def set_gamma(self, gamma):
         # generates internal table for gamma correction
         log.debug('gamma: {}'.format(gamma))
+        console.log_value('gamma','{}'.format(gamma))
         return np.array([((i / 255.0) ** (1.0 / gamma)) * 255 for i in
             np.arange(0, 256)]).astype("uint8")
 
@@ -192,6 +194,8 @@ class MotionDetector(object):
         nowmsg = '{:0>6}'.format(self.delta)
         console.log_value('last', lastmsg)
         console.log_value('now', nowmsg)
+        console.console_log('threshold', '{:0>6}'.format(self.delta_trigger))
+        console.console_log('floor', '{:0>6}'.format(self.floor))
 
         #  track delta count history
         self.delta_history = self.delta
