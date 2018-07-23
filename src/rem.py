@@ -318,12 +318,15 @@ def main():
                     FX.octave_scaler(model=Model, **fx['params'])
                 if fx['name'] == 'xform_array':
                     FX.xform_array(Colmposer.dreambuffer, **fx['params'])
+                if fx['name'] == 'inception_xform':
+                    Composer.dreambuffer = FX.inception_xform(Composer.dreambuffer, **fx['params'])
 
         # new rem sleep test
         Composer.dreambuffer = _Deepdreamer.paint(
             net=Model.net,
             base_image=Composer.dreambuffer,
             iteration_max = Model.iterations,
+            iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
             octave_cutoff = Model.octave_cutoff,
             octave_scale= Model.octave_scale,
@@ -337,14 +340,9 @@ def main():
             Viewport=Viewport
             )
 
-        # input resized to match viewport dimensions
         Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
             (data.viewsize[0], data.viewsize[1]),
             interpolation=cv2.INTER_LINEAR)
-
-        for fx in Model.cyclefx:
-            if fx['name'] == 'inception_xform':
-                Composer.dreambuffer = FX.inception_xform(Composer.dreambuffer, **fx['params'])
 
         # logging
         later = time.time()

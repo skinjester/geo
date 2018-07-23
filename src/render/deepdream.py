@@ -80,40 +80,7 @@ def objective_guide(dst):
     dst.diff[0].reshape(ch, -1)[:] = y[:,
     A.argmax(1)]
 
-def make_step(net,
-    step_size=1.5,
-    end='inception_4c/output',
-    feature=-1,
-    objective=None,
-    jitter=32):
 
-    src = net.blobs['data']
-    dst = net.blobs[end]
-    ox, oy = np.random.randint(-jitter, jitter + 1, 2)
-    src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
-    net.forward(end=end)
-
-    if feature == -1:
-        objective(dst)
-    else:
-        dst.diff.fill(0.0)
-        dst.diff[0, feature, :] = dst.data[0, feature, :]
-
-    net.backward(start=end)
-    g = src.diff[0]
-    src.data[:] += step_size / np.abs(g).mean() * g
-    src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
-
-    bias = net.transformer.mean['data']
-    src.data[:] = np.clip(src.data, -bias, 255 - bias)
-
-    # src.data[0] = postprocess_step(net, src.data[0])
-
-    # program sequencer. don't run if program_duration is -1 though
-    # elapsed = time.time() - Model.program_start_time
-    # if Model.program_running:
-    #     if elapsed > Model.program_duration:
-    #         Model.next_program()
 
 class Artist(object):
     def __init__(self, id):
@@ -125,6 +92,7 @@ class Artist(object):
         net,
         base_image,
         iteration_max,
+        iteration_mult,
         octave_n,
         octave_cutoff,
         octave_scale,
@@ -147,6 +115,7 @@ class Artist(object):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
         detail = np.zeros_like(octaves[-1])
 
+        step_size=stepsize_base
         for octave, octave_current in enumerate(octaves[::-1]):
             h, w = octave_current.shape[-2:]
             h1, w1 = detail.shape[-2:]
@@ -156,13 +125,12 @@ class Artist(object):
 
             # OCTAVE CYCLE
             i = 0
-            step_size=stepsize_base
             while i < iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
                     return Webcam.get().read()
 
-                make_step(net,
+                self.make_step(net,
                     step_size=step_size,
                     end=end,
                     feature=feature,
@@ -173,32 +141,49 @@ class Artist(object):
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
 
-                # attenuate step size over rem cycle
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1
-
-                # increment step
                 i += 1
 
-            # SETUP FOR NEXT OCTAVE
             detail = src.data[0] - octave_current
-
-            # calulate iteration count for the next octave
-            # iteration_max = int(iteration_max - (iteration_max * Model.iteration_mult))
-
-            # CUTOFF THOUGH?
-            # this turned out to be the last octave calculated in the series
+            iteration_max = int(iteration_max - (iteration_max * iteration_mult))
             if octave > octave_cutoff - 1:
                 log.critical('cutoff at octave: {}'.format(octave))
                 break
 
-        log.critical('completed full rem cycle')
+        log.critical('completed rem cycle')
         return data.caffe2rgb(net, src.data[0])
 
 
-    def makestep(self):
-        pass
+    def make_step(self, net, step_size, end, feature, objective, jitter):
+        src = net.blobs['data']
+        dst = net.blobs[end]
+        ox, oy = np.random.randint(-jitter, jitter + 1, 2)
+        src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
+        net.forward(end=end)
+
+        if feature == -1:
+            objective(dst)
+        else:
+            dst.diff.fill(0.0)
+            dst.diff[0, feature, :] = dst.data[0, feature, :]
+
+        net.backward(start=end)
+        g = src.diff[0]
+        src.data[:] += step_size / np.abs(g).mean() * g
+        src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
+
+        bias = net.transformer.mean['data']
+        src.data[:] = np.clip(src.data, -bias, 255 - bias)
+
+        # src.data[0] = postprocess_step(net, src.data[0])
+
+        # program sequencer. don't run if program_duration is -1 though
+        # elapsed = time.time() - Model.program_start_time
+        # if Model.program_running:
+        #     if elapsed > Model.program_duration:
+        #         Model.next_program()
 
 
     def request_wakeup(self):
