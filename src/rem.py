@@ -98,8 +98,9 @@ class Composer(object):
         self.mixbuffer = self.emptybuffer
         self.dreambuffer = self.emptybuffer
         self.opacity = 0
-        self.opacity_step = 0.1
+        self.opacity_step = 0.01
         self.buffer3_opacity = 1.0
+        self.running = False
 
     def send(self, channel, image):
         self.buffer[channel] = image
@@ -135,14 +136,17 @@ class Composer(object):
         if motion.delta > motion.delta_trigger:
             log.warning('starting new dream')
             _Deepdreamer.request_wakeup()
+            self.running = False
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.1
+            self.opacity -= 0.01
             if self.opacity < 0.0:
                 self.opacity = 0.0
+                self.running = False
         else:
             if (self.opacity + self.opacity_step < 0.0) or (self.opacity + self.opacity_step > 1.0):
                 self.opacity_step = -1.0 * self.opacity_step
+                _Deepdreamer.request_wakeup()
             self.opacity += self.opacity_step
 
         # compositing

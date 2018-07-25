@@ -12,13 +12,14 @@ def inception_xform(image, scale):
     return image
 
 def octave_scaler(model, step, min_scale, max_scale=1.6):
+    pass
     # octave scaling cycle each rem cycle, maybe
     # if (int(time.time()) % 2):
-    model.octave_scale += step * direction
-    if model.octave_scale > max_scale or model.octave_scale <= min_scale:
-        direction = -1 * direction
-    console.log_value('scale', model.octave_scale)
-    log.debug('octave_scale: {}'.format(model.octave_scale))
+    # model.octave_scale += step * direction
+    # if model.octave_scale > max_scale or model.octave_scale <= min_scale:
+    #     direction = -1 * direction
+    # console.log_value('scale', model.octave_scale)
+    # log.debug('octave_scale: {}'.format(model.octave_scale))
 
 # class FX(object):
 #     def __init__(self):
