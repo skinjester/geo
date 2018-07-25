@@ -36,14 +36,13 @@ class Model(object):
         self.Renderer = Renderer
 
         # # FX
-        # self.package_name = None
-        # self.cyclefx = None  # contains cyclefx list for current program
-        # self.stepfx = None  # contains stepfx list for current program
+        self.package_name = None
+        self.cyclefx = None  # contains cyclefx list for current program
+        self.stepfx = None  # contains stepfx list for current program
         caffe.set_device(0)
         caffe.set_mode_gpu()
 
         self.set_program(current_program)
-
 
     def set_program(self, current_program):
         program = data.program[current_program]

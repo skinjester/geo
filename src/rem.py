@@ -21,6 +21,7 @@ from listener import listener
 import hud.console as console
 import render.deepdream as dreamer
 import neuralnet
+import postprocess
 
 class Viewport(object):
 
@@ -150,11 +151,6 @@ class Composer(object):
         comp1 = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity)
         Viewport.show(comp1)
 
-        # for fx in Model.cyclefx:
-        #     if fx['name'] == 'inception_xform':
-        #         image = FX.inception_xform(image, **fx['params'])
-        # return image
-
         console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
         console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - Model.program_start_time, 2), Model.program_duration))
 
@@ -163,81 +159,6 @@ class Composer(object):
             if time.time() - Model.program_start_time > Model.program_duration:
                 Model.next_program()
 
-
-
-
-class FX(object):
-    def __init__(self):
-        self.direction = 1
-        self.stepfx_opacity = 1.0
-        self.cycle_start_time = 0
-        self.program_start_time = 0
-
-    def xform_array(self, image, amplitude, wavelength):
-
-        # def shiftfunc(n):
-        #     return int(amplitude*np.sin(n/wavelength))
-        # for n in range(image.shape[1]): # number of rows in the image
-        #     image[:, n] = np.roll(image[:, n], 3*shiftfunc(n))
-        print '****'
-        return image
-
-    def test_args(self, model=neuralnet.Model, step=0.05, min_scale=1.2, max_scale=1.6):
-        print 'model: ', model
-        print 'step: ', step
-        print 'min_scale: ', min_scale
-        print 'max_scale: ', max_scale
-
-    def octave_scaler(self, model=neuralnet.Model, step=0.05, min_scale=1.2,
-
-        max_scale=1.6):
-        # octave scaling cycle each rem cycle, maybe
-        # if (int(time.time()) % 2):
-        model.octave_scale += step * self.direction
-        # prevents values from getting stuck above or beneath min/max
-        if model.octave_scale > max_scale or model.octave_scale <= min_scale:
-            self.direction = -1 * self.direction
-        console.log_value('scale', model.octave_scale)
-        log.debug('octave_scale: {}'.format(model.octave_scale))
-
-    def inception_xform(self, image, scale):
-        h = image.shape[0]
-        w = image.shape[1]
-        image = nd.affine_transform(image, [1 - scale, 1 - scale, 1],
-            [h * scale / 2, w * scale / 2, 0], order=1)
-        return image
-
-    def median_blur(self, image, kernel_shape, interval):
-        if interval == 0:
-            image = cv2.medianBlur(image, kernel_shape)
-            return image
-        if (int(time.time()) % interval):
-            image = cv2.medianBlur(image, kernel_shape)
-        return image
-
-    def bilateral_filter(self, image, radius, sigma_color, sigma_xy):
-        return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
-
-    def nd_gaussian(self, image, sigma, order):
-        image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
-        image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
-        image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
-        # image = nd.filters.gaussian_filter(image, sigma, order=0)
-        return image
-
-    def step_mixer(self, opacity):
-        self.stepfx_opacity = opacity
-
-    def duration_cutoff(self, duration):
-        elapsed = time.time() - self.cycle_start_time
-        if elapsed >= duration:
-            Viewport.refresh()
-        log.warning('cycle_start_time:{} duration:{} elapsed:{}'.format(
-            self.cycle_start_time, duration, elapsed))
-
-    # called by main() at start of each cycle
-    def set_cycle_start_time(self, start_time):
-        self.cycle_start_time = start_time
 
 def vignette(image, param):
     rows, cols = image.shape[:2]
@@ -306,21 +227,20 @@ def main():
 
     while True:
         log.debug('new cycle')
-        FX.set_cycle_start_time(
-            time.time())  # register cycle start for duration_cutoff stepfx
-
+        _Deepdreamer.set_cycle_start_time(time.time())
+        log.critical(Model.cyclefx)
         if Model.cyclefx is not None:
             for fx in Model.cyclefx:
                 if fx['name'] == 'octave_scaler':
-                    FX.octave_scaler(model=Model, **fx['params'])
+                    postprocess.octave_scaler(model=Model, **fx['params'])
                 if fx['name'] == 'xform_array':
-                    FX.xform_array(Colmposer.dreambuffer, **fx['params'])
+                    postprocess.xform_array(Colmposer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
-                    Composer.dreambuffer = FX.inception_xform(Composer.dreambuffer, **fx['params'])
+                    Composer.dreambuffer = postprocess.inception_xform(Composer.dreambuffer, **fx['params'])
 
         # new rem sleep test
         Composer.dreambuffer = _Deepdreamer.paint(
-            net=Model.net,
+            Model=Model,
             base_image=Composer.dreambuffer,
             iteration_max = Model.iterations,
             iteration_mult = Model.iteration_mult,
@@ -332,9 +252,10 @@ def main():
             stepsize_base = Model.stepsize_base,
             step_mult = Model.step_mult,
             feature = Model.features[Model.current_feature],
+            stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
-            Viewport=Viewport
+            Viewport=Viewport,
             )
 
         Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
@@ -368,7 +289,6 @@ if __name__ == "__main__":
         threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     Composer = Composer()
-    FX = FX()
     _Deepdreamer = dreamer.Artist('test')
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
 

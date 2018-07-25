@@ -3,6 +3,7 @@ import hud.console as console
 import scipy.ndimage as nd
 import math, numpy as np
 from random import randint
+import postprocess
 
 
 # def objective_guide(dst):
@@ -16,55 +17,6 @@ from random import randint
 #     A.argmax(1)]  # select one that matches best
 
 
-
-
-
-
-
-
-
-# def remapValuetoRange(val, src, dst):
-#     # src [min,max] old range
-#     # dst [min,max] new range
-#     remapped_Value = ((val - src[0]) / (src[1] - src[0])) * (dst[1] - dst[0]) + \
-#                      dst[0]
-#     return clamp(remapped_Value, [0.0, 1.0])
-
-# # clamps provided value between provided range
-# def clamp(value, range):
-#     return max(range[0], min(value, range[1]))
-
-# def postprocess_step(net, net_data_blob):
-#     # takes neural net data blob and converts to RGB
-#     # then after processing, takes the RGB image and converts back to caffe
-#     image = caffe2rgb(net, net_data_blob)
-
-#     #  apply any defined stepFX
-#     if Model.stepfx is not None:
-#         for fx in Model.stepfx:
-#             if fx['name'] == 'median_blur':
-#                 image = FX.median_blur(image, **fx['params'])
-
-#             if fx['name'] == 'bilateral_filter':
-#                 image = FX.bilateral_filter(image, **fx['params'])
-
-#             if fx['name'] == 'nd_gaussian':
-#                 # image = net_data_blob
-
-#                 image = FX.nd_gaussian(net_data_blob, **fx['params'])
-#                 image = caffe2rgb(net, net_data_blob)
-
-#             if fx['name'] == 'step_opacity':
-#                 FX.step_mixer(**fx['params'])
-
-#             if fx['name'] == 'duration_cutoff':
-#                 FX.duration_cutoff(**fx['params'])
-
-#             if fx['name'] == 'octave_scaler':
-#                 FX.octave_scaler(model=Model, **fx['params'])
-
-#     # image = cv2.addWeighted(image, FX.stepfx_opacity, image, 1.0-FX.stepfx_opacity, 0, image)
-#     return rgb2caffe(Model.net, image)
 
 def objective_L2(dst):
     dst.diff[:] = dst.data
@@ -80,16 +32,16 @@ def objective_guide(dst):
     dst.diff[0].reshape(ch, -1)[:] = y[:,
     A.argmax(1)]
 
-
-
 class Artist(object):
     def __init__(self, id):
         self.id = id
         self.b_wakeup = True
+        self.cycle_start_time = 0
         log.debug('dreaming with Render instance: {}'.format(self.id))
 
+
     def paint(self,
-        net,
+        Model,
         base_image,
         iteration_max,
         iteration_mult,
@@ -101,6 +53,7 @@ class Artist(object):
         stepsize_base,
         step_mult,
         feature,
+        stepfx,
         Webcam,
         Composer,
         Viewport,
@@ -108,8 +61,8 @@ class Artist(object):
         ):
 
         # # SETUP OCTAVES
-        src = net.blobs['data']
-        octaves = [data.rgb2caffe(net, base_image)]
+        src = Model.net.blobs['data']
+        octaves = [data.rgb2caffe(Model.net, base_image)]
         log.warning('octave_n: {}'.format(octave_n))
         for i in xrange(octave_n - 1):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
@@ -130,23 +83,13 @@ class Artist(object):
                     self.clear_request()
                     return Webcam.get().read()
 
-                self.make_step(net,
+                self.make_step(Model=Model,
                     step_size=step_size,
                     end=end,
                     feature=feature,
                     objective=objective,
+                    stepfx=stepfx,
                     jitter=32)
-
-                # console.log_render_values(
-                #     octave=octave+1,
-                #     octave_n=octave_n,
-                #     octave_cutoff=octave_cutoff,
-                #     width=w,
-                #     height=h,
-                #     i=i,
-                #     iteration_max=iteration_max,
-                #     iteration_mult=iteration_mult
-                #     )
 
                 console.console_log('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.console_log('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
@@ -155,35 +98,27 @@ class Artist(object):
                 console.console_log('height', h)
                 console.console_log('scale', octave_scale)
 
-                vis = data.caffe2rgb(net,src.data[0])
+                vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
-
-
-
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1
                 i += 1
 
-
-
             detail = src.data[0] - octave_current
             iteration_max = int(iteration_max - (iteration_max * iteration_mult))
             if octave > octave_cutoff - 1:
-                log.critical('cutoff at octave: {}'.format(octave))
                 break
 
-        log.critical('completed rem cycle')
-        return data.caffe2rgb(net, src.data[0])
+        return data.caffe2rgb(Model.net, src.data[0])
 
-
-    def make_step(self, net, step_size, end, feature, objective, jitter):
-        src = net.blobs['data']
-        dst = net.blobs[end]
+    def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
+        src = Model.net.blobs['data']
+        dst = Model.net.blobs[end]
         ox, oy = np.random.randint(-jitter, jitter + 1, 2)
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
-        net.forward(end=end)
+        Model.net.forward(end=end)
 
         if feature == -1:
             objective(dst)
@@ -191,18 +126,35 @@ class Artist(object):
             dst.diff.fill(0.0)
             dst.diff[0, feature, :] = dst.data[0, feature, :]
 
-        net.backward(start=end)
+        Model.net.backward(start=end)
         g = src.diff[0]
         src.data[:] += step_size / np.abs(g).mean() * g
         src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
-
-        bias = net.transformer.mean['data']
+        bias = Model.net.transformer.mean['data']
         src.data[:] = np.clip(src.data, -bias, 255 - bias)
 
-        # src.data[0] = postprocess_step(net, src.data[0])
+        src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
 
+    def postprocess_step(self, Model, src, stepfx):
+        rgb = data.caffe2rgb(Model.net, src)
+        # if stepfx is not None:
+        #     for fx in stepfx:
+        #         if fx['name'] == 'median_blur':
+        #             rgb = postprocess.median_blur(rgb, **fx['params'])
+        #         if fx['name'] == 'bilateral_filter':
+        #             rgb = postprocess.bilateral_filter(rgb, **fx['params'])
+        #         if fx['name'] == 'nd_gaussian':
+        #             rgb = postprocess.nd_gaussian(src, **fx['params'])
+        #             rgb = caffe2rgb(Model.net, src)
+        #         if fx['name'] == 'step_opacity':
+        #             postprocess.step_mixer(**fx['params'])
+        #         if fx['name'] == 'duration_cutoff':
+        #             postprocess.duration_cutoff(**fx['params'])
+        #         if fx['name'] == 'octave_scaler':
+        #             postprocess.octave_scaler(model=Model, **fx['params'])
 
-
+        # rgb = cv2.addWeighted(rgb, FX.stepfx_opacity, rgb, 1.0-FX.stepfx_opacity, 0, rgb)
+        return data.rgb2caffe(Model.net, rgb)
 
     def request_wakeup(self):
         self.b_wakeup = True
@@ -216,8 +168,8 @@ class Artist(object):
     def clear_request(self):
         self.b_wakeup = False
 
-
-
+    def set_cycle_start_time(self, start_time):
+        self.cycle_start_time = start_time
 # --------
 # INIT.
 # --------
