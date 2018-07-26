@@ -98,7 +98,7 @@ class Composer(object):
         self.mixbuffer = self.emptybuffer
         self.dreambuffer = self.emptybuffer
         self.opacity = 0
-        self.opacity_step = 0.01
+        self.opacity_step = 0.1
         self.buffer3_opacity = 1.0
         self.running = False
 
@@ -139,12 +139,13 @@ class Composer(object):
             self.running = False
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.01
-            if self.opacity < 0.0:
+            self.opacity -= 0.1
+            if self.opacity < 0.5:
                 self.opacity = 0.0
                 self.running = False
+                # _Deepdreamer.request_wakeup()
         else:
-            if (self.opacity + self.opacity_step < 0.0) or (self.opacity + self.opacity_step > 1.0):
+            if (self.opacity + self.opacity_step < 0.5) or (self.opacity + self.opacity_step > 1.0):
                 self.opacity_step = -1.0 * self.opacity_step
                 _Deepdreamer.request_wakeup()
             self.opacity += self.opacity_step
