@@ -13,10 +13,6 @@ def log_value(key, new_value):
     hud_log[key][1] = hud_log[key][0]
     hud_log[key][0] = new_value
 
-def console_log(key, new_value):
-    hud_log[key][1] = hud_log[key][0]
-    hud_log[key][0] = new_value
-
 def draw(image):
     clearscreen = cv2.rectangle(screen, (0, 0), (viewsize[0], viewsize[1]), (0, 0, 0), -1)
     cv2.putText(screen, hud_log['detect'][0], (x[0], 40), FONT, 1.0, (0, 255, 0))
