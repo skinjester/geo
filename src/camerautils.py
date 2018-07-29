@@ -194,8 +194,8 @@ class MotionDetector(object):
         nowmsg = '{:0>6}'.format(self.delta)
         console.log_value('last', lastmsg)
         console.log_value('now', nowmsg)
-        console.console_log('threshold', '{:0>6}'.format(self.delta_trigger))
-        console.console_log('floor', '{:0>6}'.format(self.floor))
+        console.log_value('threshold', '{:0>6}'.format(self.delta_trigger))
+        console.log_value('floor', '{:0>6}'.format(self.floor))
 
         #  track delta count history
         self.delta_history = self.delta
