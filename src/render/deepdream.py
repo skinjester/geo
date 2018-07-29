@@ -91,12 +91,12 @@ class Artist(object):
                     stepfx=stepfx,
                     jitter=32)
 
-                console.console_log('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
-                console.console_log('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
-                console.console_log('step_size','{:02.3f} x{:02.3f}'.format(step_size, step_mult))
-                console.console_log('width', w)
-                console.console_log('height', h)
-                console.console_log('scale', octave_scale)
+                console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
+                console.log_value('step_size','{:02.3f} x{:02.3f}'.format(step_size, step_mult))
+                console.log_value('width', w)
+                console.log_value('height', h)
+                console.log_value('scale', octave_scale)
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
