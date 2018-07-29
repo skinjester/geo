@@ -1,8 +1,14 @@
-import data
+import data, time
 import scipy.ndimage as nd, PIL.Image, cv2
 
 direction = 1
 stepfx_opacity = 1.0
+
+
+
+
+def values():
+    values.direction = 1
 
 def inception_xform(image, scale):
     h = image.shape[0]
@@ -11,15 +17,19 @@ def inception_xform(image, scale):
         [h * scale / 2, w * scale / 2, 0], order=1)
     return image
 
-def octave_scaler(model, step, min_scale, max_scale=1.6):
-    pass
+def octave_scaler(Model, step, min_scale, max_scale=1.6):
     # octave scaling cycle each rem cycle, maybe
     # if (int(time.time()) % 2):
-    # model.octave_scale += step * direction
+
+    log.critical('cyclical generator {}'.format(Model.pool.next()))
+
+    # Model.octave_scale = _step.next()
     # if model.octave_scale > max_scale or model.octave_scale <= min_scale:
-    #     direction = -1 * direction
+    #     values.direction = -1 * values.direction
     # console.log_value('scale', model.octave_scale)
-    # log.debug('octave_scale: {}'.format(model.octave_scale))
+
+
+
 
 # class FX(object):
 #     def __init__(self):

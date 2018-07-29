@@ -140,7 +140,7 @@ class Composer(object):
 
         if motion.peak < motion.floor:
             self.opacity -= 0.1
-            if self.opacity < 0.5:
+            if self.opacity < 0.0:
                 self.opacity = 0.0
                 self.running = False
                 # _Deepdreamer.request_wakeup()
@@ -233,13 +233,13 @@ def main():
     while True:
         log.debug('new cycle')
         _Deepdreamer.set_cycle_start_time(time.time())
-        log.critical(Model.cyclefx)
+
         if Model.cyclefx is not None:
             for fx in Model.cyclefx:
                 if fx['name'] == 'octave_scaler':
-                    postprocess.octave_scaler(model=Model, **fx['params'])
+                    postprocess.octave_scaler(Model=Model, **fx['params'])
                 if fx['name'] == 'xform_array':
-                    postprocess.xform_array(Colmposer.dreambuffer, **fx['params'])
+                    postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
                     Composer.dreambuffer = postprocess.inception_xform(Composer.dreambuffer, **fx['params'])
 
@@ -274,7 +274,6 @@ def main():
         console.log_value('cycle_time',duration_msg)
         log.critical('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
 
-
 # -------
 # INITIALIZE
 # -------
@@ -295,10 +294,7 @@ if __name__ == "__main__":
     Webcam = Cameras(source=camera, current_camera=0)
     Composer = Composer()
     _Deepdreamer = dreamer.Artist('test')
-    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-
-    # Webcam.get().stop()
-    # sys.exit()
+    Model = neuralnet.Model(program_duration=-1, current_program=1, Renderer=_Deepdreamer)
     main()
 
 
