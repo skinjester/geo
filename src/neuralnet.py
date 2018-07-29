@@ -1,4 +1,5 @@
 import time, data, os, os.path, numpy as np
+from itertools import cycle
 import hud.console as console
 
 # suppress verbose caffe logging before caffe import
@@ -8,67 +9,47 @@ from google.protobuf import text_format
 
 class Model(object):
     def __init__(self, program_duration, current_program, Renderer):
-
-        self.net = None
-        self.net_fn = None
-        self.param_fn = None
-        self.end = None
-        self.features = None
-        self.current_feature = 0
-        self.layers =None
-        self.current_layer = 0
-        self.current_program = current_program
         self.program_duration = program_duration
         self.program_running = True
-        self.program_start_time = time.time()
         self.installation_startup = time.time()  # keep track of runtime
-        self.iterations = None
-        self.iteration_max = None
-        self.stepsize = None
-        self.stepsize_base = None
-        self.octave_n = None
-        self.octave_cutoff = None
-        self.octave_scale = None
-        self.iteration_mult = None
-        self.step_mult = None
-        self.jitter = 320
-        self.clip = True
         self.Renderer = Renderer
-
-        # # FX
-        self.package_name = None
-        self.cyclefx = None  # contains cyclefx list for current program
-        self.stepfx = None  # contains stepfx list for current program
         caffe.set_device(0)
         caffe.set_mode_gpu()
-
         self.set_program(current_program)
 
     def set_program(self, current_program):
         program = data.program[current_program]
-        self.current_program = current_program
         self.package_name = program['name']
+        self.program_start_time = time.time()
+        self.current_program = current_program
         self.iterations = program['iterations']
         self.iteration_max = program['iterations']
+        self.iteration_mult = program['iteration_mult']
         self.stepsize_base = program['step_size']
+        self.step_mult = program['step_mult']
         self.octave_n = program['octaves']
         self.octave_cutoff = program['octave_cutoff']
         self.octave_scale = program['octave_scale']
-        self.iteration_mult = program['iteration_mult']
-        self.step_mult = program['step_mult']
         self.layers = program['layers']
+        self.current_layer = 0
         self.features = program['features']
         self.current_feature = 0;
+        self.jitter = 320
+        self.clip = True
         self.modelname = program['model']
         self.choose_model(self.modelname)
         self.set_endlayer(self.layers[0])
         self.cyclefx = program['cyclefx']
         self.stepfx = program['stepfx']
-        self.program_start_time = time.time()
+
+        #
+        octave_scale_range = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
+        self.pool = cycle(octave_scale_range)
+
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         self.Renderer.request_wakeup()
 
-        console.console_log('program', self.package_name)
+        console.log_value('program', self.package_name)
 
     def choose_model(self, modelname):
         self.net_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][1])
@@ -80,7 +61,9 @@ class Model(object):
         open('tmp.prototxt', 'w').write(str(model))
 
         self.net = caffe.Classifier('tmp.prototxt',
-            self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
+            # self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
+            # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
+            self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])
