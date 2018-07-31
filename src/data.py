@@ -220,7 +220,7 @@ program.append({
         'conv4_4',
         'conv5_3',
     ],
-    'features': range(90, 512),
+    'features': range(90, 100),
     'cyclefx': [
         {
             'name': 'inception_xform',
@@ -228,7 +228,7 @@ program.append({
         },
         {
             'name': 'octave_scaler',
-            'params': {'step': 0.1, 'min_scale': 1.5, 'max_scale': 2.0}
+            'params': {'step': 5, 'min_scale': 1.1, 'max_scale': 2.0}
         },
     ],
     'stepfx': [
@@ -261,7 +261,7 @@ program.append({
         'conv4_4',
         'conv5_3',
     ],
-    'features': range(-1, 512),
+    'features': range(-1,10),
     'cyclefx': [
         {
             'name': 'inception_xform',
