@@ -39,17 +39,21 @@ class Model(object):
         self.modelname = program['model']
         self.choose_model(self.modelname)
         self.set_endlayer(self.layers[0])
-        self.cyclefx = program['cyclefx']
         self.stepfx = program['stepfx']
 
-        #
-        octave_scale_range = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-        self.pool = cycle(octave_scale_range)
+        self.cyclefx = program['cyclefx']
+        self.pool = None
+        for value in self.cyclefx:
+            if value['name'] == 'octave_scaler':
+                self.pool = self.setup_octave_scaler(**value['params'])
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
+        console.log_value('program', self.package_name)
         self.Renderer.request_wakeup()
 
-        console.log_value('program', self.package_name)
+    def setup_octave_scaler(self, step, min_scale, max_scale):
+        interval = (max_scale-min_scale)/step
+        return cycle(np.arange(min_scale, max_scale, interval).tolist())
 
     def choose_model(self, modelname):
         self.net_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][1])
