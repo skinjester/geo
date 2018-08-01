@@ -5,8 +5,10 @@ import hud.console as console
 def inception_xform(image, scale):
     h = image.shape[0]
     w = image.shape[1]
+    log.critical('input shape:{}'.format(image.shape))
     image = nd.affine_transform(image, [1 - scale, 1 - scale, 1],
         [h * scale / 2, w * scale / 2, 0], order=1)
+    log.critical('output shape:{}'.format(image.shape))
     return image
 
 def octave_scaler(Model):
