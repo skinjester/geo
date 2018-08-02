@@ -137,21 +137,21 @@ class Artist(object):
 
     def postprocess_step(self, Model, src, stepfx):
         rgb = data.caffe2rgb(Model.net, src)
-        # if stepfx is not None:
-        #     for fx in stepfx:
-        #         if fx['name'] == 'median_blur':
-        #             rgb = postprocess.median_blur(rgb, **fx['params'])
-        #         if fx['name'] == 'bilateral_filter':
-        #             rgb = postprocess.bilateral_filter(rgb, **fx['params'])
-        #         if fx['name'] == 'nd_gaussian':
-        #             rgb = postprocess.nd_gaussian(src, **fx['params'])
-        #             rgb = caffe2rgb(Model.net, src)
-        #         if fx['name'] == 'step_opacity':
-        #             postprocess.step_mixer(**fx['params'])
-        #         if fx['name'] == 'duration_cutoff':
-        #             postprocess.duration_cutoff(**fx['params'])
-        #         if fx['name'] == 'octave_scaler':
-        #             postprocess.octave_scaler(model=Model, **fx['params'])
+    #     if stepfx is not None:
+    #         for fx in stepfx:
+    #             if fx['name'] == 'median_blur':
+    #                 rgb = postprocess.median_blur(rgb, **fx['params'])
+                # if fx['name'] == 'bilateral_filter':
+                #     rgb = postprocess.bilateral_filter(rgb, **fx['params'])
+                # if fx['name'] == 'nd_gaussian':
+                #     rgb = postprocess.nd_gaussian(src, **fx['params'])
+                #     rgb = caffe2rgb(Model.net, src)
+                # if fx['name'] == 'step_opacity':
+                #     postprocess.step_mixer(**fx['params'])
+                # if fx['name'] == 'duration_cutoff':
+                #     postprocess.duration_cutoff(**fx['params'])
+                # if fx['name'] == 'octave_scaler':
+                #     postprocess.octave_scaler(model=Model, **fx['params'])
 
         # rgb = cv2.addWeighted(rgb, FX.stepfx_opacity, rgb, 1.0-FX.stepfx_opacity, 0, rgb)
         return data.rgb2caffe(Model.net, rgb)

@@ -67,10 +67,12 @@ class Model(object):
         self.net = caffe.Classifier('tmp.prototxt',
             # self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
-            self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
+            # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
+            self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])
+        print self.net.blobs.keys()
 
     def show_network_details(self):
         # outputs layer details to console
@@ -164,6 +166,11 @@ models = {
         'VGG_ILSVRC_19',
         'deploy.prototxt',
         'VGG_ILSVRC_19_layers.caffemodel'
+    ],
+    'milesdeep': [
+        'Miles_Deep',
+        'deploy.prototxt',
+        'Miles_Deep.caffemodel'
     ]
 }
 

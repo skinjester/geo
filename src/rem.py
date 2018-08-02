@@ -148,8 +148,7 @@ class Composer(object):
                 self.running = False
         else:
             _Deepdreamer.request_wakeup()
-            if self.running == False:
-                self.opacity += 0.01
+            self.opacity += 0.01
             if self.opacity > 1.0:
                 self.opacity =1.0
                 self.running  = True
@@ -293,8 +292,8 @@ if __name__ == "__main__":
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     camera=[]
     camera.append(WebcamVideoStream(0, width=data.capturesize[0],
-        height=data.capturesize[1], portrait_alignment=False,
-        flip_h=False, flip_v=False, gamma=0.5, floor=10000,
+        height=data.capturesize[1], portrait_alignment=True,
+        flip_h=False, flip_v=True, gamma=0.5, floor=10000,
         threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     Composer = Composer()

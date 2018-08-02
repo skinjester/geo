@@ -5,15 +5,24 @@ import hud.console as console
 def inception_xform(image, scale):
     h = image.shape[0]
     w = image.shape[1]
-    log.critical('input shape:{}'.format(image.shape))
     image = nd.affine_transform(image, [1 - scale, 1 - scale, 1],
         [h * scale / 2, w * scale / 2, 0], order=1)
-    log.critical('output shape:{}'.format(image.shape))
     return image
 
 def octave_scaler(Model):
     Model.octave_scale = Model.pool.next()
     console.log_value('scale', Model.octave_scale)
+
+
+# STEPFX
+def median_blur(self, image, kernel_shape, interval):
+    if interval == 0:
+        image = cv2.medianBlur(image, kernel_shape)
+        return image
+    if (int(time.time()) % interval):
+        image = cv2.medianBlur(image, kernel_shape)
+    return image
+
 
 # class FX(object):
 #     def __init__(self):
@@ -35,13 +44,6 @@ def octave_scaler(Model):
 
 
 
-#     def median_blur(self, image, kernel_shape, interval):
-#         if interval == 0:
-#             image = cv2.medianBlur(image, kernel_shape)
-#             return image
-#         if (int(time.time()) % interval):
-#             image = cv2.medianBlur(image, kernel_shape)
-#         return image
 
 #     def bilateral_filter(self, image, radius, sigma_color, sigma_xy):
 #         return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
