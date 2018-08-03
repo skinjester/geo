@@ -11,7 +11,7 @@ class Model(object):
     def __init__(self, program_duration, current_program, Renderer):
         self.program_duration = program_duration
         self.program_running = True
-        self.installation_startup = time.time()  # keep track of runtime
+        self.installation_startup = time.time()
         self.Renderer = Renderer
         caffe.set_device(0)
         caffe.set_mode_gpu()
@@ -33,7 +33,7 @@ class Model(object):
         self.layers = program['layers']
         self.current_layer = 0
         self.features = program['features']
-        self.current_feature = 0;
+        self.current_feature = 0
         self.jitter = 320
         self.clip = True
         self.modelname = program['model']
@@ -72,7 +72,6 @@ class Model(object):
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])
-        print self.net.blobs.keys()
 
     def show_network_details(self):
         # outputs layer details to console

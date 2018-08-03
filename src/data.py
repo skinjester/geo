@@ -175,7 +175,12 @@ program.append({
             'params': {'scale': 0.2}
         },
     ],
-    'stepfx': []
+    'stepfx': [
+        {
+            'name': 'median_blur',
+            'params': {'kernel_shape': 3, 'interval': 3}
+        }
+    ]
 })
 
 '''

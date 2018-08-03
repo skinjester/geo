@@ -15,12 +15,12 @@ def octave_scaler(Model):
 
 
 # STEPFX
-def median_blur(self, image, kernel_shape, interval):
-    if interval == 0:
-        image = cv2.medianBlur(image, kernel_shape)
-        return image
-    if (int(time.time()) % interval):
-        image = cv2.medianBlur(image, kernel_shape)
+def median_blur(image, kernel_shape, interval):
+    # if interval == 0:
+    #     image = cv2.medianBlur(image, kernel_shape)
+    #     return image
+    # if (int(time.time()) % interval):
+    image = cv2.medianBlur(image, kernel_shape)
     return image
 
 
