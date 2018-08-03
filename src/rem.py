@@ -100,7 +100,7 @@ class Composer(object):
         self.opacity = 0
         self.opacity_step = 0.1
         self.buffer3_opacity = 1.0
-        self.running = False
+        self.running = True
 
     def send(self, channel, image):
         self.buffer[channel] = image
@@ -134,21 +134,25 @@ class Composer(object):
         motion.peak = motion.delta_history_peak
 
         if motion.delta > motion.delta_trigger:
-            log.warning('starting new dream')
             _Deepdreamer.request_wakeup()
-            self.running = False
+            if self.running == False:
+                self.opacity += 0.01
+            if self.opacity > 1.0:
+                self.opacity =1.0
+                self.running  = True
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.1
+            self.opacity -= 0.01
             if self.opacity < 0.0:
                 self.opacity = 0.0
                 self.running = False
-                # _Deepdreamer.request_wakeup()
         else:
-            if (self.opacity + self.opacity_step < 0.5) or (self.opacity + self.opacity_step > 1.0):
-                self.opacity_step = -1.0 * self.opacity_step
-                _Deepdreamer.request_wakeup()
-            self.opacity += self.opacity_step
+            _Deepdreamer.request_wakeup()
+            self.opacity += 0.01
+            if self.opacity > 1.0:
+                self.opacity =1.0
+                self.running  = True
+
 
         # compositing
         self.send(0, vis)
@@ -237,7 +241,7 @@ def main():
         if Model.cyclefx is not None:
             for fx in Model.cyclefx:
                 if fx['name'] == 'octave_scaler':
-                    postprocess.octave_scaler(Model=Model, **fx['params'])
+                    postprocess.octave_scaler(Model=Model)
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
@@ -288,13 +292,13 @@ if __name__ == "__main__":
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     camera=[]
     camera.append(WebcamVideoStream(0, width=data.capturesize[0],
-        height=data.capturesize[1], portrait_alignment=False,
-        flip_h=False, flip_v=False, gamma=0.5, floor=10000,
+        height=data.capturesize[1], portrait_alignment=True,
+        flip_h=False, flip_v=True, gamma=0.5, floor=10000,
         threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     Composer = Composer()
     _Deepdreamer = dreamer.Artist('test')
-    Model = neuralnet.Model(program_duration=-1, current_program=1, Renderer=_Deepdreamer)
+    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     main()
 
 

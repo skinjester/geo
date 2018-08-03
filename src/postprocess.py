@@ -1,14 +1,6 @@
 import data, time
 import scipy.ndimage as nd, PIL.Image, cv2
-
-direction = 1
-stepfx_opacity = 1.0
-
-
-
-
-def values():
-    values.direction = 1
+import hud.console as console
 
 def inception_xform(image, scale):
     h = image.shape[0]
@@ -17,18 +9,19 @@ def inception_xform(image, scale):
         [h * scale / 2, w * scale / 2, 0], order=1)
     return image
 
-def octave_scaler(Model, step, min_scale, max_scale=1.6):
-    # octave scaling cycle each rem cycle, maybe
-    # if (int(time.time()) % 2):
-
-    log.critical('cyclical generator {}'.format(Model.pool.next()))
-
-    # Model.octave_scale = _step.next()
-    # if model.octave_scale > max_scale or model.octave_scale <= min_scale:
-    #     values.direction = -1 * values.direction
-    # console.log_value('scale', model.octave_scale)
+def octave_scaler(Model):
+    Model.octave_scale = Model.pool.next()
+    console.log_value('scale', Model.octave_scale)
 
 
+# STEPFX
+def median_blur(self, image, kernel_shape, interval):
+    if interval == 0:
+        image = cv2.medianBlur(image, kernel_shape)
+        return image
+    if (int(time.time()) % interval):
+        image = cv2.medianBlur(image, kernel_shape)
+    return image
 
 
 # class FX(object):
@@ -51,13 +44,6 @@ def octave_scaler(Model, step, min_scale, max_scale=1.6):
 
 
 
-#     def median_blur(self, image, kernel_shape, interval):
-#         if interval == 0:
-#             image = cv2.medianBlur(image, kernel_shape)
-#             return image
-#         if (int(time.time()) % interval):
-#             image = cv2.medianBlur(image, kernel_shape)
-#         return image
 
 #     def bilateral_filter(self, image, radius, sigma_color, sigma_xy):
 #         return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
@@ -87,5 +73,3 @@ def octave_scaler(Model, step, min_scale, max_scale=1.6):
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
-log.critical('postprocess init')
-

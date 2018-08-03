@@ -39,17 +39,21 @@ class Model(object):
         self.modelname = program['model']
         self.choose_model(self.modelname)
         self.set_endlayer(self.layers[0])
-        self.cyclefx = program['cyclefx']
         self.stepfx = program['stepfx']
 
-        #
-        octave_scale_range = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-        self.pool = cycle(octave_scale_range)
+        self.cyclefx = program['cyclefx']
+        self.pool = None
+        for value in self.cyclefx:
+            if value['name'] == 'octave_scaler':
+                self.pool = self.setup_octave_scaler(**value['params'])
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
+        console.log_value('program', self.package_name)
         self.Renderer.request_wakeup()
 
-        console.log_value('program', self.package_name)
+    def setup_octave_scaler(self, step, min_scale, max_scale):
+        interval = (max_scale-min_scale)/step
+        return cycle(np.arange(min_scale, max_scale, interval).tolist())
 
     def choose_model(self, modelname):
         self.net_fn = '{}/{}/{}'.format(models['path'], models[modelname][0], models[modelname][1])
@@ -63,10 +67,12 @@ class Model(object):
         self.net = caffe.Classifier('tmp.prototxt',
             # self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
-            self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
+            # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
+            self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])
+        print self.net.blobs.keys()
 
     def show_network_details(self):
         # outputs layer details to console
@@ -160,6 +166,11 @@ models = {
         'VGG_ILSVRC_19',
         'deploy.prototxt',
         'VGG_ILSVRC_19_layers.caffemodel'
+    ],
+    'milesdeep': [
+        'Miles_Deep',
+        'deploy.prototxt',
+        'Miles_Deep.caffemodel'
     ]
 }
 
