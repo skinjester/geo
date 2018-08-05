@@ -14,9 +14,15 @@ def oscillator(cycle_length, frequency=1, type='sin'):
         yield value
 
 def remap(input_value, input_minmax, output_minmax):
-    return ((input_value - input_minmax[0]) / (input_minmax[1] - input_minmax[0])) * (output_minmax[1] - output_minmax[0]) + output_minmax[0]
+    return (
+            input_value - input_minmax[0]
+        ) / (
+            input_minmax[1] - input_minmax[0]
+        ) * (
+            output_minmax[1] - output_minmax[0]
+        ) + output_minmax[0]
 
-cycle = oscillator(50,type="saw")
+cycle = oscillator(50,frequency=1.2)
 plot_list = []
 for i in range(100):
     value = remap(cycle.next(), [-1,1], [1.1, 1.8])
