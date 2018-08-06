@@ -807,12 +807,22 @@ def rgb2caffe(net, image):
 def caffe2rgb(net, image):
     return np.dstack((image + net.transformer.mean['data'])[::-1])
 
+# deprecated
 def remapValuetoRange(val, src, dst):
     # src [min,max] old range
     # dst [min,max] new range
     remapped_Value = ((val - src[0]) / (src[1] - src[0])) * (dst[1] - dst[0]) + \
                      dst[0]
     return clamp(remapped_Value, [0.0, 1.0])
+
+def remap(in_value, in_minmax=[-1,1], out_minmax=[-1,1]):
+    return (
+            in_value - in_minmax[0]
+        ) / (
+            in_minmax[1] - in_minmax[0]
+        ) * (
+            out_minmax[1] - out_minmax[0]
+        ) + out_minmax[0]
 
 # clamps provided value between provided range
 def clamp(value, range):

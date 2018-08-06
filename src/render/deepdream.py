@@ -120,11 +120,14 @@ class Artist(object):
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
         Model.net.forward(end=end)
 
-        if feature == -1:
-            objective(dst)
-        else:
-            dst.diff.fill(0.0)
-            dst.diff[0, feature, :] = dst.data[0, feature, :]
+        try:
+            if feature == -1:
+                objective(dst)
+            else:
+                dst.diff.fill(0.0)
+                dst.diff[0, feature, :] = dst.data[0, feature, :]
+        except:
+            log.critical('ERROR')
 
         Model.net.backward(start=end)
         g = src.diff[0]
@@ -139,7 +142,7 @@ class Artist(object):
         rgb = data.caffe2rgb(Model.net, src)
 
         for fx in stepfx:
-            log.critical('{}'.format(stepfx))
+            # log.critical('{}'.format(stepfx))
             if fx['name'] == 'median_blur':
                 rgb = postprocess.median_blur(rgb, **fx['params'])
             # if fx['name'] == 'bilateral_filter':

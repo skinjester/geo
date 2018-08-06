@@ -47,6 +47,10 @@ class Model(object):
             if value['name'] == 'octave_scaler':
                 self.pool = self.setup_octave_scaler(**value['params'])
 
+        for fx in self.stepfx:
+            if fx['name'] == 'median_filter':
+                log.critical('median filter params: {}'.format(fx['params']))
+
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
         self.Renderer.request_wakeup()

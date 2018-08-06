@@ -23,6 +23,17 @@ def median_blur(image, kernel_shape, interval):
     image = cv2.medianBlur(image, kernel_shape)
     return image
 
+def oscillator(cycle_length, frequency=1, out_minmax=[1,10], type='sin'):
+    timecounter = 0
+    while True:
+        timecounter += 1
+        value = math.sin(2 * math.pi * frequency * timecounter / cycle_length)
+        if type=='square':
+            value = sg.square(2 * math.pi * frequency * timecounter / cycle_length)
+        elif type=='saw':
+            value = sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length)
+        yield remap(value, out_minmax)
+
 
 # class FX(object):
 #     def __init__(self):
