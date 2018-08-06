@@ -1,6 +1,10 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
+import performer
+import postprocess
+
+
 
 # suppress verbose caffe logging before caffe import
 os.environ['GLOG_minloglevel'] = '2'
@@ -18,7 +22,7 @@ class Model(object):
         self.set_program(current_program)
 
     def set_program(self, current_program):
-        program = data.program[current_program]
+        program = performer.program[current_program]
         self.package_name = program['name']
         self.program_start_time = time.time()
         self.current_program = current_program
@@ -48,8 +52,17 @@ class Model(object):
                 self.pool = self.setup_octave_scaler(**value['params'])
 
         for fx in self.stepfx:
-            if fx['name'] == 'median_filter':
+            if fx['name'] == 'median_blur':
                 log.critical('median filter params: {}'.format(fx['params']))
+                params = fx['params']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    out_minmax = params['out_minmax'],
+                    wavetype = params['wavetype']
+                )
+                log.critical('median filter params: {}'.format(fx['osc']))
+
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
@@ -129,12 +142,12 @@ class Model(object):
     def prev_program(self):
         current_program = self.current_program - 1
         if current_program < 0:
-            current_program = len(data.program) - 1
+            current_program = len(performer.program) - 1
         self.set_program(current_program)
 
     def next_program(self):
         current_program = self.current_program + 1
-        if current_program > len(data.program) - 1:
+        if current_program > len(performer.program) - 1:
             current_program = 0
         self.set_program(current_program)
 

@@ -144,7 +144,7 @@ class Artist(object):
         for fx in stepfx:
             # log.critical('{}'.format(stepfx))
             if fx['name'] == 'median_blur':
-                rgb = postprocess.median_blur(rgb, **fx['params'])
+                rgb = postprocess.median_blur(rgb, fx['osc'])
             # if fx['name'] == 'bilateral_filter':
             #     rgb = postprocess.bilateral_filter(rgb, **fx['params'])
             # if fx['name'] == 'nd_gaussian':
