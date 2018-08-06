@@ -93,8 +93,8 @@ program.append({
             'params': {
                 'cycle_length': 50,
                 'frequency': 1,
-                'out_minmax':[-1,1],
-                'wavetype': 'sin'
+                'range_out':[0,3],
+                'wavetype': 'square'
             }
         }
     ]

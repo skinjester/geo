@@ -3,6 +3,7 @@ import scipy.ndimage as nd
 from scipy import signal as sg
 import PIL.Image
 import cv2
+import numpy as np
 import hud.console as console
 
 def inception_xform(image, scale):
@@ -18,20 +19,30 @@ def octave_scaler(Model):
 
 
 # STEPFX
-def median_blur(image, osc):
-    log.critical('{}'.format(osc.next()))
+def median_blur(image, osc, range):
+    blur = osc.next()
+    if blur >= np.mean(range):
+        blur = range[1]
+        image = cv2.medianBlur(image, blur)
+    else:
+        blur = range[0]
+
+    log.critical('{}'.format(blur))
     return image
 
-def oscillator(cycle_length, frequency=1, out_minmax=[1,10], wavetype='sin'):
+def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin'):
     timecounter = 0
     while True:
         timecounter += 1
         value = math.sin(2 * math.pi * frequency * timecounter / cycle_length)
-        if wavetype=='square':
+        if type=='square':
             value = sg.square(2 * math.pi * frequency * timecounter / cycle_length)
-        elif wavetype=='saw':
+        elif type=='saw':
             value = sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length)
-        yield data.remap(value, out_minmax)
+        yield remap(value, range_in=range_in, range_out=range_out)
+
+def remap(value, range_in, range_out):
+    return range_out[0] + (range_out[1] - range_out[0]) * ((value - range_in[0]) / (range_in[1] - range_in[0]))
 
 
 # class FX(object):

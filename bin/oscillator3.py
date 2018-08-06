@@ -3,7 +3,7 @@ from scipy import signal as sg
 import math, time
 
 
-def oscillator(cycle_length, frequency=1, out_minmax=[1,10], type='sin'):
+def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], type='sin'):
     timecounter = 0
     while True:
         timecounter += 1
@@ -12,21 +12,17 @@ def oscillator(cycle_length, frequency=1, out_minmax=[1,10], type='sin'):
             value = sg.square(2 * math.pi * frequency * timecounter / cycle_length)
         elif type=='saw':
             value = sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length)
-        yield remap(value, out_minmax)
+        yield remap(round(value,2), range_in=range_in, range_out=range_out)
 
-def remap(in_value, in_minmax=[-1,1], out_minmax=[-1,1]):
-    return (
-            in_value - in_minmax[0]
-        ) / (
-            in_minmax[1] - in_minmax[0]
-        ) * (
-            out_minmax[1] - out_minmax[0]
-        ) + out_minmax[0]
+def remap(value, range_in, range_out):
+    return range_out[0] + (range_out[1] - range_out[0]) * ((value - range_in[0]) / (range_in[1] - range_in[0]))
 
-cycle = oscillator(50, out_minmax=[0,5])
+
+
+cycle = oscillator(50, range_out=[0,3], type="square")
 plot_list = []
 for i in range(100):
-    plot_list.append(cycle.next())
+    plot_list.append(int(cycle.next()))
 
 plt.plot(plot_list)
 plt.show()

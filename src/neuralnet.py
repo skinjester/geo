@@ -58,11 +58,10 @@ class Model(object):
                 fx['osc'] = postprocess.oscillator(
                     cycle_length = params['cycle_length'],
                     frequency = params['frequency'],
-                    out_minmax = params['out_minmax'],
+                    range_out = params['range_out'],
                     wavetype = params['wavetype']
                 )
-                log.critical('median filter params: {}'.format(fx['osc']))
-
+                fx['range'] = params['range_out']
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
