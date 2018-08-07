@@ -21,14 +21,10 @@ def octave_scaler(Model):
 # STEPFX
 def median_blur(image, osc, range):
     blur = osc.next()
-    # if blur >= np.mean(range):
-    #     blur = range[1]
-    #     image = cv2.medianBlur(image, blur)
-    # else:
-    #     blur = range[0]
-
+    if blur == 0:
+        return image
     log.critical('{}'.format(blur))
-    return image
+    return cv2.medianBlur(image, int(blur))
 
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin'):
     timecounter = 0
