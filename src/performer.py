@@ -93,7 +93,7 @@ program.append({
             'params': {
                 'cycle_length': 50,
                 'frequency': 1,
-                'range_out':[0,3],
+                'range_out':[3,7],
                 'wavetype': 'square'
             }
         }
