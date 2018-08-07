@@ -59,9 +59,9 @@ class Model(object):
                     cycle_length = params['cycle_length'],
                     frequency = params['frequency'],
                     range_out = params['range_out'],
-                    wavetype = params['wavetype']
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
                 )
-                fx['range'] = params['range_out']
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
