@@ -58,6 +58,43 @@ stepfx_default = [
 
 program = []
 
+program.append({
+    'name': 'JOI.02',
+    'iterations': 20,
+    'step_size': 1.2,
+    'octaves': 6,
+    'octave_cutoff': 5,
+    'octave_scale': 1.3,
+    'iteration_mult': 0.5,
+    'step_mult': 0.02,
+    'model': 'vgg19',
+    'layers': [
+        'conv5_2',
+        'conv5_3',
+    ],
+    'features': range(15, 256),
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.1}
+        },
+        {
+            'name': 'octave_scaler',
+            'params': {'step': 5, 'min_scale': 1.2, 'max_scale': 1.5}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'median_blur',
+            'params': {
+                'cycle_length': 50,
+                'frequency': 1,
+                'range_out':[3,3],
+                'wavetype': 'square'
+            }
+        }
+    ]
+})
 
 program.append({
     'name': 'basic',
@@ -93,7 +130,7 @@ program.append({
             'params': {
                 'cycle_length': 50,
                 'frequency': 1,
-                'range_out':[3,7],
+                'range_out':[3,3],
                 'wavetype': 'square'
             }
         }
@@ -110,35 +147,6 @@ program.append({
     'octaves': (10,10,5,5,0),   # 5 octaves, cutoff after octave 4
     'octaves': (10,-1,5,5]      # 5 octaves, skip octave 2
 
-    'octave_scale': 1.5,
-    'step_mult': -0.1,
-    'model': 'places365',
-    'layers': [
-        'inception_4c/output',
-        'inception_4c/pool',
-        'inception_4d/3x3',
-        'inception_4d/5x5',
-        'inception_4d/5x5_reduce',
-        'inception_4d/output',
-        'inception_4d/pool',
-        'inception_4e/1x1',
-        'inception_4e/3x3',
-        'inception_4e/3x3_reduce',
-        'inception_4e/5x5',
-        'inception_4e/5x5_reduce',
-        'inception_4e/output',
-        'inception_4e/pool',
-        'inception_4e/pool_proj',
-    ],
-    'features': range(-1, 128),
-    'cyclefx': [
-        {
-            'name': 'inception_xform',
-            'params': {'scale': 0.05}
-        },
-    ],
-    'stepfx': []
-})
 '''
 
 # program.append({
@@ -620,38 +628,7 @@ program.append({
 #     ]
 # })
 
-# program.append({
-#     'name': 'JOI.02',
-#     'iterations': 20,
-#     'step_size': 1.2,
-#     'octaves': 6,
-#     'octave_cutoff': 5,
-#     'octave_scale': 1.3,
-#     'iteration_mult': 0.5,
-#     'step_mult': 0.02,
-#     'model': 'vgg19',
-#     'layers': [
-#         'conv5_2',
-#         'conv5_3',
-#     ],
-#     'features': range(15, 256),
-#     'cyclefx': [
-#         {
-#             'name': 'inception_xform',
-#             'params': {'scale': 0.1}
-#         },
-#         {
-#             'name': 'octave_scaler',
-#             'params': {'step': 0.05, 'min_scale': 1.2, 'max_scale': 1.5}
-#         },
-#     ],
-#     'stepfx': [
-#         {
-#             'name': 'median_blur',
-#             'params': {'kernel_shape': 3, 'interval': 3}
-#         }
-#     ]
-# })
+
 
 # program.append({
 #     'name': 'neomorph-neo',
