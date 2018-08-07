@@ -9,21 +9,22 @@ def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], typ
         timecounter += 1
         value = math.sin(2 * math.pi * frequency * timecounter / cycle_length)
         if type=='square':
-            value = sg.square(2 * math.pi * frequency * timecounter / cycle_length)
+            value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + sg.square(2 * math.pi * frequency * timecounter / cycle_length) * ((range_out[1] - range_out[0]) / 2)
         elif type=='saw':
             value = sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length)
-        yield remap(round(value,2), range_in=range_in, range_out=range_out)
+        yield round(value,2)
 
 def remap(value, range_in, range_out):
     return range_out[0] + (range_out[1] - range_out[0]) * ((value - range_in[0]) / (range_in[1] - range_in[0]))
 
 
 
-cycle = oscillator(50, range_out=[0,3], type="square")
+cycle = oscillator(50, frequency=1, range_out=[3,7], type="square")
 plot_list = []
 for i in range(100):
     plot_list.append(int(cycle.next()))
 
+print plot_list
 plt.plot(plot_list)
 plt.show()
 
