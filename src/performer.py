@@ -60,10 +60,10 @@ program = []
 
 program.append({
     'name': 'JOI.02',
-    'iterations': 20,
+    'iterations': 10,
     'step_size': 1.2,
     'octaves': 6,
-    'octave_cutoff': 4,
+    'octave_cutoff': 6,
     'octave_scale': 1.3,
     'iteration_mult': 0.5,
     'step_mult': 0.1,
@@ -88,8 +88,8 @@ program.append({
             'name': 'median_blur',
             'params': {
                 'cycle_length': 60,
-                'frequency': 3,
-                'range_out':[5.0, 0.0],
+                'frequency': 4,
+                'range_out':[0.0, 3.0],
                 'wavetype': 'square',
                 'dutycycle': 0.7
             }
@@ -122,7 +122,7 @@ program.append({
         },
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.2}
+            'params': {'scale': 0.05}
         },
     ],
     'stepfx': [
@@ -130,9 +130,10 @@ program.append({
             'name': 'median_blur',
             'params': {
                 'cycle_length': 50,
-                'frequency': 1,
-                'range_out':[3,3],
-                'wavetype': 'square'
+                'frequency': 5,
+                'range_out':[0.0,3],
+                'wavetype': 'square',
+                'dutycycle': 0.5
             }
         }
     ]
