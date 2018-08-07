@@ -19,7 +19,7 @@ def remap(value, range_in, range_out):
 
 
 
-cycle = oscillator(50, frequency=1, range_out=[3,7], type="square")
+cycle = oscillator(50, frequency=1, range_out=[3,3], type="square")
 plot_list = []
 for i in range(100):
     plot_list.append(int(cycle.next()))
