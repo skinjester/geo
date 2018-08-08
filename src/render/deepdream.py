@@ -143,10 +143,10 @@ class Artist(object):
 
         for fx in stepfx:
             # log.critical('{}'.format(stepfx))
-            if fx['name'] == 'median_blur':
-                rgb = postprocess.median_blur(rgb, fx['osc'])
-            # if fx['name'] == 'bilateral_filter':
-            #     rgb = postprocess.bilateral_filter(rgb, **fx['params'])
+            # if fx['name'] == 'median_blur':
+            #     rgb = postprocess.median_blur(rgb, fx['osc'])
+            if fx['name'] == 'bilateral_filter':
+                rgb = postprocess.bilateral_filter(rgb, fx['osc1'], fx['osc2'], fx['osc3'])
             # if fx['name'] == 'nd_gaussian':
             #     rgb = postprocess.nd_gaussian(src, **fx['params'])
             #     rgb = caffe2rgb(Model.net, src)
