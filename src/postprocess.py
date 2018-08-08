@@ -13,10 +13,8 @@ def inception_xform(image, scale):
         [h * scale / 2, w * scale / 2, 0], order=1)
     return image
 
-def octave_scaler(Model):
-    Model.octave_scale = Model.pool.next()
-    console.log_value('scale', Model.octave_scale)
-
+def octave_scaler(osc):
+    return osc.next()
 
 # STEPFX
 def median_blur(image, osc):
@@ -33,10 +31,10 @@ def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wav
         if wavetype=='square':
             value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + sg.square(2 * math.pi * frequency * timecounter / cycle_length, duty=dutycycle) * ((range_out[1] - range_out[0]) / 2)
         elif wavetype=='saw':
-            value = sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length)
+            value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length) * ((range_out[1] - range_out[0]) / 2)
         else:
-            value = math.sin(2 * math.pi * frequency * timecounter / cycle_length)
-        yield round(value,2)
+            value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + math.sin(2 * math.pi * frequency * timecounter / cycle_length) * ((range_out[1] - range_out[0]) / 2)
+        yield value
 
 def remap(value, range_in, range_out):
     return range_out[0] + (range_out[1] - range_out[0]) * ((value - range_in[0]) / (range_in[1] - range_in[0]))

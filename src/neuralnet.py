@@ -47,9 +47,17 @@ class Model(object):
 
         self.cyclefx = program['cyclefx']
         self.pool = None
-        for value in self.cyclefx:
-            if value['name'] == 'octave_scaler':
-                self.pool = self.setup_octave_scaler(**value['params'])
+        for fx in self.cyclefx:
+            if fx['name'] == 'octave_scaler':
+                # self.pool = self.setup_octave_scaler(**value['params'])
+                params = fx['params']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
 
         for fx in self.stepfx:
             if fx['name'] == 'median_blur':

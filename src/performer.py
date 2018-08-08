@@ -80,7 +80,13 @@ program.append({
         },
         {
             'name': 'octave_scaler',
-            'params': {'step': 5, 'min_scale': 1.2, 'max_scale': 1.5}
+            'params': {
+                'cycle_length': 50,
+                'frequency': 10,
+                'range_out':[1.2,1.5],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
         },
     ],
     'stepfx': [
@@ -118,7 +124,13 @@ program.append({
     'cyclefx': [
         {
             'name': 'octave_scaler',
-            'params': {'step': 5, 'min_scale': 1.6, 'max_scale': 2.0}
+            'params': {
+                'cycle_length': 50,
+                'frequency': 12,
+                'range_out':[1.2,1.5],
+                'wavetype': 'saw',
+                'dutycycle': 0.5
+            }
         },
         {
             'name': 'inception_xform',
