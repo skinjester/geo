@@ -241,7 +241,8 @@ def main():
         if Model.cyclefx is not None:
             for fx in Model.cyclefx:
                 if fx['name'] == 'octave_scaler':
-                    postprocess.octave_scaler(Model=Model)
+                    Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
+                    log.critical('octave_scale: {}'.format(Model.octave_scale))
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':

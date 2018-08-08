@@ -1,6 +1,10 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
+import performer
+import postprocess
+
+
 
 # suppress verbose caffe logging before caffe import
 os.environ['GLOG_minloglevel'] = '2'
@@ -11,14 +15,14 @@ class Model(object):
     def __init__(self, program_duration, current_program, Renderer):
         self.program_duration = program_duration
         self.program_running = True
-        self.installation_startup = time.time()  # keep track of runtime
+        self.installation_startup = time.time()
         self.Renderer = Renderer
         caffe.set_device(0)
         caffe.set_mode_gpu()
         self.set_program(current_program)
 
     def set_program(self, current_program):
-        program = data.program[current_program]
+        program = performer.program[current_program]
         self.package_name = program['name']
         self.program_start_time = time.time()
         self.current_program = current_program
@@ -33,7 +37,7 @@ class Model(object):
         self.layers = program['layers']
         self.current_layer = 0
         self.features = program['features']
-        self.current_feature = 0;
+        self.current_feature = 0
         self.jitter = 320
         self.clip = True
         self.modelname = program['model']
@@ -43,9 +47,29 @@ class Model(object):
 
         self.cyclefx = program['cyclefx']
         self.pool = None
-        for value in self.cyclefx:
-            if value['name'] == 'octave_scaler':
-                self.pool = self.setup_octave_scaler(**value['params'])
+        for fx in self.cyclefx:
+            if fx['name'] == 'octave_scaler':
+                # self.pool = self.setup_octave_scaler(**value['params'])
+                params = fx['params']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+
+        for fx in self.stepfx:
+            if fx['name'] == 'median_blur':
+                log.critical('median filter params: {}'.format(fx['params']))
+                params = fx['params']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
@@ -72,7 +96,6 @@ class Model(object):
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])
-        print self.net.blobs.keys()
 
     def show_network_details(self):
         # outputs layer details to console
@@ -126,12 +149,12 @@ class Model(object):
     def prev_program(self):
         current_program = self.current_program - 1
         if current_program < 0:
-            current_program = len(data.program) - 1
+            current_program = len(performer.program) - 1
         self.set_program(current_program)
 
     def next_program(self):
         current_program = self.current_program + 1
-        if current_program > len(data.program) - 1:
+        if current_program > len(performer.program) - 1:
             current_program = 0
         self.set_program(current_program)
 
