@@ -129,6 +129,7 @@ class Artist(object):
         except:
             log.critical('ERROR')
 
+
         Model.net.backward(start=end)
         g = src.diff[0]
         src.data[:] += step_size / np.abs(g).mean() * g
@@ -143,13 +144,13 @@ class Artist(object):
 
         for fx in stepfx:
             # log.critical('{}'.format(stepfx))
-            # if fx['name'] == 'median_blur':
-            #     rgb = postprocess.median_blur(rgb, fx['osc'])
+            if fx['name'] == 'median_blur':
+                rgb = postprocess.median_blur(rgb, fx['osc'])
             if fx['name'] == 'bilateral_filter':
                 rgb = postprocess.bilateral_filter(rgb, fx['osc1'], fx['osc2'], fx['osc3'])
-            # if fx['name'] == 'nd_gaussian':
-            #     rgb = postprocess.nd_gaussian(src, **fx['params'])
-            #     rgb = caffe2rgb(Model.net, src)
+            if fx['name'] == 'gaussian':
+                rgb = postprocess.nd_gaussian(src, fx['osc'])
+                rgb = data.caffe2rgb(Model.net, src)
             # if fx['name'] == 'step_opacity':
             #     postprocess.step_mixer(**fx['params'])
             # if fx['name'] == 'duration_cutoff':

@@ -59,6 +59,65 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'cambrian-implosion',
+    'iterations': 20,
+    'step_size': 4.,
+    'octaves': 6,
+    'octave_cutoff': 4,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.1,
+    'step_mult': -0.0,
+    'model': 'googlenet',
+    'layers': [
+        'inception_4b/5x5',
+        'inception_4b/pool',
+        'inception_4c/pool',
+        'inception_4b/3x3_reduce',
+        'inception_4b/5x5',
+        'inception_4b/5x5_reduce',
+        'inception_4b/output',
+        'inception_4b/pool_proj',
+        'inception_4c/1x1',
+        'inception_4c/3x3',
+        'inception_4c/3x3_reduce',
+        'inception_5a/output',
+        'inception_5a/pool',
+        'inception_5b/1x1',
+        'inception_5b/3x3',
+        'inception_5b/3x3_reduce',
+    ],
+    'features': range(-1, 256),
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.02}
+        },
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 4,
+                'frequency': 1,
+                'range_out':[1.4,1.8],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'gaussian',
+            'sigma': {
+                'cycle_length': 100,
+                'frequency': 3,
+                'range_out':[0.0, 1.0],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+    ]
+})
+
+program.append({
     'name': 'JOI.02',
     'iterations': 10,
     'step_size': 1.2,

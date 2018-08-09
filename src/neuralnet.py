@@ -61,7 +61,6 @@ class Model(object):
 
         for fx in self.stepfx:
             if fx['name'] == 'median_blur':
-                log.critical('median filter params: {}'.format(fx['params']))
                 params = fx['params']
                 fx['osc'] = postprocess.oscillator(
                     cycle_length = params['cycle_length'],
@@ -71,7 +70,6 @@ class Model(object):
                     dutycycle = params['dutycycle']
                 )
             if fx['name'] == 'bilateral_filter':
-                log.critical('bilateral filter radius: {}'.format(fx['radius']))
                 params = fx['radius']
                 fx['osc1'] = postprocess.oscillator(
                     cycle_length = params['cycle_length'],
@@ -90,6 +88,15 @@ class Model(object):
                 )
                 params = fx['sigma-xy']
                 fx['osc3'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+            if fx['name'] == 'gaussian':
+                params = fx['sigma']
+                fx['osc'] = postprocess.oscillator(
                     cycle_length = params['cycle_length'],
                     frequency = params['frequency'],
                     range_out = params['range_out'],

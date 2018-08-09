@@ -31,6 +31,15 @@ def bilateral_filter(image, osc1, osc2, osc3):
     log.critical('radius:{} sigma_color:{} sigma_xy:{}'.format(radius, sigma_color, sigma_xy))
     return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
 
+def nd_gaussian(image, osc):
+    sigma = osc.next()
+    log.critical('sigma:{}'.format(sigma))
+    image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
+    image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
+    image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
+    return image
+
+
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
     timecounter = 0
     while True:
@@ -60,12 +69,6 @@ def remap(value, range_in, range_out):
 #         return image
 
 
-#     def nd_gaussian(self, image, sigma, order):
-#         image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
-#         image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
-#         image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
-#         # image = nd.filters.gaussian_filter(image, sigma, order=0)
-#         return image
 
 #     def step_mixer(self, opacity):
 #         self.stepfx_opacity = opacity
