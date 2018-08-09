@@ -63,7 +63,7 @@ program.append({
     'iterations': 20,
     'step_size': 4.,
     'octaves': 6,
-    'octave_cutoff': 4,
+    'octave_cutoff': 6,
     'octave_scale': 1.8,
     'iteration_mult': 0.1,
     'step_mult': -0.0,
@@ -108,7 +108,17 @@ program.append({
             'name': 'gaussian',
             'sigma': {
                 'cycle_length': 100,
-                'frequency': 3,
+                'frequency': 5,
+                'range_out':[0.0, 0.7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'step_mixer',
+            'opacity': {
+                'cycle_length': 100,
+                'frequency': 5,
                 'range_out':[0.0, 1.0],
                 'wavetype': 'sin',
                 'dutycycle': 0.5

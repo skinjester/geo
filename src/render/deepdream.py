@@ -1,6 +1,7 @@
 import data
 import hud.console as console
 import scipy.ndimage as nd
+import cv2
 import math, numpy as np
 from random import randint
 import postprocess
@@ -141,6 +142,8 @@ class Artist(object):
 
     def postprocess_step(self, Model, src, stepfx):
         rgb = data.caffe2rgb(Model.net, src)
+        rgb_out = rgb.copy()
+        opacity = 1.0
 
         for fx in stepfx:
             # log.critical('{}'.format(stepfx))
@@ -151,15 +154,15 @@ class Artist(object):
             if fx['name'] == 'gaussian':
                 rgb = postprocess.nd_gaussian(src, fx['osc'])
                 rgb = data.caffe2rgb(Model.net, src)
-            # if fx['name'] == 'step_opacity':
-            #     postprocess.step_mixer(**fx['params'])
+            if fx['name'] == 'step_mixer':
+                opacity = postprocess.step_mixer(fx['osc'])
             # if fx['name'] == 'duration_cutoff':
             #     postprocess.duration_cutoff(**fx['params'])
             # if fx['name'] == 'octave_scaler':
             #     postprocess.octave_scaler(model=Model, **fx['params'])
 
-        # rgb = cv2.addWeighted(rgb, FX.stepfx_opacity, rgb, 1.0-FX.stepfx_opacity, 0, rgb)
-        return data.rgb2caffe(Model.net, rgb)
+        rgb_out = cv2.addWeighted(rgb, opacity, rgb_out, 1.0-opacity, 0, rgb_out)
+        return data.rgb2caffe(Model.net, rgb_out)
 
     def request_wakeup(self):
         self.b_wakeup = True

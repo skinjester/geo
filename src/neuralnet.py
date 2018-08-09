@@ -103,6 +103,15 @@ class Model(object):
                     wavetype = params['wavetype'],
                     dutycycle = params['dutycycle']
                 )
+            if fx['name'] == 'step_mixer':
+                params = fx['opacity']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
@@ -122,10 +131,10 @@ class Model(object):
         open('tmp.prototxt', 'w').write(str(model))
 
         self.net = caffe.Classifier('tmp.prototxt',
-            # self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
+            self.param_fn, mean=np.float32([11.0, 12.0, 321.0]),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
             # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
-            self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
+            # self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])

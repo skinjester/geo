@@ -39,6 +39,8 @@ def nd_gaussian(image, osc):
     image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
     return image
 
+def step_mixer(osc):
+    return osc.next()
 
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
     timecounter = 0
@@ -70,8 +72,6 @@ def remap(value, range_in, range_out):
 
 
 
-#     def step_mixer(self, opacity):
-#         self.stepfx_opacity = opacity
 
 #     def duration_cutoff(self, duration):
 #         elapsed = time.time() - self.cycle_start_time
