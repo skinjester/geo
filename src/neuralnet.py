@@ -61,8 +61,50 @@ class Model(object):
 
         for fx in self.stepfx:
             if fx['name'] == 'median_blur':
-                log.critical('median filter params: {}'.format(fx['params']))
                 params = fx['params']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+            if fx['name'] == 'bilateral_filter':
+                params = fx['radius']
+                fx['osc1'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+                params = fx['sigma-color']
+                fx['osc2'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+                params = fx['sigma-xy']
+                fx['osc3'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+            if fx['name'] == 'gaussian':
+                params = fx['sigma']
+                fx['osc'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+            if fx['name'] == 'step_mixer':
+                params = fx['opacity']
                 fx['osc'] = postprocess.oscillator(
                     cycle_length = params['cycle_length'],
                     frequency = params['frequency'],
@@ -89,10 +131,10 @@ class Model(object):
         open('tmp.prototxt', 'w').write(str(model))
 
         self.net = caffe.Classifier('tmp.prototxt',
-            # self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
+            self.param_fn, mean=np.float32([11.0, 12.0, 321.0]),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
             # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
-            self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
+            # self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
             channel_swap=(2, 1, 0))
 
         console.log_value('model', models[modelname][2])

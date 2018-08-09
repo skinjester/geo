@@ -24,6 +24,24 @@ def median_blur(image, osc):
         return image
     return cv2.medianBlur(image, blur)
 
+def bilateral_filter(image, osc1, osc2, osc3):
+    radius = int(osc1.next())
+    sigma_color = osc2.next()
+    sigma_xy = osc3.next()
+    log.critical('radius:{} sigma_color:{} sigma_xy:{}'.format(radius, sigma_color, sigma_xy))
+    return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
+
+def nd_gaussian(image, osc):
+    sigma = osc.next()
+    log.critical('sigma:{}'.format(sigma))
+    image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
+    image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
+    image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
+    return image
+
+def step_mixer(osc):
+    return osc.next()
+
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
     timecounter = 0
     while True:
@@ -52,27 +70,8 @@ def remap(value, range_in, range_out):
 #         print '****'
 #         return image
 
-#     # def test_args(self, model=neuralnet.Model, step=0.05, min_scale=1.2, max_scale=1.6):
-#     #     print 'model: ', model
-#     #     print 'step: ', step
-#     #     print 'min_scale: ', min_scale
-#     #     print 'max_scale: ', max_scale
 
 
-
-
-#     def bilateral_filter(self, image, radius, sigma_color, sigma_xy):
-#         return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
-
-#     def nd_gaussian(self, image, sigma, order):
-#         image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
-#         image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
-#         image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
-#         # image = nd.filters.gaussian_filter(image, sigma, order=0)
-#         return image
-
-#     def step_mixer(self, opacity):
-#         self.stepfx_opacity = opacity
 
 #     def duration_cutoff(self, duration):
 #         elapsed = time.time() - self.cycle_start_time
