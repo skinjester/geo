@@ -1,4 +1,105 @@
-import cv2
+import cv2, data, numpy as np, math
+from scipy import signal as sg
+from itertools import cycle
+data.FONT = cv2.FONT_HERSHEY_SIMPLEX
+frameCount = 100  # zero-indexed
+frameWidth = 800
+frameHeight = 600
+
+
+def counter(frameCount):
+    value = 0
+    yield value
+    while True:
+        value += 1
+        if value > frameCount - 1:
+            value = 0
+        yield value
+
+def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
+    timecounter = 0
+    while True:
+        timecounter += 1
+        if wavetype=='square':
+            value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + sg.square(2 * math.pi * frequency * timecounter / cycle_length, duty=dutycycle) * ((range_out[1] - range_out[0]) / 2)
+        elif wavetype=='saw':
+            value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + sg.sawtooth(2 * math.pi * frequency * timecounter / cycle_length) * ((range_out[1] - range_out[0]) / 2)
+        else:
+            value = range_out[0] + ((range_out[1] - range_out[0]) / 2) + math.sin(2 * math.pi * frequency * timecounter / cycle_length) * ((range_out[1] - range_out[0]) / 2)
+        yield value
+
+def equalize(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(2,2))
+    equalized = clahe.apply(gray)
+    img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
+    return img
+
+def portrait(img):
+     return cv2.flip(cv2.transpose(img),0)
+
+def main(timeline, ramp):
+    buf = np.empty((frameCount, frameWidth, frameHeight, 3), np.dtype('uint8'))
+
+    cv2.namedWindow('webcam',cv2.WINDOW_NORMAL)
+    cv2.namedWindow('playback',cv2.WINDOW_NORMAL)
+
+    cameras = []
+    cameras.append(cv2.VideoCapture(0))
+    frame=0
+    rampvalue = 0
+
+    for index,camera in enumerate(cameras):
+        camera.set(3,frameWidth)
+        camera.set(4,frameHeight)
+
+    while True:
+        for index,camera in enumerate(cameras):
+            frame = timeline.next()
+
+            # image capture
+            ret, img = camera.read()
+            img = equalize(portrait(img))
+
+            # buffer write
+            buf=np.roll(buf,1,axis=0)
+            buf[0] = img
+
+            # image write - webcam
+            cv2.putText(img,'camera {}'.format(index),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
+            cv2.imshow('webcam', img)
+
+            # image write - buffer
+            if frame % 2 == 0:
+                rampvalue = int(ramp.next())
+            cv2.imshow('playback', buf[rampvalue])
+
+            log.debug('timeline:{} ramp:{}'.format(frame, rampvalue))
+
+        key = cv2.waitKey(10) & 0xFF
+        if key == 27: # ESC
+            cv2.destroyAllWindows()
+            for camera in cameras:
+                camera.release()
+            break
+
+
+
+if __name__ == '__main__':
+    # CRITICAL ERROR WARNING INFO DEBUG
+    log = data.logging.getLogger('mainlog')
+    log.setLevel(data.logging.DEBUG)
+    _count = counter(frameCount)
+    # _ramp = oscillator(
+    #                 cycle_length = 30,
+    #                 frequency = 1,
+    #                 range_out = [30.0,60.0],
+    #                 wavetype = 'square',
+    #                 dutycycle = 0.5
+    #             )
+    _ramp = cycle([0,15,30,45,60,75,90])
+    main(timeline=_count, ramp=_ramp)
+
 
 # max 2304 x 1536
 # 1920 x 1080
@@ -17,61 +118,3 @@ import cv2
 # horizontal = cv2.flip( img, 0 )
 # vertical = cv2.flip( img, 1 )
 # horizontal + vertical = cv2.flip( img, -1 )
-
-
-# create named windows
-cv2.namedWindow('webcam0',cv2.WINDOW_NORMAL)
-cv2.namedWindow('webcam1',cv2.WINDOW_NORMAL)
-
-# collect camera objects
-cap = []
-cap.append(cv2.VideoCapture(0))
-# disabled for single camera setup
-#cap.append(cv2.VideoCapture(1))
-
-font = cv2.FONT_HERSHEY_SIMPLEX
-
-
-# set the width and height
-for index,the_camera in enumerate(cap):
-    # the_camera.set(3,1920)
-    # the_camera.set(4,1080)
-
-    the_camera.set(3,800)
-    the_camera.set(4,540)
-
-
-while True:
-    for camera_index,the_camera in enumerate(cap):
-        ret, img = the_camera.read()
-
-        if camera_index == 0:
-            img = cv2.flip(cv2.transpose(img),0)
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(4,4))
-            equalized = clahe.apply(gray)
-            img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
-            cv2.putText(img,'camera 0',(10,20), font, 0.51, (0,255,0), 1, cv2.LINE_AA)
-            cv2.imshow('webcam0', img)
-            print img.shape
-        else:
-            img = cv2.flip(cv2.transpose(img),0)
-            cv2.putText(img,'camera 1',(10,20), font, 0.51, (0,255,0), 1, cv2.LINE_AA)
-            cv2.imshow('webcam1', img)
-
-    # adaptive contrast filtering
-    #img = cv2.transpose(img)
-    #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    #equalized = clahe.apply(gray)
-
-
-    key = cv2.waitKey(10) & 0xFF
-    if key == 27: # ESC
-        break
-
-
-cv2.destroyAllWindows()
-
-for the_camera in cap:
-    the_camera.release()
