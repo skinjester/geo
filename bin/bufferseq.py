@@ -2,9 +2,6 @@ import cv2, data, numpy as np, math
 from scipy import signal as sg
 from itertools import cycle
 data.FONT = cv2.FONT_HERSHEY_SIMPLEX
-g_frameCount = 100  # zero-indexed
-g_frameWidth = 800
-g_frameHeight = 600
 
 def dcounter(func):
     def wrapper(*args, **kwargs):
@@ -72,7 +69,7 @@ class Buffer(object):
 
 
 def main(counter, ramp):
-    buf = Buffer(frame_count=100,width=800,height=600)
+    buf = Buffer(frame_count=100,width=1280,height=720)
 
     cv2.namedWindow('webcam',cv2.WINDOW_NORMAL)
     cv2.namedWindow('playback',cv2.WINDOW_NORMAL)
@@ -89,13 +86,14 @@ def main(counter, ramp):
     while True:
         for index,camera in enumerate(cameras):
             frame = counter.next()
+            rampvalue = int(ramp.next())
             # log.critical('frame:{}'.format(frame))
 
             # image capture
             ret, img = camera.read()
             img = equalize(portrait(img))
 
-            if frame % 10 == 0:
+            if frame % (1 + rampvalue) == 0:
                 buf.write(img)
 
             # image show - webcam
@@ -119,10 +117,10 @@ if __name__ == '__main__':
     log.setLevel(data.logging.CRITICAL)
     _count = counter()
     _ramp = oscillator(
-                    cycle_length = 30,
+                    cycle_length = 100,
                     frequency = 3,
-                    range_out = [0.0,60.0],
-                    wavetype = 'sin',
+                    range_out = [30.0,60.0],
+                    wavetype = 'square',
                     dutycycle = 0.5
                 )
     # _ramp = cycle([0,15,30,45,60,75,90])
