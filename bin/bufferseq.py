@@ -1,7 +1,8 @@
-import cv2, data, numpy as np, math
+import cv2, data, numpy as np, math, random
 from scipy import signal as sg
 from itertools import cycle
 data.FONT = cv2.FONT_HERSHEY_SIMPLEX
+BUFFERSIZE = 100
 
 def dcounter(func):
     def wrapper(*args, **kwargs):
@@ -10,11 +11,13 @@ def dcounter(func):
     wrapper.counter=0
     return wrapper
 
-def counter():
+def counter(maxvalue=10):
     value = 0
     yield value
     while True:
         value += 1
+        if value >= maxvalue:
+            value = 0
         yield value
 
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
@@ -41,66 +44,79 @@ def portrait(img):
 
 
 class Buffer(object):
-    def __init__(self, frame_count, width, height):
-        self.frame_count = frame_count
+    def __init__(self, ramp, buffer_size, width, height):
+        self.buffer_size = buffer_size
         self.width = width
         self.height = height
-        self.storage = np.empty((self.frame_count, self.width, self.height, 3), np.dtype('uint8'))
+        self.storage = np.empty((self.buffer_size, self.width, self.height, 3), np.dtype('uint8'))
         self.viewport = self.storage
         self.range = 0
-        self.counter = counter()
+        self.playback_index = 0
         self.test = 0
+        self.ramp = ramp
 
     def write(self, img):
         self.range += 1
-        if self.range == self.frame_count:
+        if self.range == self.buffer_size:
             self.range = 0
         self.storage=np.roll(self.storage,1,axis=0)
         self.storage[0] = img
         self.viewport = self.storage[0:self.range,:,:,:]
+        self.counter = counter(self.range)
+        self.ramp = oscillator(
+                    cycle_length = BUFFERSIZE,
+                    frequency = 1,
+                    range_out = [0.0,50.0],
+                    wavetype = 'saw',
+                    dutycycle = 0.5)
+        self.playback_index = 0
         log.critical('range:{} {}'.format(self.range,'.' * self.range))
 
     def show(self):
         if self.range<=1:
             return self.storage[0]
-        log.critical('viewport shape:{}'.format(self.viewport.shape))
-        self.viewport = np.roll(self.viewport,-1,axis=0)
+        rampvalue = int(self.ramp.next())
+        self.playback_index = self.counter.next() - rampvalue
+        log.critical('viewport shape:{} playback: {}'.format(self.viewport.shape, self.playback_index))
+        self.viewport = np.roll(self.viewport,-1 * rampvalue,axis=0)
         return self.viewport[0]
 
-
 def main(counter, ramp):
-    buf = Buffer(frame_count=100,width=1280,height=720)
-
+    framebuffer = Buffer(ramp,buffer_size=BUFFERSIZE,width=1280,height=720 )
     cv2.namedWindow('webcam',cv2.WINDOW_NORMAL)
     cv2.namedWindow('playback',cv2.WINDOW_NORMAL)
-
+    frame = 0
+    rampvalue = 0
     cameras = []
     cameras.append(cv2.VideoCapture(0))
-    frame=0
-    rampvalue = 0
-
     for index,camera in enumerate(cameras):
-        camera.set(3,buf.width)
-        camera.set(4,buf.height)
+        camera.set(3,framebuffer.width)
+        camera.set(4,framebuffer.height)
 
     while True:
         for index,camera in enumerate(cameras):
             frame = counter.next()
             rampvalue = int(ramp.next())
-            # log.critical('frame:{}'.format(frame))
+            log.critical('frame: {} ramp: {}'.format(frame, rampvalue))
 
             # image capture
             ret, img = camera.read()
-            img = equalize(portrait(img))
+            img = portrait(img)
 
-            if frame % (1 + rampvalue) == 0:
-                buf.write(img)
+            # if frame % (1 + rampvalue) == 0:
+            #     framebuffer.write(img)
+
+            if random.randint(1,1001) > 900:
+                framebuffer.write(img)
+
 
             # image show - webcam
             cv2.putText(img,'camera: {} | frame: {}'.format(index, frame),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
             cv2.imshow('webcam', img)
 
-            cv2.imshow('playback', buf.show())
+            viewport = framebuffer.show()
+            cv2.putText(viewport,'playback: {}'.format(framebuffer.playback_index),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
+            cv2.imshow('playback', viewport)
 
         key = cv2.waitKey(10) & 0xFF
         if key == 27: # ESC
@@ -115,12 +131,12 @@ if __name__ == '__main__':
     # CRITICAL ERROR WARNING INFO DEBUG
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)
-    _count = counter()
+    _count = counter(BUFFERSIZE)
     _ramp = oscillator(
                     cycle_length = 100,
-                    frequency = 3,
-                    range_out = [30.0,60.0],
-                    wavetype = 'square',
+                    frequency = 10,
+                    range_out = [0.0,10.0],
+                    wavetype = 'sin',
                     dutycycle = 0.5
                 )
     # _ramp = cycle([0,15,30,45,60,75,90])
