@@ -64,15 +64,15 @@ class Buffer(object):
         self.viewport = self.storage[0:self.range,:,:,:]
         self.counter = counter(self.range)
         self.ramp = oscillator(
-                    cycle_length = BUFFERSIZE,
-                    frequency = 1,
-                    range_out = [0.0,50.0],
-                    wavetype = 'saw',
+                    cycle_length = 100,
+                    frequency = 10,
+                    range_out = [3.0,12.0],
+                    wavetype = 'sin',
                     dutycycle = 0.5)
         self.playback_index = 0
         log.critical('range:{} {}'.format(self.range,'.' * self.range))
 
-    def show(self):
+    def cycle(self):
         if self.range<=1:
             return self.storage[0]
         rampvalue = int(self.ramp.next())
@@ -80,6 +80,10 @@ class Buffer(object):
         log.critical('viewport shape:{} playback: {}'.format(self.viewport.shape, self.playback_index))
         self.viewport = np.roll(self.viewport,-1 * rampvalue,axis=0)
         return self.viewport[0]
+
+    def delay(self):
+        rampvalue = int(self.ramp.next())
+        return self.storage[rampvalue]
 
 def main(counter, ramp):
     framebuffer = Buffer(ramp,buffer_size=BUFFERSIZE,width=1280,height=720 )
@@ -105,18 +109,26 @@ def main(counter, ramp):
 
             # if frame % (1 + rampvalue) == 0:
             #     framebuffer.write(img)
+            framebuffer.write(img)
 
-            if random.randint(1,1001) > 900:
-                framebuffer.write(img)
+            # if random.randint(1,1001) > 900:
+            #     framebuffer.write(img)
 
 
             # image show - webcam
-            cv2.putText(img,'camera: {} | frame: {}'.format(index, frame),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
-            cv2.imshow('webcam', img)
+            img_txt = cv2.putText(img.copy(),'camera: {} | frame: {}'.format(index, frame),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
+            cv2.imshow('webcam', img_txt)
 
-            viewport = framebuffer.show()
-            cv2.putText(viewport,'playback: {}'.format(framebuffer.playback_index),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
-            cv2.imshow('playback', viewport)
+            # viewport = framebuffer.cycle()
+            # cv2.putText(viewport,'playback: {}'.format(framebuffer.playback_index),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
+            # cv2.imshow('playback', viewport)
+            delay = framebuffer.delay()
+            beta = 0.5
+            alpha = 1 - beta
+            gamma = 0.5
+            delay = cv2.addWeighted(delay, beta, img, alpha, gamma, delay)
+            cv2.imshow('playback', delay)
+
 
         key = cv2.waitKey(10) & 0xFF
         if key == 27: # ESC
@@ -134,8 +146,8 @@ if __name__ == '__main__':
     _count = counter(BUFFERSIZE)
     _ramp = oscillator(
                     cycle_length = 100,
-                    frequency = 10,
-                    range_out = [0.0,10.0],
+                    frequency = 3,
+                    range_out = [0.0,30.0],
                     wavetype = 'sin',
                     dutycycle = 0.5
                 )
