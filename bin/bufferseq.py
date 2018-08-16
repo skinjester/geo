@@ -11,7 +11,7 @@ def dcounter(func):
     wrapper.counter=0
     return wrapper
 
-def counter(maxvalue=10):
+def counter(maxvalue=99999):
     value = 0
     yield value
     while True:
@@ -96,11 +96,12 @@ def main(counter, ramp):
     for index,camera in enumerate(cameras):
         camera.set(3,framebuffer.width)
         camera.set(4,framebuffer.height)
+    accumulated = framebuffer.storage[0]
 
     while True:
         for index,camera in enumerate(cameras):
             frame = counter.next()
-            rampvalue = int(ramp.next())
+            rampvalue = ramp.next()
             log.critical('frame: {} ramp: {}'.format(frame, rampvalue))
 
             # image capture
@@ -110,6 +111,19 @@ def main(counter, ramp):
             # if frame % (1 + rampvalue) == 0:
             #     framebuffer.write(img)
             framebuffer.write(img)
+
+            # # delay = framebuffer.delay()
+            # if frame % (3) == 0:
+            alpha = 0.2
+            beta = 1 - alpha
+            gamma = -2.0
+            accumulated = cv2.addWeighted(img, alpha, accumulated, beta, gamma, accumulated)
+
+            alpha = 0.9
+            beta = 1 - alpha
+            gamma = 2.0
+            # cv2.addWeighted(accumulated, alpha, framebuffer.storage[int(rampvalue)], beta, gamma, accumulated)
+            cv2.addWeighted(accumulated, alpha, img, beta, gamma, accumulated)
 
             # if random.randint(1,1001) > 900:
             #     framebuffer.write(img)
@@ -122,12 +136,7 @@ def main(counter, ramp):
             # viewport = framebuffer.cycle()
             # cv2.putText(viewport,'playback: {}'.format(framebuffer.playback_index),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
             # cv2.imshow('playback', viewport)
-            delay = framebuffer.delay()
-            beta = 0.5
-            alpha = 1 - beta
-            gamma = 0.5
-            delay = cv2.addWeighted(delay, beta, img, alpha, gamma, delay)
-            cv2.imshow('playback', delay)
+            cv2.imshow('playback', accumulated)
 
 
         key = cv2.waitKey(10) & 0xFF
@@ -143,11 +152,11 @@ if __name__ == '__main__':
     # CRITICAL ERROR WARNING INFO DEBUG
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)
-    _count = counter(BUFFERSIZE)
+    _count = counter()
     _ramp = oscillator(
                     cycle_length = 100,
-                    frequency = 3,
-                    range_out = [0.0,30.0],
+                    frequency = 10,
+                    range_out = [0.0,0.0],
                     wavetype = 'sin',
                     dutycycle = 0.5
                 )
