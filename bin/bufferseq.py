@@ -54,6 +54,7 @@ class Buffer(object):
         self.playback_index = 0
         self.test = 0
         self.ramp = ramp
+        self.accumulated = np.zeros((self.width, self.height, 3), np.uint8)
 
     def write(self, img):
         self.range += 1
@@ -77,13 +78,24 @@ class Buffer(object):
             return self.storage[0]
         rampvalue = int(self.ramp.next())
         self.playback_index = self.counter.next() - rampvalue
-        log.critical('viewport shape:{} playback: {}'.format(self.viewport.shape, self.playback_index))
         self.viewport = np.roll(self.viewport,-1 * rampvalue,axis=0)
         return self.viewport[0]
 
-    def delay(self):
-        rampvalue = int(self.ramp.next())
-        return self.storage[rampvalue]
+    def widetime(self):
+        # # delay = framebuffer.delay()
+        # if frame % (3) == 0:
+        alpha = 0.2
+        beta = 1 - alpha
+        gamma = -2.0
+        img = self.storage[0]
+        self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
+
+        alpha = 0.9
+        beta = 1 - alpha
+        gamma = 2.0
+        # cv2.addWeighted(accumulated, alpha, framebuffer.storage[int(rampvalue)], beta, gamma, accumulated)
+        self.accumulated = cv2.addWeighted(self.accumulated, alpha, img, beta, gamma)
+        return self.accumulated
 
 def main(counter, ramp):
     framebuffer = Buffer(ramp,buffer_size=BUFFERSIZE,width=1280,height=720 )
@@ -96,48 +108,35 @@ def main(counter, ramp):
     for index,camera in enumerate(cameras):
         camera.set(3,framebuffer.width)
         camera.set(4,framebuffer.height)
-    accumulated = framebuffer.storage[0]
 
     while True:
         for index,camera in enumerate(cameras):
             frame = counter.next()
             rampvalue = ramp.next()
-            log.critical('frame: {} ramp: {}'.format(frame, rampvalue))
 
             # image capture
             ret, img = camera.read()
             img = portrait(img)
+            cv2.imshow('webcam', img)
 
+            # TEST BLOCK FOR WIDETIME
+            # log.debug('ramp: {}'.format(rampvalue))
             # if frame % (1 + rampvalue) == 0:
             #     framebuffer.write(img)
-            framebuffer.write(img)
+            # framebuffer.write(img)
+            # img_new = framebuffer.widetime()
 
-            # # delay = framebuffer.delay()
-            # if frame % (3) == 0:
-            alpha = 0.2
-            beta = 1 - alpha
-            gamma = -2.0
-            accumulated = cv2.addWeighted(img, alpha, accumulated, beta, gamma, accumulated)
-
-            alpha = 0.9
-            beta = 1 - alpha
-            gamma = 2.0
-            # cv2.addWeighted(accumulated, alpha, framebuffer.storage[int(rampvalue)], beta, gamma, accumulated)
-            cv2.addWeighted(accumulated, alpha, img, beta, gamma, accumulated)
-
+            # TEST BLOCK FOR CYCLE
+            # CYCLICAL FRAME SAMPLING DEMO
+            log.debug('ramp: {}'.format(rampvalue))
+            if frame % int(rampvalue) == 0:
+                framebuffer.write(img)
+            # RANDOM FRAME SAMPLING DEMO
             # if random.randint(1,1001) > 900:
-            #     framebuffer.write(img)
+                # framebuffer.write(img)
+            img_new = framebuffer.cycle()
 
-
-            # image show - webcam
-            img_txt = cv2.putText(img.copy(),'camera: {} | frame: {}'.format(index, frame),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
-            cv2.imshow('webcam', img_txt)
-
-            # viewport = framebuffer.cycle()
-            # cv2.putText(viewport,'playback: {}'.format(framebuffer.playback_index),(10,20), data.FONT, 0.51, (0,255,0), 1, cv2.LINE_AA)
-            # cv2.imshow('playback', viewport)
-            cv2.imshow('playback', accumulated)
-
+            cv2.imshow('playback', img_new)
 
         key = cv2.waitKey(10) & 0xFF
         if key == 27: # ESC
@@ -145,8 +144,6 @@ def main(counter, ramp):
             for camera in cameras:
                 camera.release()
             break
-
-
 
 if __name__ == '__main__':
     # CRITICAL ERROR WARNING INFO DEBUG
@@ -156,28 +153,9 @@ if __name__ == '__main__':
     _ramp = oscillator(
                     cycle_length = 100,
                     frequency = 10,
-                    range_out = [0.0,0.0],
+                    range_out = [1.0,10.0],
                     wavetype = 'sin',
                     dutycycle = 0.5
                 )
     # _ramp = cycle([0,15,30,45,60,75,90])
     main(counter=_count, ramp=_ramp)
-
-
-# max 2304 x 1536
-# 1920 x 1080
-# 1600 x 896
-# 1280 x 720
-# 960 x 720
-# 864 x 480
-# 800 x 600
-# 640 x 480
-# 640 x 360
-# 352 x 288
-# 320 x 240
-# 320 x 180
-
-
-# horizontal = cv2.flip( img, 0 )
-# vertical = cv2.flip( img, 1 )
-# horizontal + vertical = cv2.flip( img, -1 )
