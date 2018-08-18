@@ -1,4 +1,4 @@
-import cv2, data, numpy as np, math, random
+import cv2, data, numpy as np, math, random, time
 from scipy import signal as sg
 from itertools import cycle
 data.FONT = cv2.FONT_HERSHEY_SIMPLEX
@@ -44,7 +44,7 @@ def portrait(img):
 
 
 class Buffer(object):
-    def __init__(self, ramp, buffer_size, width, height):
+    def __init__(self, buffer_size, width, height, ramp):
         self.buffer_size = buffer_size
         self.width = width
         self.height = height
@@ -98,12 +98,14 @@ class Buffer(object):
         return self.accumulated
 
 def main(counter, ramp):
-    framebuffer = Buffer(ramp,buffer_size=BUFFERSIZE,width=1280,height=720 )
+    framebuffer = Buffer(buffer_size=BUFFERSIZE,width=1280,height=720,ramp=ramp )
     cv2.namedWindow('webcam',cv2.WINDOW_NORMAL)
     cv2.namedWindow('playback',cv2.WINDOW_NORMAL)
     frame = 0
     rampvalue = 0
     cameras = []
+    start_time = time.time()
+    img_new = np.zeros((framebuffer.width, framebuffer.height, 3), np.uint8)
     cameras.append(cv2.VideoCapture(0))
     for index,camera in enumerate(cameras):
         camera.set(3,framebuffer.width)
@@ -128,12 +130,24 @@ def main(counter, ramp):
 
             # TEST BLOCK FOR CYCLE
             # CYCLICAL FRAME SAMPLING DEMO
-            log.debug('ramp: {}'.format(rampvalue))
-            if frame % int(rampvalue) == 0:
-                framebuffer.write(img)
+            # log.debug('ramp: {}'.format(rampvalue))
+            # if frame % int(rampvalue) == 0:
+            #     framebuffer.write(img)
             # RANDOM FRAME SAMPLING DEMO
-            # if random.randint(1,1001) > 900:
-                # framebuffer.write(img)
+            # if random.randint(1,1001) > 990:
+            #     framebuffer.write(img)
+            #     log.critical('xxxxxxxx')
+            # else:
+            #     img_new = framebuffer.cycle()
+            #     log.critical('x')
+
+            # TIME FRAME SAMPLING DEMO
+            if time.time() - start_time > 0.25:
+                framebuffer.write(img)
+                start_time = time.time()
+                log.critical('xxxxxxxx')
+            else:
+                log.critical('x')
             img_new = framebuffer.cycle()
 
             cv2.imshow('playback', img_new)
@@ -149,13 +163,13 @@ if __name__ == '__main__':
     # CRITICAL ERROR WARNING INFO DEBUG
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)
-    _count = counter()
-    _ramp = oscillator(
+    count = counter()
+    ramp = oscillator(
                     cycle_length = 100,
                     frequency = 10,
-                    range_out = [1.0,10.0],
+                    range_out = [1.0,1.0],
                     wavetype = 'sin',
                     dutycycle = 0.5
                 )
     # _ramp = cycle([0,15,30,45,60,75,90])
-    main(counter=_count, ramp=_ramp)
+    main(counter=count, ramp=ramp)
