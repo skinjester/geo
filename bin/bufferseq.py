@@ -16,7 +16,7 @@ def counter(maxvalue=99999):
     yield value
     while True:
         value += 1
-        if value >= maxvalue:
+        if value > maxvalue:
             value = 0
         yield value
 
@@ -44,61 +44,84 @@ def portrait(img):
 
 
 class Buffer(object):
-    def __init__(self, buffer_size, width, height, ramp):
+    def __init__(self, buffer_size, width, height):
         self.buffer_size = buffer_size
         self.width = width
         self.height = height
         self.storage = np.empty((self.buffer_size, self.width, self.height, 3), np.dtype('uint8'))
+        self.c_storage = np.empty((self.buffer_size, self.width, self.height, 3), np.dtype('uint8'))
         self.viewport = self.storage
         self.range = 0
         self.playback_index = 0
         self.test = 0
-        self.ramp = ramp
         self.accumulated = np.zeros((self.width, self.height, 3), np.uint8)
+        self.counter = counter(self.range)
+        self.start_time = 0.0
+        (self.rAvg, self.gAvg, self.bAvg) = (None, None, None)
+        self.total = 0
+        self.frame = counter(9999999)
+        self.locked = False
 
     def write(self, img):
-        self.range += 1
-        if self.range == self.buffer_size:
-            self.range = 0
-        self.storage=np.roll(self.storage,1,axis=0)
-        self.storage[0] = img
-        self.viewport = self.storage[0:self.range,:,:,:]
-        self.counter = counter(self.range)
-        self.ramp = oscillator(
-                    cycle_length = 100,
-                    frequency = 10,
-                    range_out = [3.0,12.0],
-                    wavetype = 'sin',
-                    dutycycle = 0.5)
-        self.playback_index = 0
-        log.critical('range:{} {}'.format(self.range,'.' * self.range))
+        if not self.locked:
+            self.storage=np.roll(self.storage,1,axis=0)
+            self.storage[0] = img
+            self.range += 1
+            if self.range == BUFFERSIZE:
+                self.range = 0
+                # self.range == BUFFERSIZE-2
+            self.counter = counter(self.range-1)
+            self.viewport = self.storage[0:self.range+1,:,:,:].copy()
 
-    def cycle(self):
-        if self.range<=1:
+        log.critical('shape:{} range:{} {}'.format(self.viewport.shape[0], self.range,'.' * self.range))
+
+    def cycle(self, delay):
+        if self.range == 0:
             return self.storage[0]
-        rampvalue = int(self.ramp.next())
-        self.playback_index = self.counter.next() - rampvalue
-        self.viewport = np.roll(self.viewport,-1 * rampvalue,axis=0)
-        return self.viewport[0]
+        self.playback_index = self.counter.next()
+        log.critical('playback:{}'.format(self.playback_index))
+        if time.time() - self.start_time >= delay:
+            self.start_time = time.time()
+            return self.viewport[self.playback_index]
+        else:
+            return self.storage[0]
 
-    def widetime(self):
+    def widetime(self,delay,interval):
         # # delay = framebuffer.delay()
-        # if frame % (3) == 0:
-        alpha = 0.2
-        beta = 1 - alpha
-        gamma = -2.0
-        img = self.storage[0]
-        self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
-
-        alpha = 0.9
-        beta = 1 - alpha
-        gamma = 2.0
-        # cv2.addWeighted(accumulated, alpha, framebuffer.storage[int(rampvalue)], beta, gamma, accumulated)
-        self.accumulated = cv2.addWeighted(self.accumulated, alpha, img, beta, gamma)
+        if delay % interval == 0:
+            alpha = 0.1
+            beta = 1 - alpha
+            gamma = 0.0
+            img = self.storage[0]
+            self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
         return self.accumulated
 
+    def slowshutter(self,img,samplesize=10,sampleweight=0.5,interval=1):
+        if self.frame.next() % interval != 0:
+            alpha = 0.1
+            beta = 1 - alpha
+            gamma = -2.0
+            return cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
+        (B, G, R) = cv2.split(img.astype("float"))
+        if self.rAvg is None:
+            self.rAvg = R
+            self.bAvg = B
+            self.gAvg = G
+        else:
+                self.rAvg = ((self.total * self.rAvg) + (1 * R)) / (self.total + 1.0)
+                self.gAvg = ((self.total * self.gAvg) + (1 * G)) / (self.total + 1.0)
+                self.bAvg = ((self.total * self.bAvg) + (1 * B)) / (self.total + 1.0)
+        self.total += sampleweight
+        if self.total > samplesize:
+            self.total = 0
+        self.accumulated = cv2.merge([self.bAvg, self.gAvg, self.rAvg]).astype("uint8")
+        alpha = 0.1
+        beta = 1 - alpha
+        gamma = -2.0
+        return cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
+
 def main(counter, ramp):
-    framebuffer = Buffer(buffer_size=BUFFERSIZE,width=1280,height=720,ramp=ramp )
+    framebuffer = Buffer(buffer_size=BUFFERSIZE,width=1280,height=720)
     cv2.namedWindow('webcam',cv2.WINDOW_NORMAL)
     cv2.namedWindow('playback',cv2.WINDOW_NORMAL)
     frame = 0
@@ -110,6 +133,28 @@ def main(counter, ramp):
     for index,camera in enumerate(cameras):
         camera.set(3,framebuffer.width)
         camera.set(4,framebuffer.height)
+    osc = oscillator(
+                    cycle_length = 100,
+                    frequency = 3,
+                    range_out = [1,3.0],
+                    wavetype = 'sin',
+                    dutycycle = 0.5
+                    )
+    osc2 = oscillator(
+                    cycle_length = 100,
+                    frequency = 3,
+                    range_out = [5,20],
+                    wavetype = 'square',
+                    dutycycle = 0.5
+                    )
+
+    osc3 = oscillator(
+                    cycle_length = 100,
+                    frequency = 3,
+                    range_out = [0.0,0.3],
+                    wavetype = 'sin',
+                    dutycycle = 0.5
+                    )
 
     while True:
         for index,camera in enumerate(cameras):
@@ -121,35 +166,44 @@ def main(counter, ramp):
             img = portrait(img)
             cv2.imshow('webcam', img)
 
-            # TEST BLOCK FOR WIDETIME
+            # -------- TEST BLOCK FOR WIDETIME --------
             # log.debug('ramp: {}'.format(rampvalue))
-            # if frame % (1 + rampvalue) == 0:
+            # if frame % 10 == 0:
+            #     log.critical('capture')
             #     framebuffer.write(img)
-            # framebuffer.write(img)
-            # img_new = framebuffer.widetime()
+            # img_new = framebuffer.widetime(delay=frame,interval=4)
 
-            # TEST BLOCK FOR CYCLE
-            # CYCLICAL FRAME SAMPLING DEMO
+            # -------- TEST BLOCK FOR CYCLE --------
+
+            # ---- CYCLICAL FRAME SAMPLING DEMO ----
             # log.debug('ramp: {}'.format(rampvalue))
             # if frame % int(rampvalue) == 0:
             #     framebuffer.write(img)
-            # RANDOM FRAME SAMPLING DEMO
-            # if random.randint(1,1001) > 990:
-            #     framebuffer.write(img)
-            #     log.critical('xxxxxxxx')
-            # else:
-            #     img_new = framebuffer.cycle()
-            #     log.critical('x')
 
-            # TIME FRAME SAMPLING DEMO
-            if time.time() - start_time > 0.25:
+            # ---- RANDOM FRAME SAMPLING DEMO ----
+            if random.randint(1,1001) > 950:
                 framebuffer.write(img)
-                start_time = time.time()
-                log.critical('xxxxxxxx')
-            else:
-                log.critical('x')
-            img_new = framebuffer.cycle()
+                log.debug('capture')
 
+            duration = osc3.next()
+            log.critical('duration: {}'.format(duration))
+            img_new = framebuffer.cycle(delay=0.0)
+
+            # ---- TIME FRAME SAMPLING DEMO ----
+            # if time.time() - start_time > 0.3:
+            #     framebuffer.write(img)
+            #     start_time = time.time()
+            #     log.debug('capture')
+            # img_new = framebuffer.cycle(delay=1.0)
+
+            # -------- TEST BLOCK FOR LONG EXPOSURE --------
+            # framebuffer.write(img_new)
+            # osc_value = osc.next()
+            # osc_value2 = osc2.next()
+            # log.critical('osc1:{} osc2:{}'.format(osc_value,osc_value2))
+            # img_new = framebuffer.slowshutter(img,samplesize=10,sampleweight=2,interval=int(osc_value))
+
+            # PLAYBACK
             cv2.imshow('playback', img_new)
 
         key = cv2.waitKey(10) & 0xFF
@@ -163,11 +217,11 @@ if __name__ == '__main__':
     # CRITICAL ERROR WARNING INFO DEBUG
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)
-    count = counter()
+    count = counter(BUFFERSIZE)
     ramp = oscillator(
                     cycle_length = 100,
                     frequency = 10,
-                    range_out = [1.0,1.0],
+                    range_out = [0.0,30.0],
                     wavetype = 'sin',
                     dutycycle = 0.5
                 )
