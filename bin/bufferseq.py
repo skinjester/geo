@@ -49,11 +49,10 @@ class Buffer(object):
         self.width = width
         self.height = height
         self.storage = np.empty((self.buffer_size, self.width, self.height, 3), np.dtype('uint8'))
-        self.c_storage = np.empty((self.buffer_size, self.width, self.height, 3), np.dtype('uint8'))
         self.viewport = self.storage
-        self.range = 0
+        self.range = BUFFERSIZE
+        self.playback_counter = counter(self.range-1)
         self.playback_index = 0
-        self.test = 0
         self.accumulated = np.zeros((self.width, self.height, 3), np.uint8)
         self.counter = counter(self.range)
         self.start_time = 0.0
@@ -61,30 +60,25 @@ class Buffer(object):
         self.total = 0
         self.frame = counter(9999999)
         self.locked = False
+        self.frame_repeat_count = 0
 
     def write(self, img):
         if not self.locked:
             self.storage=np.roll(self.storage,1,axis=0)
             self.storage[0] = img
-            self.range += 1
-            if self.range == BUFFERSIZE:
-                self.range = 0
-                # self.range == BUFFERSIZE-2
-            self.counter = counter(self.range-1)
-            self.viewport = self.storage[0:self.range+1,:,:,:].copy()
 
-        log.critical('shape:{} range:{} {}'.format(self.viewport.shape[0], self.range,'.' * self.range))
-
-    def cycle(self, delay):
-        if self.range == 0:
-            return self.storage[0]
-        self.playback_index = self.counter.next()
-        log.critical('playback:{}'.format(self.playback_index))
-        if time.time() - self.start_time >= delay:
-            self.start_time = time.time()
-            return self.viewport[self.playback_index]
+    def cycle(self,repeat):
+        self.frame_repeat_count += 1
+        log.critical('cycle')
+        if self.frame_repeat_count >= repeat:
+            self.playback_index = self.playback_counter.next()
+            self.frame_repeat_count = 0
+            self.locked = False
+            log.critical('playback:{}'.format(self.playback_index))
         else:
-            return self.storage[0]
+            self.locked = True
+        return self.storage[self.playback_index]
+
 
     def widetime(self,delay,interval):
         # # delay = framebuffer.delay()
@@ -192,19 +186,15 @@ def main(counter, ramp):
             # framebuffer.write(img)
             osc_value = osc.next()
             osc_value2 = osc2.next()
-            log.critical('osc1:{} osc2:{}'.format(osc_value,osc_value2))
+            log.debug('osc1:{} osc2:{}'.format(osc_value,osc_value2))
             img_new = framebuffer.slowshutter(img,samplesize=10,sampleweight=1,interval=5)
 
 
             # ---- RANDOM FRAME SAMPLING DEMO ----
             if random.randint(1,1001) > 950:
+                log.critical('capture -----------------------')
                 framebuffer.write(img_new)
-                framebuffer.storage[0] = img_new
-                log.debug('capture')
-
-            duration = osc3.next()
-            log.critical('duration: {}'.format(duration))
-            img_new = framebuffer.cycle(delay=0.0)
+            img_new = framebuffer.cycle(repeat=3)
 
             # PLAYBACK
             cv2.imshow('playback', img_new)
