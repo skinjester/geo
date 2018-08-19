@@ -2,7 +2,7 @@ import cv2, data, numpy as np, math, random, time
 from scipy import signal as sg
 from itertools import cycle
 data.FONT = cv2.FONT_HERSHEY_SIMPLEX
-BUFFERSIZE = 100
+BUFFERSIZE = 30
 
 def dcounter(func):
     def wrapper(*args, **kwargs):
@@ -135,9 +135,9 @@ def main(counter, ramp):
         camera.set(4,framebuffer.height)
     osc = oscillator(
                     cycle_length = 100,
-                    frequency = 3,
-                    range_out = [1,3.0],
-                    wavetype = 'sin',
+                    frequency = 1,
+                    range_out = [1,5.0],
+                    wavetype = 'sawtooth',
                     dutycycle = 0.5
                     )
     osc2 = oscillator(
@@ -180,14 +180,6 @@ def main(counter, ramp):
             # if frame % int(rampvalue) == 0:
             #     framebuffer.write(img)
 
-            # ---- RANDOM FRAME SAMPLING DEMO ----
-            if random.randint(1,1001) > 950:
-                framebuffer.write(img)
-                log.debug('capture')
-
-            duration = osc3.next()
-            log.critical('duration: {}'.format(duration))
-            img_new = framebuffer.cycle(delay=0.0)
 
             # ---- TIME FRAME SAMPLING DEMO ----
             # if time.time() - start_time > 0.3:
@@ -197,11 +189,22 @@ def main(counter, ramp):
             # img_new = framebuffer.cycle(delay=1.0)
 
             # -------- TEST BLOCK FOR LONG EXPOSURE --------
-            # framebuffer.write(img_new)
-            # osc_value = osc.next()
-            # osc_value2 = osc2.next()
-            # log.critical('osc1:{} osc2:{}'.format(osc_value,osc_value2))
-            # img_new = framebuffer.slowshutter(img,samplesize=10,sampleweight=2,interval=int(osc_value))
+            # framebuffer.write(img)
+            osc_value = osc.next()
+            osc_value2 = osc2.next()
+            log.critical('osc1:{} osc2:{}'.format(osc_value,osc_value2))
+            img_new = framebuffer.slowshutter(img,samplesize=10,sampleweight=1,interval=5)
+
+
+            # ---- RANDOM FRAME SAMPLING DEMO ----
+            if random.randint(1,1001) > 950:
+                framebuffer.write(img_new)
+                framebuffer.storage[0] = img_new
+                log.debug('capture')
+
+            duration = osc3.next()
+            log.critical('duration: {}'.format(duration))
+            img_new = framebuffer.cycle(delay=0.0)
 
             # PLAYBACK
             cv2.imshow('playback', img_new)
