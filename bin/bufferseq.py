@@ -45,16 +45,12 @@ def portrait(img):
 
 class Buffer(object):
     def __init__(self, buffer_size, width, height):
-        self.buffer_size = buffer_size
         self.width = width
         self.height = height
-        self.storage = np.empty((self.buffer_size, self.width, self.height, 3), np.dtype('uint8'))
-        self.viewport = self.storage
-        self.range = BUFFERSIZE
-        self.playback_counter = counter(self.range-1)
+        self.storage = np.empty((buffer_size, self.width, self.height, 3), np.dtype('uint8'))
+        self.playback_counter = counter(buffer_size-1)
         self.playback_index = 0
         self.accumulated = np.zeros((self.width, self.height, 3), np.uint8)
-        self.counter = counter(self.range)
         self.start_time = 0.0
         (self.rAvg, self.gAvg, self.bAvg) = (None, None, None)
         self.total = 0
@@ -69,19 +65,15 @@ class Buffer(object):
 
     def cycle(self,repeat):
         self.frame_repeat_count += 1
-        log.critical('cycle')
         if self.frame_repeat_count >= repeat:
             self.playback_index = self.playback_counter.next()
             self.frame_repeat_count = 0
             self.locked = False
-            log.critical('playback:{}'.format(self.playback_index))
         else:
             self.locked = True
         return self.storage[self.playback_index]
 
-
     def widetime(self,delay,interval):
-        # # delay = framebuffer.delay()
         if delay % interval == 0:
             alpha = 0.1
             beta = 1 - alpha
@@ -90,29 +82,21 @@ class Buffer(object):
             self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
         return self.accumulated
 
-    def slowshutter(self,img,samplesize=10,sampleweight=0.5,interval=1):
+    def slowshutter(self,img,samplesize=10,interval=1):
         if self.frame.next() % interval != 0:
-            alpha = 0.1
-            beta = 1 - alpha
-            gamma = -2.0
-            return cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
+            return self.accumulated
         (B, G, R) = cv2.split(img.astype("float"))
         if self.rAvg is None:
             self.rAvg = R
             self.bAvg = B
             self.gAvg = G
         else:
-                self.rAvg = ((self.total * self.rAvg) + (1 * R)) / (self.total + 1.0)
-                self.gAvg = ((self.total * self.gAvg) + (1 * G)) / (self.total + 1.0)
-                self.bAvg = ((self.total * self.bAvg) + (1 * B)) / (self.total + 1.0)
-        self.total += sampleweight
-        if self.total > samplesize:
-            self.total = 0
+                self.rAvg = ((samplesize * self.rAvg) + (1 * R)) / (samplesize + 1.0)
+                self.gAvg = ((samplesize * self.gAvg) + (1 * G)) / (samplesize + 1.0)
+                self.bAvg = ((samplesize * self.bAvg) + (1 * B)) / (samplesize + 1.0)
         self.accumulated = cv2.merge([self.bAvg, self.gAvg, self.rAvg]).astype("uint8")
-        alpha = 0.1
-        beta = 1 - alpha
-        gamma = -2.0
-        return cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
+        return self.accumulated
+
 
 def main(counter, ramp):
     framebuffer = Buffer(buffer_size=BUFFERSIZE,width=1280,height=720)
@@ -183,18 +167,18 @@ def main(counter, ramp):
             # img_new = framebuffer.cycle(delay=1.0)
 
             # -------- TEST BLOCK FOR LONG EXPOSURE --------
-            # framebuffer.write(img)
+            framebuffer.write(img)
             osc_value = osc.next()
             osc_value2 = osc2.next()
             log.debug('osc1:{} osc2:{}'.format(osc_value,osc_value2))
-            img_new = framebuffer.slowshutter(img,samplesize=10,sampleweight=1,interval=5)
+            img_new = framebuffer.slowshutter(img,samplesize=10,interval=3)
 
 
             # ---- RANDOM FRAME SAMPLING DEMO ----
-            if random.randint(1,1001) > 950:
-                log.critical('capture -----------------------')
-                framebuffer.write(img_new)
-            img_new = framebuffer.cycle(repeat=3)
+            # if random.randint(1,1001) > 550:
+            #     log.critical('capture -----------------------')
+            #     framebuffer.write(img_new)
+            # img_new = framebuffer.cycle(repeat=3)
 
             # PLAYBACK
             cv2.imshow('playback', img_new)
