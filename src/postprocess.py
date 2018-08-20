@@ -1,10 +1,67 @@
-import data, time, math
+import cv2, numpy as np, math, random, time, PIL.Image
 import scipy.ndimage as nd
 from scipy import signal as sg
-import PIL.Image
-import cv2
-import numpy as np
-import hud.console as console
+import data, hud.console as console
+
+class Buffer(object):
+    def __init__(self, buffer_size, width, height):
+        self.width = width
+        self.height = height
+        self.storage = np.empty((buffer_size, self.width, self.height, 3), np.dtype('uint8'))
+        self.playback_counter = counter(buffer_size-1)
+        self.playback_index = 0
+        self.accumulated = np.zeros((self.width, self.height, 3), np.uint8)
+        self.start_time = 0.0
+        (self.rAvg, self.gAvg, self.bAvg) = (None, None, None)
+        self.total = 0
+        self.frame = counter(9999999)
+        self.locked = False
+        self.frame_repeat_count = 0
+        self.total_frames = 0
+
+    def write(self, img):
+        if not self.locked:
+            # input resized to match viewport dimensions
+            img = cv2.resize(img,(data.viewsize[0], data.viewsize[1]),interpolation=cv2.INTER_LINEAR)
+
+            self.storage=np.roll(self.storage,1,axis=0)
+            self.storage[0] = img
+            self.total_frames += 1
+            log.critical('frames added:{}'.format(self.total_frames))
+
+    def cycle(self,repeat):
+        self.frame_repeat_count += 1
+        if self.frame_repeat_count >= repeat:
+            self.playback_index = self.playback_counter.next()
+            self.frame_repeat_count = 0
+            self.locked = False
+        else:
+            self.locked = True
+        return self.storage[self.playback_index]
+
+    def widetime(self,delay,interval):
+        if delay % interval == 0:
+            alpha = 0.1
+            beta = 1 - alpha
+            gamma = 0.0
+            img = self.storage[0]
+            self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
+        return self.accumulated
+
+    def slowshutter(self,img,samplesize=10,interval=1):
+        if self.frame.next() % interval != 0:
+            return self.accumulated
+        (B, G, R) = cv2.split(img.astype("float"))
+        if self.rAvg is None:
+            self.rAvg = R
+            self.bAvg = B
+            self.gAvg = G
+        else:
+                self.rAvg = ((samplesize * self.rAvg) + (1 * R)) / (samplesize + 1.0)
+                self.gAvg = ((samplesize * self.gAvg) + (1 * G)) / (samplesize + 1.0)
+                self.bAvg = ((samplesize * self.bAvg) + (1 * B)) / (samplesize + 1.0)
+        self.accumulated = cv2.merge([self.bAvg, self.gAvg, self.rAvg]).astype("uint8")
+        return self.accumulated
 
 def inception_xform(image, scale):
     h = image.shape[0]
@@ -19,7 +76,7 @@ def octave_scaler(osc):
 # STEPFX
 def median_blur(image, osc):
     blur = int(osc.next())
-    log.critical('{}'.format(blur))
+    log.debug('{}'.format(blur))
     if blur == 0:
         return image
     return cv2.medianBlur(image, blur)
@@ -28,12 +85,12 @@ def bilateral_filter(image, osc1, osc2, osc3):
     radius = int(osc1.next())
     sigma_color = osc2.next()
     sigma_xy = osc3.next()
-    log.critical('radius:{} sigma_color:{} sigma_xy:{}'.format(radius, sigma_color, sigma_xy))
+    log.debug('radius:{} sigma_color:{} sigma_xy:{}'.format(radius, sigma_color, sigma_xy))
     return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
 
 def nd_gaussian(image, osc):
     sigma = osc.next()
-    log.critical('sigma:{}'.format(sigma))
+    log.debug('sigma:{}'.format(sigma))
     image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
     image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
     image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)
@@ -41,6 +98,22 @@ def nd_gaussian(image, osc):
 
 def step_mixer(osc):
     return osc.next()
+
+def equalize(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2, tileGridSize=(4,4))
+    equalized = clahe.apply(gray)
+    img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
+    return img
+
+def counter(maxvalue=99999):
+    value = 0
+    yield value
+    while True:
+        value += 1
+        if value > maxvalue:
+            value = 0
+        yield value
 
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
     timecounter = 0
@@ -57,28 +130,6 @@ def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wav
 def remap(value, range_in, range_out):
     return range_out[0] + (range_out[1] - range_out[0]) * ((value - range_in[0]) / (range_in[1] - range_in[0]))
 
-
-# class FX(object):
-#     def __init__(self):
-
-#     def xform_array(self, image, amplitude, wavelength):
-
-#         # def shiftfunc(n):
-#         #     return int(amplitude*np.sin(n/wavelength))
-#         # for n in range(image.shape[1]): # number of rows in the image
-#         #     image[:, n] = np.roll(image[:, n], 3*shiftfunc(n))
-#         print '****'
-#         return image
-
-
-
-
-#     def duration_cutoff(self, duration):
-#         elapsed = time.time() - self.cycle_start_time
-#         if elapsed >= duration:
-#             Viewport.refresh()
-#         log.warning('cycle_start_time:{} duration:{} elapsed:{}'.format(
-#             self.cycle_start_time, duration, elapsed))
 
 
 

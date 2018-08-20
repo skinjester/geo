@@ -85,7 +85,7 @@ class Viewport(object):
         sys.exit()
 
 class Composer(object):
-    def __init__(self):
+    def __init__(self, Framebuffer):
         self.isDreaming = False
         self.xform_scale = 0.05
         self.emptybuffer = np.zeros((data.viewsize[1], data.viewsize[0], 3),
@@ -101,6 +101,7 @@ class Composer(object):
         self.opacity_step = 0.1
         self.buffer3_opacity = 1.0
         self.running = True
+        self.Framebuffer = Framebuffer
 
     def send(self, channel, image):
         self.buffer[channel] = image
@@ -142,13 +143,13 @@ class Composer(object):
                 self.running  = True
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.01
+            self.opacity -= 0.1
             if self.opacity < 0.0:
                 self.opacity = 0.0
                 self.running = False
         else:
             _Deepdreamer.request_wakeup()
-            self.opacity += 0.01
+            self.opacity += 0.1
             if self.opacity > 1.0:
                 self.opacity =1.0
                 self.running  = True
@@ -266,11 +267,14 @@ def main():
             Webcam=Webcam,
             Composer=Composer,
             Viewport=Viewport,
+            Framebuffer=Framebuffer
             )
 
         Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
             (data.viewsize[0], data.viewsize[1]),
             interpolation=cv2.INTER_LINEAR)
+
+        # Framebuffer.write(Composer.dreambuffer)
 
         # logging
         later = time.time()
@@ -290,16 +294,27 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.username:
         data.username = args.username
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
-    camera=[]
-    camera.append(WebcamVideoStream(0, width=data.capturesize[0],
-        height=data.capturesize[1], portrait_alignment=True,
-        flip_h=False, flip_v=True, gamma=0.5, floor=10000,
-        threshold_filter=8).start())
-    Webcam = Cameras(source=camera, current_camera=0)
-    Composer = Composer()
     _Deepdreamer = dreamer.Artist('test')
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
+    width, height = data.capturesize
+    Framebuffer = postprocess.Buffer(10,width,height)
+    camera=[]
+    camera.append(
+        WebcamVideoStream(
+            0,
+            width=width,
+            height=height,
+            portrait_alignment=True,
+            Framebuffer=Framebuffer,
+            Viewport=Viewport,
+            flip_h=False,
+            flip_v=True,
+            gamma=0.5,
+            floor=10000,
+            threshold_filter=8).start())
+    Webcam = Cameras(source=camera, current_camera=0)
+    Composer = Composer(Framebuffer)
     main()
 
 

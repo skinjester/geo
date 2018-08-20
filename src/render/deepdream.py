@@ -38,6 +38,7 @@ class Artist(object):
         self.id = id
         self.b_wakeup = True
         self.cycle_start_time = 0
+        self.repeat = 0
         log.debug('dreaming with Render instance: {}'.format(self.id))
 
 
@@ -58,6 +59,7 @@ class Artist(object):
         Webcam,
         Composer,
         Viewport,
+        Framebuffer,
         clip=False
         ):
 
@@ -99,6 +101,8 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
+                log.critical('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
@@ -112,7 +116,8 @@ class Artist(object):
             if octave > octave_cutoff - 1:
                 break
 
-        return data.caffe2rgb(Model.net, src.data[0])
+        rgb = data.caffe2rgb(Model.net, src.data[0])
+        return rgb
 
     def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
         src = Model.net.blobs['data']
@@ -120,7 +125,6 @@ class Artist(object):
         ox, oy = np.random.randint(-jitter, jitter + 1, 2)
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
         Model.net.forward(end=end)
-
         try:
             if feature == -1:
                 objective(dst)
@@ -128,25 +132,20 @@ class Artist(object):
                 dst.diff.fill(0.0)
                 dst.diff[0, feature, :] = dst.data[0, feature, :]
         except:
-            log.critical('ERROR')
-
-
+            log.critical('RENDERINGERROR')
         Model.net.backward(start=end)
         g = src.diff[0]
         src.data[:] += step_size / np.abs(g).mean() * g
         src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
         bias = Model.net.transformer.mean['data']
         src.data[:] = np.clip(src.data, -bias, 255 - bias)
-
         src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
 
     def postprocess_step(self, Model, src, stepfx):
         rgb = data.caffe2rgb(Model.net, src)
         rgb_out = rgb.copy()
         opacity = 1.0
-
         for fx in stepfx:
-            # log.critical('{}'.format(stepfx))
             if fx['name'] == 'median_blur':
                 rgb = postprocess.median_blur(rgb, fx['osc'])
             if fx['name'] == 'bilateral_filter':
@@ -156,12 +155,7 @@ class Artist(object):
                 rgb = data.caffe2rgb(Model.net, src)
             if fx['name'] == 'step_mixer':
                 opacity = postprocess.step_mixer(fx['osc'])
-            # if fx['name'] == 'duration_cutoff':
-            #     postprocess.duration_cutoff(**fx['params'])
-            # if fx['name'] == 'octave_scaler':
-            #     postprocess.octave_scaler(model=Model, **fx['params'])
-
-        rgb_out = cv2.addWeighted(rgb, opacity, rgb_out, 1.0-opacity, 0, rgb_out)
+        rgb_out = cv2.addWeighted(rgb, opacity, rgb_out, 1.0-opacity, 0.0)
         return data.rgb2caffe(Model.net, rgb_out)
 
     def request_wakeup(self):
