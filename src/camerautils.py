@@ -52,7 +52,6 @@ class WebcamVideoStream(object):
         width,
         height,
         portrait_alignment,
-        Framebuffer,
         Viewport,
         flip_h=False,
         flip_v=False,
@@ -99,8 +98,7 @@ class WebcamVideoStream(object):
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
-        # testing
-        self.Framebuffer = Framebuffer
+        # asyncplayback
         self.Viewport = Viewport
 
     def start(self):
@@ -146,6 +144,9 @@ class WebcamVideoStream(object):
 
             # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
+
+            # async playback
+            self.Viewport.show(data.playback)
 
 
     def read(self):

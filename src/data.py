@@ -26,6 +26,7 @@ guides.append('./img/eyeballs.jpg')
 # I'm using it like a scratchpad, but initializes to None
 data_img = None
 
+
 # opencv font and color
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 WHITE = (255, 255, 255)
@@ -48,6 +49,8 @@ MONITOR_PROJECTOR = (0, 0)
 # motion detector
 floor_adjust = 5000  # default step size for motion floor adjustment
 
+# async playback?
+playback = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 
 # utility functions
 def rgb2caffe(net, image):

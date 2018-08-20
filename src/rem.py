@@ -85,48 +85,40 @@ class Viewport(object):
         sys.exit()
 
 class Composer(object):
-    def __init__(self, Framebuffer):
+    def __init__(self):
         self.isDreaming = False
         self.xform_scale = 0.05
         self.emptybuffer = np.zeros((data.viewsize[1], data.viewsize[0], 3),
             np.uint8)
         self.buffer = []
-        self.buffer.append(
-            Webcam.get().read())  # uses camera capture dimensions
-        self.buffer.append(
-            Webcam.get().read())  # uses camera capture dimensions
+        self.buffer.append(Webcam.get().read())
+        self.buffer.append(Webcam.get().read())
         self.mixbuffer = self.emptybuffer
         self.dreambuffer = self.emptybuffer
         self.opacity = 0
         self.opacity_step = 0.1
         self.buffer3_opacity = 1.0
         self.running = True
-        self.Framebuffer = Framebuffer
 
     def send(self, channel, image):
         self.buffer[channel] = image
-
-        # input resized to match viewport dimensions
         self.buffer[channel] = cv2.resize(self.buffer[channel],
             (data.viewsize[0], data.viewsize[1]),
             interpolation=cv2.INTER_LINEAR)
-
-        # convert and clip any floating point values into RGB bounds as integers
         self.buffer[channel] = np.uint8(np.clip(self.buffer[channel], 0, 255))
 
     def get(self, channel):
         return self.buffer[channel]
 
-    def mix(self, image_back, image_front, mix_opacity):
+    def mix(self, image_back, image_front, mix_opacity, gamma):
         cv2.addWeighted(
             image_front,
             mix_opacity,  #
             image_back,
             1 - mix_opacity,
-            0,
+            gamma,
             self.mixbuffer
         )
-
         return self.mixbuffer
 
     def update(self, vis, Webcam):
@@ -137,13 +129,13 @@ class Composer(object):
         if motion.delta > motion.delta_trigger:
             _Deepdreamer.request_wakeup()
             if self.running == False:
-                self.opacity += 0.01
-            if self.opacity > 1.0:
+                self.opacity += 0.1
+            if self.opacity > 0.1:
                 self.opacity =1.0
                 self.running  = True
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.1
+            self.opacity -= 0.05
             if self.opacity < 0.0:
                 self.opacity = 0.0
                 self.running = False
@@ -151,15 +143,14 @@ class Composer(object):
             _Deepdreamer.request_wakeup()
             self.opacity += 0.1
             if self.opacity > 1.0:
-                self.opacity =1.0
+                self.opacity = 1.0
                 self.running  = True
-
 
         # compositing
         self.send(0, vis)
         self.send(1, Webcam.get().read())
-        comp1 = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity)
-        Viewport.show(comp1)
+        data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 20.0)
+        # Viewport.show(comp1)
 
         console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
         console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - Model.program_start_time, 2), Model.program_duration))
@@ -266,15 +257,13 @@ def main():
             stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
-            Viewport=Viewport,
-            Framebuffer=Framebuffer
             )
 
         Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
             (data.viewsize[0], data.viewsize[1]),
             interpolation=cv2.INTER_LINEAR)
 
-        # Framebuffer.write(Composer.dreambuffer)
+
 
         # logging
         later = time.time()
@@ -298,7 +287,6 @@ if __name__ == "__main__":
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     width, height = data.capturesize
-    Framebuffer = postprocess.Buffer(10,width,height)
     camera=[]
     camera.append(
         WebcamVideoStream(
@@ -306,15 +294,14 @@ if __name__ == "__main__":
             width=width,
             height=height,
             portrait_alignment=True,
-            Framebuffer=Framebuffer,
             Viewport=Viewport,
-            flip_h=False,
+            flip_h=True,
             flip_v=True,
             gamma=0.5,
             floor=10000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
-    Composer = Composer(Framebuffer)
+    Composer = Composer()
     main()
 
 

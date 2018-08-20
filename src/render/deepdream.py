@@ -58,8 +58,6 @@ class Artist(object):
         stepfx,
         Webcam,
         Composer,
-        Viewport,
-        Framebuffer,
         clip=False
         ):
 
@@ -106,6 +104,7 @@ class Artist(object):
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
+
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1

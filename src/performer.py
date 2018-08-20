@@ -60,7 +60,7 @@ program = []
 
 program.append({
     'name': 'cambrian-implosion',
-    'iterations': 20,
+    'iterations': 10,
     'step_size': 4.,
     'octaves': 6,
     'octave_cutoff': 6,
@@ -90,14 +90,14 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.02}
+            'params': {'scale': 0.05}
         },
         {
             'name': 'octave_scaler',
             'params': {
                 'cycle_length': 4,
                 'frequency': 1,
-                'range_out':[1.4,1.8],
+                'range_out':[1.2,1.5],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
