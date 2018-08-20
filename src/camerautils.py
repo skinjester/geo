@@ -146,7 +146,7 @@ class WebcamVideoStream(object):
             self.frame = self.gamma_correct(self.transpose(img))
 
             # async playback
-            self.Viewport.show(data.playback)
+            # self.Viewport.show(data.playback)
 
 
     def read(self):

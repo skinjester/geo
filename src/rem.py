@@ -146,11 +146,19 @@ class Composer(object):
                 self.opacity = 1.0
                 self.running  = True
 
+        camera_img = Webcam.get().read()
+        img_new = camera_img
+        # img_new = Framebuffer.slowshutter(camera_img,samplesize=10,interval=3)
+        # osc_value = osc.next()
+        # osc_value2 = osc2.next()
+        # log.debug('osc1:{} osc2:{}'.format(osc_value,osc_value2))
+
+
         # compositing
         self.send(0, vis)
-        self.send(1, Webcam.get().read())
+        self.send(1, img_new)
         data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 20.0)
-        # Viewport.show(comp1)
+        Viewport.show(data.playback)
 
         console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
         console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - Model.program_start_time, 2), Model.program_duration))
@@ -287,6 +295,7 @@ if __name__ == "__main__":
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     width, height = data.capturesize
+    Framebuffer = postprocess.Buffer(10,width,height)
     camera=[]
     camera.append(
         WebcamVideoStream(
