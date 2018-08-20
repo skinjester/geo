@@ -17,11 +17,17 @@ class Buffer(object):
         self.frame = counter(9999999)
         self.locked = False
         self.frame_repeat_count = 0
+        self.total_frames = 0
 
     def write(self, img):
         if not self.locked:
+            # input resized to match viewport dimensions
+            img = cv2.resize(img,(data.viewsize[0], data.viewsize[1]),interpolation=cv2.INTER_LINEAR)
+
             self.storage=np.roll(self.storage,1,axis=0)
             self.storage[0] = img
+            self.total_frames += 1
+            log.critical('frames added:{}'.format(self.total_frames))
 
     def cycle(self,repeat):
         self.frame_repeat_count += 1
@@ -70,7 +76,7 @@ def octave_scaler(osc):
 # STEPFX
 def median_blur(image, osc):
     blur = int(osc.next())
-    log.critical('{}'.format(blur))
+    log.debug('{}'.format(blur))
     if blur == 0:
         return image
     return cv2.medianBlur(image, blur)
@@ -79,12 +85,12 @@ def bilateral_filter(image, osc1, osc2, osc3):
     radius = int(osc1.next())
     sigma_color = osc2.next()
     sigma_xy = osc3.next()
-    log.critical('radius:{} sigma_color:{} sigma_xy:{}'.format(radius, sigma_color, sigma_xy))
+    log.debug('radius:{} sigma_color:{} sigma_xy:{}'.format(radius, sigma_color, sigma_xy))
     return cv2.bilateralFilter(image, radius, sigma_color, sigma_xy)
 
 def nd_gaussian(image, osc):
     sigma = osc.next()
-    log.critical('sigma:{}'.format(sigma))
+    log.debug('sigma:{}'.format(sigma))
     image[0] = nd.filters.gaussian_filter(image[0], sigma, order=0)
     image[1] = nd.filters.gaussian_filter(image[1], sigma, order=0)
     image[2] = nd.filters.gaussian_filter(image[2], sigma, order=0)

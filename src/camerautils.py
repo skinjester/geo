@@ -52,11 +52,13 @@ class WebcamVideoStream(object):
         width,
         height,
         portrait_alignment,
+        Framebuffer,
+        Viewport,
         flip_h=False,
         flip_v=False,
         gamma=1.0,
         floor=1000,
-        threshold_filter=32
+        threshold_filter=32,
     ):
 
         # camera
@@ -80,7 +82,7 @@ class WebcamVideoStream(object):
 
         # motion detection
         self.motiondetector = MotionDetector(floor)
-        self.delta = 0  # difference between current frame and previous
+        self.delta = 0
         self.buffer_t = np.zeros((self.height, self.width, 3),
             np.uint8)
         self.threshold_filter = threshold_filter
@@ -88,7 +90,7 @@ class WebcamVideoStream(object):
         # frame buffer housekeeping
         self.rawframe = np.zeros((self.height, self.width, 3), np.uint8)
         (self.grabbed,
-         self.frame) = self.stream.read()  # initial frame to prime the queue
+         self.frame) = self.stream.read()
         self.frame = self.transpose(self.frame)
         self.t_minus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
@@ -96,6 +98,10 @@ class WebcamVideoStream(object):
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
+
+        # testing
+        self.Framebuffer = Framebuffer
+        self.Viewport = Viewport
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -140,6 +146,7 @@ class WebcamVideoStream(object):
 
             # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
+
 
     def read(self):
         log.debug('read camera:{} RGB:{}'.format(self.stream, self.frame.shape))
