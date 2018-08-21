@@ -66,7 +66,7 @@ class Buffer(object):
     def cycle(self,repeat):
         self.frame_repeat_count += 1
         if self.frame_repeat_count >= repeat:
-            self.playback_index = self.playback_counter.next()
+            self.playback_index = -1 * self.playback_counter.next()
             self.frame_repeat_count = 0
             self.locked = False
         else:
@@ -167,18 +167,18 @@ def main(counter, ramp):
             # img_new = framebuffer.cycle(delay=1.0)
 
             # -------- TEST BLOCK FOR LONG EXPOSURE --------
-            framebuffer.write(img)
-            osc_value = osc.next()
-            osc_value2 = osc2.next()
-            log.debug('osc1:{} osc2:{}'.format(osc_value,osc_value2))
-            img_new = framebuffer.slowshutter(img,samplesize=10,interval=3)
+            # framebuffer.write(img)
+            # osc_value = osc.next()
+            # osc_value2 = osc2.next()
+            # log.debug('osc1:{} osc2:{}'.format(osc_value,osc_value2))
+            # img_new = framebuffer.slowshutter(img,samplesize=10,interval=3)
 
 
             # ---- RANDOM FRAME SAMPLING DEMO ----
-            # if random.randint(1,1001) > 550:
-            #     log.critical('capture -----------------------')
-            #     framebuffer.write(img_new)
-            # img_new = framebuffer.cycle(repeat=3)
+            if random.randint(1,1001) > 550:
+                log.critical('capture -----------------------')
+                framebuffer.write(img)
+            img_new = framebuffer.cycle(repeat=1)
 
             # PLAYBACK
             cv2.imshow('playback', img_new)

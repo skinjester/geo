@@ -112,6 +112,23 @@ class Model(object):
                     wavetype = params['wavetype'],
                     dutycycle = params['dutycycle']
                 )
+            if fx['name'] == 'slowshutter':
+                params = fx['samplesize']
+                fx['osc1'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+                params = fx['interval']
+                fx['osc2'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
@@ -150,7 +167,7 @@ class Model(object):
 
     def set_endlayer(self, end):
         self.end = end
-        self.Renderer.request_wakeup()
+        # self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
@@ -169,7 +186,7 @@ class Model(object):
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
         console.log_value('featuremap', self.features[self.current_feature])
-        self.Renderer.request_wakeup()
+        # self.Renderer.request_wakeup()
 
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]

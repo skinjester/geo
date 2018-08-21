@@ -7,6 +7,8 @@ from threading import Thread
 import sys
 import data
 import hud.console as console
+import postprocess
+
 
 
 # Camera collection
@@ -52,8 +54,8 @@ class WebcamVideoStream(object):
         width,
         height,
         portrait_alignment,
-        Framebuffer,
         Viewport,
+        Framebuffer,
         flip_h=False,
         flip_v=False,
         gamma=1.0,
@@ -99,9 +101,9 @@ class WebcamVideoStream(object):
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
-        # testing
-        self.Framebuffer = Framebuffer
+        # asyncplayback
         self.Viewport = Viewport
+        self.Framebuffer = Framebuffer
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -144,8 +146,18 @@ class WebcamVideoStream(object):
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
 
+            # frame averaging on input frames
+            # img1 = self.gamma_correct(self.transpose(img))
+            # _osc1 = osc1.next()
+            # img2 = self.Framebuffer.slowshutter(img1,samplesize=10,interval=20)
+            # self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
+
             # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
+
+
+            # threaded playback
+            # self.Viewport.show(data.playback)
 
 
     def read(self):
@@ -242,3 +254,28 @@ log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
 threadlog = data.logging.getLogger('threadlog')
 threadlog.setLevel(data.logging.CRITICAL)
+
+osc1 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 3,
+            range_out = [0,0.5],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+osc2 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.2,
+            range_out = [-3.0,3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
+osc3 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.5,
+            range_out = [3.0,-3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
+_toggle = postprocess.counter(99999)

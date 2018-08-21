@@ -18,6 +18,28 @@ class Buffer(object):
         self.locked = False
         self.frame_repeat_count = 0
         self.total_frames = 0
+        self.osc1 = oscillator(
+                        cycle_length = 100,
+                        frequency = 1,
+                        range_out = [-3.0,3.0],
+                        wavetype = 'sin',
+                        dutycycle = 0.5
+                        )
+        self.osc2 = oscillator(
+                        cycle_length = 100,
+                        frequency = 1.2,
+                        range_out = [-3.0,3.0],
+                        wavetype = 'sin',
+                        dutycycle = 0.5
+                        )
+
+        self.osc3 = oscillator(
+                        cycle_length = 100,
+                        frequency = 1.5,
+                        range_out = [3.0,-3.0],
+                        wavetype = 'sin',
+                        dutycycle = 0.5
+                        )
 
     def write(self, img):
         if not self.locked:
@@ -32,7 +54,7 @@ class Buffer(object):
     def cycle(self,repeat):
         self.frame_repeat_count += 1
         if self.frame_repeat_count >= repeat:
-            self.playback_index = self.playback_counter.next()
+            self.playback_index = -1 * self.playback_counter.next()
             self.frame_repeat_count = 0
             self.locked = False
         else:
@@ -48,18 +70,19 @@ class Buffer(object):
             self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
         return self.accumulated
 
-    def slowshutter(self,img,samplesize=10,interval=1):
-        if self.frame.next() % interval != 0:
+    def slowshutter(self,img,samplesize,interval):
+        if self.frame.next() % int(interval) != 0:
             return self.accumulated
+        log.critical('samplesize:{} interval:{}'.format(samplesize,interval))
         (B, G, R) = cv2.split(img.astype("float"))
         if self.rAvg is None:
             self.rAvg = R
             self.bAvg = B
             self.gAvg = G
         else:
-                self.rAvg = ((samplesize * self.rAvg) + (1 * R)) / (samplesize + 1.0)
-                self.gAvg = ((samplesize * self.gAvg) + (1 * G)) / (samplesize + 1.0)
-                self.bAvg = ((samplesize * self.bAvg) + (1 * B)) / (samplesize + 1.0)
+                self.rAvg = ((samplesize * self.rAvg) + (2 * R)) / (samplesize + 2.0)
+                self.gAvg = ((samplesize * self.gAvg) + (2 * G)) / (samplesize + 2.0)
+                self.bAvg = ((samplesize * self.bAvg) + (2 * B)) / (samplesize + 2.0)
         self.accumulated = cv2.merge([self.bAvg, self.gAvg, self.rAvg]).astype("uint8")
         return self.accumulated
 

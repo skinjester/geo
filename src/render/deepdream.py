@@ -34,11 +34,12 @@ def objective_guide(dst):
     A.argmax(1)]
 
 class Artist(object):
-    def __init__(self, id):
+    def __init__(self, id, Framebuffer):
         self.id = id
         self.b_wakeup = True
         self.cycle_start_time = 0
         self.repeat = 0
+        self.Framebuffer = Framebuffer
         log.debug('dreaming with Render instance: {}'.format(self.id))
 
 
@@ -58,7 +59,6 @@ class Artist(object):
         stepfx,
         Webcam,
         Composer,
-        Viewport,
         Framebuffer,
         clip=False
         ):
@@ -101,11 +101,12 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                log.debug('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 Composer.update(vis, Webcam)
+
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1
