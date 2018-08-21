@@ -60,7 +60,7 @@ program = []
 
 program.append({
     'name': 'cambrian-implosion',
-    'iterations': 10,
+    'iterations': 5,
     'step_size': 4.,
     'octaves': 6,
     'octave_cutoff': 6,
@@ -119,7 +119,7 @@ program.append({
             'opacity': {
                 'cycle_length': 100,
                 'frequency': 5,
-                'range_out':[0.0, 1.0],
+                'range_out':[1.0, 1.0],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
@@ -132,7 +132,7 @@ program.append({
     'iterations': 10,
     'step_size': 1.2,
     'octaves': 6,
-    'octave_cutoff': 6,
+    'octave_cutoff': 4,
     'octave_scale': 1.3,
     'iteration_mult': 0.5,
     'step_mult': 0.1,
@@ -145,7 +145,7 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.1}
+            'params': {'scale': 0.05}
         },
         {
             'name': 'octave_scaler',
@@ -163,7 +163,7 @@ program.append({
             'name': 'median_blur',
             'params': {
                 'cycle_length': 60,
-                'frequency': 4,
+                'frequency': 1,
                 'range_out':[0.0, 3.0],
                 'wavetype': 'square',
                 'dutycycle': 0.7
@@ -181,7 +181,7 @@ program.append({
             'sigma-color': {
                 'cycle_length': 50,
                 'frequency': 2,
-                'range_out':[0.0,100.0],
+                'range_out':[0.0,30.0],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             },
@@ -193,7 +193,24 @@ program.append({
                 'dutycycle': 0.5
             },
         },
-    ]
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 100,
+                'frequency': 3,
+                'range_out':[10,10],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 100,
+                'frequency': 1,
+                'range_out':[2,2],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+    ],
 })
 
 program.append({

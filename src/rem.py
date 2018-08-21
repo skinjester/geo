@@ -146,19 +146,21 @@ class Composer(object):
                 self.opacity = 1.0
                 self.running  = True
 
-        camera_img = Webcam.get().read()
-        img_new = camera_img
-        # img_new = Framebuffer.slowshutter(camera_img,samplesize=10,interval=3)
-        # osc_value = osc.next()
-        # osc_value2 = osc2.next()
-        # log.debug('osc1:{} osc2:{}'.format(osc_value,osc_value2))
-
-
         # compositing
+        camera_img = Webcam.get().read()
         self.send(0, vis)
-        img_avg=Framebuffer.slowshutter(Composer.buffer[0],samplesize=30,interval=1)
-        self.send(1, img_new)
-        data.playback = Composer.mix(img_avg, Composer.buffer[1], Composer.opacity, 1.0)
+        if Model.stepfx is not None:
+            for fx in Model.stepfx:
+                if fx['name'] == 'slowshutter':
+                    img_avg = Framebuffer.slowshutter(
+                        Composer.buffer[0],
+                        samplesize=fx['osc1'].next(),
+                        interval=fx['osc2'].next()
+                        )
+                    self.send(0,img_avg)
+
+        self.send(1, camera_img)
+        data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
         Viewport.show(data.playback)
 
         console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
@@ -274,6 +276,30 @@ def main():
 # -------
 # INITIALIZE
 # -------
+
+osc1 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 3,
+            range_out = [1,30],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+osc2 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.2,
+            range_out = [-3.0,3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
+osc3 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.5,
+            range_out = [3.0,-3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG

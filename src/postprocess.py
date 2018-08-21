@@ -70,8 +70,8 @@ class Buffer(object):
             self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
         return self.accumulated
 
-    def slowshutter(self,img,samplesize=10,interval=1):
-        if self.frame.next() % interval != 0:
+    def slowshutter(self,img,samplesize,interval):
+        if self.frame.next() % int(interval) != 0:
             return self.accumulated
         (B, G, R) = cv2.split(img.astype("float"))
         if self.rAvg is None:
