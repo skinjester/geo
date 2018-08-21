@@ -56,8 +56,39 @@ stepfx_default = [
 ]
 
 
+
+
+'''
+    'layers': [
+        'inception_4b/5x5',
+
+    ],
+'''
+
+
+
 program = []
 
+program.append({
+    'name': 'cambrian-implosion',
+    'iterations': 5,
+    'step_size': 4.,
+    'octaves': 6,
+    'octave_cutoff': 6,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.2,
+    'step_mult': 0.01,
+    'model': 'places365',
+    'layers': [
+        'inception_4b/5x5',
+        'inception_4b/pool',
+    ],
+    'features': range(-1, 256),
+    'cyclefx': [],
+    'stepfx': []
+})
+
+'''
 program.append({
     'name': 'cambrian-implosion',
     'iterations': 5,
@@ -303,6 +334,11 @@ program.append({
         }
     ]
 })
+'''
+
+
+
+
 
 '''
 program.append({
