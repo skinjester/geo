@@ -146,11 +146,14 @@ class WebcamVideoStream(object):
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
 
+            # frame averaging on input frames
+            # img1 = self.gamma_correct(self.transpose(img))
+            # _osc1 = osc1.next()
+            # img2 = self.Framebuffer.slowshutter(img1,samplesize=10,interval=20)
+            # self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
+
             # update internal buffer w camera frame
-            img1 = self.gamma_correct(self.transpose(img))
-            _osc1 = osc1.next()
-            img2 = self.Framebuffer.slowshutter(img1,samplesize=10,interval=20)
-            self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
+            self.frame = self.gamma_correct(self.transpose(img))
 
             # threaded playback
             # self.Viewport.show(data.playback)
