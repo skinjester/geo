@@ -112,6 +112,23 @@ class Model(object):
                     wavetype = params['wavetype'],
                     dutycycle = params['dutycycle']
                 )
+            if fx['name'] == 'slowshutter':
+                params = fx['samplesize']
+                fx['osc1'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
+                params = fx['interval']
+                fx['osc2'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
