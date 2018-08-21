@@ -150,7 +150,7 @@ class Model(object):
 
     def set_endlayer(self, end):
         self.end = end
-        self.Renderer.request_wakeup()
+        # self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
@@ -169,7 +169,7 @@ class Model(object):
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
         console.log_value('featuremap', self.features[self.current_feature])
-        self.Renderer.request_wakeup()
+        # self.Renderer.request_wakeup()
 
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
