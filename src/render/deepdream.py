@@ -34,11 +34,12 @@ def objective_guide(dst):
     A.argmax(1)]
 
 class Artist(object):
-    def __init__(self, id):
+    def __init__(self, id, Framebuffer):
         self.id = id
         self.b_wakeup = True
         self.cycle_start_time = 0
         self.repeat = 0
+        self.Framebuffer = Framebuffer
         log.debug('dreaming with Render instance: {}'.format(self.id))
 
 
@@ -58,6 +59,7 @@ class Artist(object):
         stepfx,
         Webcam,
         Composer,
+        Framebuffer,
         clip=False
         ):
 
