@@ -73,6 +73,7 @@ class Buffer(object):
     def slowshutter(self,img,samplesize,interval):
         if self.frame.next() % int(interval) != 0:
             return self.accumulated
+        log.critical('samplesize:{} interval:{}'.format(samplesize,interval))
         (B, G, R) = cv2.split(img.astype("float"))
         if self.rAvg is None:
             self.rAvg = R

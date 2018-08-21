@@ -101,7 +101,7 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                log.debug('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))

@@ -124,6 +124,23 @@ program.append({
                 'dutycycle': 0.5
             }
         },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 1000,
+                'frequency': 3,
+                'range_out':[10,60],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 1000,
+                'frequency': 12,
+                'range_out':[1,3],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
     ]
 })
 
