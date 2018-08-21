@@ -153,7 +153,10 @@ class WebcamVideoStream(object):
             # self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
 
             # update internal buffer w camera frame
-            self.frame = self.gamma_correct(self.transpose(img))
+            img = self.gamma_correct(self.transpose(img))
+            if int(_toggle.next()) % 4 == 0:
+                self.Framebuffer.write(img)
+            self.frame = self.Framebuffer.cycle(repeat=1)
 
             # threaded playback
             # self.Viewport.show(data.playback)
@@ -276,3 +279,5 @@ osc3 = postprocess.oscillator(
             wavetype = 'sin',
             dutycycle = 0.5
             )
+
+_toggle = postprocess.counter(99999)

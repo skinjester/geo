@@ -54,7 +54,7 @@ class Buffer(object):
     def cycle(self,repeat):
         self.frame_repeat_count += 1
         if self.frame_repeat_count >= repeat:
-            self.playback_index = self.playback_counter.next()
+            self.playback_index = -1 * self.playback_counter.next()
             self.frame_repeat_count = 0
             self.locked = False
         else:
