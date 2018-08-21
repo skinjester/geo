@@ -295,7 +295,7 @@ if __name__ == "__main__":
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     width, height = data.capturesize
-    Framebuffer = postprocess.Buffer(10,width,height)
+    Framebuffer = postprocess.Buffer(30,width,height)
     camera=[]
     camera.append(
         WebcamVideoStream(
@@ -304,6 +304,7 @@ if __name__ == "__main__":
             height=height,
             portrait_alignment=True,
             Viewport=Viewport,
+            Framebuffer=Framebuffer,
             flip_h=True,
             flip_v=True,
             gamma=0.5,

@@ -18,6 +18,28 @@ class Buffer(object):
         self.locked = False
         self.frame_repeat_count = 0
         self.total_frames = 0
+        self.osc1 = oscillator(
+                        cycle_length = 100,
+                        frequency = 1,
+                        range_out = [-3.0,3.0],
+                        wavetype = 'sin',
+                        dutycycle = 0.5
+                        )
+        self.osc2 = oscillator(
+                        cycle_length = 100,
+                        frequency = 1.2,
+                        range_out = [-3.0,3.0],
+                        wavetype = 'sin',
+                        dutycycle = 0.5
+                        )
+
+        self.osc3 = oscillator(
+                        cycle_length = 100,
+                        frequency = 1.5,
+                        range_out = [3.0,-3.0],
+                        wavetype = 'sin',
+                        dutycycle = 0.5
+                        )
 
     def write(self, img):
         if not self.locked:
@@ -57,9 +79,9 @@ class Buffer(object):
             self.bAvg = B
             self.gAvg = G
         else:
-                self.rAvg = ((samplesize * self.rAvg) + (1 * R)) / (samplesize + 1.0)
-                self.gAvg = ((samplesize * self.gAvg) + (1 * G)) / (samplesize + 1.0)
-                self.bAvg = ((samplesize * self.bAvg) + (1 * B)) / (samplesize + 1.0)
+                self.rAvg = ((samplesize * self.rAvg) + (2 * R)) / (samplesize + 2.0)
+                self.gAvg = ((samplesize * self.gAvg) + (2 * G)) / (samplesize + 2.0)
+                self.bAvg = ((samplesize * self.bAvg) + (2 * B)) / (samplesize + 2.0)
         self.accumulated = cv2.merge([self.bAvg, self.gAvg, self.rAvg]).astype("uint8")
         return self.accumulated
 

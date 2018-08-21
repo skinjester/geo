@@ -7,6 +7,8 @@ from threading import Thread
 import sys
 import data
 import hud.console as console
+import postprocess
+
 
 
 # Camera collection
@@ -53,6 +55,7 @@ class WebcamVideoStream(object):
         height,
         portrait_alignment,
         Viewport,
+        Framebuffer,
         flip_h=False,
         flip_v=False,
         gamma=1.0,
@@ -100,6 +103,7 @@ class WebcamVideoStream(object):
 
         # asyncplayback
         self.Viewport = Viewport
+        self.Framebuffer = Framebuffer
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -143,9 +147,12 @@ class WebcamVideoStream(object):
                 self.motiondetector.process(self.delta)
 
             # update internal buffer w camera frame
-            self.frame = self.gamma_correct(self.transpose(img))
+            img1 = self.gamma_correct(self.transpose(img))
+            _osc1 = osc1.next()
+            img2 = self.Framebuffer.slowshutter(img1,samplesize=10,interval=20)
+            self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
 
-            # async playback
+            # threaded playback
             # self.Viewport.show(data.playback)
 
 
@@ -243,3 +250,26 @@ log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
 threadlog = data.logging.getLogger('threadlog')
 threadlog.setLevel(data.logging.CRITICAL)
+
+osc1 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 3,
+            range_out = [0,0.5],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+osc2 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.2,
+            range_out = [-3.0,3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
+osc3 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.5,
+            range_out = [3.0,-3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )

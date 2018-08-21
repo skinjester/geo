@@ -65,9 +65,9 @@ program.append({
     'octaves': 6,
     'octave_cutoff': 6,
     'octave_scale': 1.8,
-    'iteration_mult': 0.1,
-    'step_mult': -0.0,
-    'model': 'googlenet',
+    'iteration_mult': 0.2,
+    'step_mult': 0.01,
+    'model': 'places365',
     'layers': [
         'inception_4b/5x5',
         'inception_4b/pool',
