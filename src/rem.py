@@ -156,8 +156,9 @@ class Composer(object):
 
         # compositing
         self.send(0, vis)
+        img_avg=Framebuffer.slowshutter(Composer.buffer[0],samplesize=30,interval=1)
         self.send(1, img_new)
-        data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 20.0)
+        data.playback = Composer.mix(img_avg, Composer.buffer[1], Composer.opacity, 1.0)
         Viewport.show(data.playback)
 
         console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
@@ -168,17 +169,6 @@ class Composer(object):
             if time.time() - Model.program_start_time > Model.program_duration:
                 Model.next_program()
 
-
-def vignette(image, param):
-    rows, cols = image.shape[:2]
-    kernel_x = cv2.getGaussianKernel(cols, param)
-    kernel_y = cv2.getGaussianKernel(rows, param)
-    kernel = kernel_y * kernel_x.T
-    mask = 22 * kernel / np.linalg.norm(kernel)
-    output = np.copy(image)
-    for i in range(1):
-        output[:, :, i] = np.uint8(np.clip((output[:, :, i] * mask), 0, 512))
-    return output
 
 def make_sure_path_exists(directoryname):
     try:
@@ -265,6 +255,7 @@ def main():
             stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
+            Framebuffer = Framebuffer
             )
 
         Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
@@ -291,9 +282,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.username:
         data.username = args.username
-    _Deepdreamer = dreamer.Artist('test')
-    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     width, height = data.capturesize
     Framebuffer = postprocess.Buffer(30,width,height)
     camera=[]
@@ -311,6 +299,9 @@ if __name__ == "__main__":
             floor=10000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
+    _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
+    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
     main()
 
