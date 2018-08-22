@@ -36,13 +36,13 @@ class Model(object):
         self.octave_scale = program['octave_scale']
         self.layers = program['layers']
         self.current_layer = 0
-        self.features = program['features']
+        self.features = None # this will be defined in set_end_layer()
         self.current_feature = 0
         self.jitter = 320
         self.clip = True
         self.modelname = program['model']
         self.choose_model(self.modelname)
-        self.set_endlayer(self.layers[0])
+        self.set_endlayer(self.current_layer)
         self.stepfx = program['stepfx']
 
         self.cyclefx = program['cyclefx']
@@ -165,8 +165,11 @@ class Model(object):
             self.features[self.current_feature]
         )
 
-    def set_endlayer(self, end):
-        self.end = end
+    def set_endlayer(self, layer_index):
+        self.end = self.layers[layer_index]['name']
+        self.features = self.layers[layer_index]['features']
+        self.current_feature = 0
+        self.set_featuremap()
         # self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
@@ -175,13 +178,13 @@ class Model(object):
         self.current_layer -= 1
         if self.current_layer < 0:
             self.current_layer = len(self.layers) - 1
-        self.set_endlayer(self.layers[self.current_layer])
+        self.set_endlayer(self.current_layer)
 
     def next_layer(self):
         self.current_layer += 1
         if self.current_layer > len(self.layers) - 1:
             self.current_layer = 0
-        self.set_endlayer(self.layers[self.current_layer])
+        self.set_endlayer(self.current_layer)
 
     def set_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
@@ -221,6 +224,9 @@ class Model(object):
         self.program_running = not self.program_running
         if self.program_running:
             self.next_program()
+
+    def cycle_feature(self):
+        log.critical('TESTFUNCTION')
 
 models = {
     'path': '../models',
