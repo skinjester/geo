@@ -57,17 +57,74 @@ stepfx_default = [
 
 
 
-
-'''
-    'layers': [
-        'inception_4b/5x5',
-
-    ],
-'''
-
-
-
 program = []
+
+program.append({
+    'name': 'JOI-v5',
+    'iterations': 10,
+    'step_size': 1.2,
+    'octaves': 6,
+    'octave_cutoff': 4,
+    'octave_scale': 1.3,
+    'iteration_mult': 0.5,
+    'step_mult': 0.1,
+    'model': 'vgg19',
+    'layers': [
+        {
+            'name':'conv5_2',
+            'features':range(-1, 256)
+        },
+        {
+            'name':'conv5_3',
+            'features':range(-1, 256)
+        }
+    ],
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.05}
+        },
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 50,
+                'frequency': 10,
+                'range_out':[1.2,1.5],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'median_blur',
+            'params': {
+                'cycle_length': 60,
+                'frequency': 1,
+                'range_out':[0.0, 3.0],
+                'wavetype': 'square',
+                'dutycycle': 0.7
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 100,
+                'frequency': 3,
+                'range_out':[10,10],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 100,
+                'frequency': 1,
+                'range_out':[2,2],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+    ],
+})
 
 program.append({
     'name': 'neomorph-neo-v5',
@@ -311,189 +368,6 @@ program.append({
 })
 
 
-
-
-# program.append({
-#     'name': 'cambrian-implosion',
-#     'iterations': 5,
-#     'step_size': 4.,
-#     'octaves': 6,
-#     'octave_cutoff': 6,
-#     'octave_scale': 1.8,
-#     'iteration_mult': 0.2,
-#     'step_mult': 0.01,
-#     'model': 'places365',
-#     'layers': [
-#         'inception_4b/5x5',
-#         'inception_4b/pool',
-#         'inception_4c/pool',
-#         'inception_4b/3x3_reduce',
-#         'inception_4b/5x5',
-#         'inception_4b/5x5_reduce',
-#         'inception_4b/output',
-#         'inception_4b/pool_proj',
-#         'inception_4c/1x1',
-#         'inception_4c/3x3',
-#         'inception_4c/3x3_reduce',
-#         'inception_5a/output',
-#         'inception_5a/pool',
-#         'inception_5b/1x1',
-#         'inception_5b/3x3',
-#         'inception_5b/3x3_reduce',
-#     ],
-#     'features': range(-1, 256),
-#     'cyclefx': [
-#         {
-#             'name': 'inception_xform',
-#             'params': {'scale': 0.05}
-#         },
-#         {
-#             'name': 'octave_scaler',
-#             'params': {
-#                 'cycle_length': 4,
-#                 'frequency': 1,
-#                 'range_out':[1.2,1.5],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             }
-#         },
-#     ],
-#     'stepfx': [
-#         {
-#             'name': 'gaussian',
-#             'sigma': {
-#                 'cycle_length': 100,
-#                 'frequency': 5,
-#                 'range_out':[0.0, 0.7],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             }
-#         },
-#         {
-#             'name': 'step_mixer',
-#             'opacity': {
-#                 'cycle_length': 100,
-#                 'frequency': 5,
-#                 'range_out':[1.0, 1.0],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             }
-#         },
-#         {
-#             'name': 'slowshutter',
-#             'samplesize': {
-#                 'cycle_length': 1000,
-#                 'frequency': 3,
-#                 'range_out':[10,60],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             },
-#             'interval': {
-#                 'cycle_length': 1000,
-#                 'frequency': 12,
-#                 'range_out':[1,3],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             },
-#         },
-#         {
-#             'name': 'featuremap',
-#             'cycle': {
-#                 'cycle_length': 1000,
-#                 'frequency': 3,
-#                 'range_out':[10,60],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             },
-#         },
-#     ]
-# })
-
-# program.append({
-#     'name': 'JOI.02',
-#     'iterations': 10,
-#     'step_size': 1.2,
-#     'octaves': 6,
-#     'octave_cutoff': 4,
-#     'octave_scale': 1.3,
-#     'iteration_mult': 0.5,
-#     'step_mult': 0.1,
-#     'model': 'vgg19',
-#     'layers': [
-#         'conv5_2',
-#         'conv5_3',
-#     ],
-#     'features': range(15, 256),
-#     'cyclefx': [
-#         {
-#             'name': 'inception_xform',
-#             'params': {'scale': 0.05}
-#         },
-#         {
-#             'name': 'octave_scaler',
-#             'params': {
-#                 'cycle_length': 50,
-#                 'frequency': 10,
-#                 'range_out':[1.2,1.5],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.5
-#             }
-#         },
-#     ],
-#     'stepfx': [
-#         {
-#             'name': 'median_blur',
-#             'params': {
-#                 'cycle_length': 60,
-#                 'frequency': 1,
-#                 'range_out':[0.0, 3.0],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.7
-#             }
-#         },
-#         {
-#             'name': 'bilateral_filter',
-#             'radius': {
-#                 'cycle_length': 50,
-#                 'frequency': 1,
-#                 'range_out':[5.0,5.0],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.5
-#             },
-#             'sigma-color': {
-#                 'cycle_length': 50,
-#                 'frequency': 2,
-#                 'range_out':[0.0,30.0],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             },
-#             'sigma-xy': {
-#                 'cycle_length': 50,
-#                 'frequency': 2,
-#                 'range_out':[3.0,100.0],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.5
-#             },
-#         },
-#         {
-#             'name': 'slowshutter',
-#             'samplesize': {
-#                 'cycle_length': 100,
-#                 'frequency': 3,
-#                 'range_out':[10,10],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.5
-#             },
-#             'interval': {
-#                 'cycle_length': 100,
-#                 'frequency': 1,
-#                 'range_out':[2,2],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.5
-#             },
-#         },
-#     ],
-# })
 
 # program.append({
 #     'name': 'basic',
