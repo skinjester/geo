@@ -71,17 +71,17 @@ program = []
 
 program.append({
     'name': 'cambrian-implosion',
-    'iterations': 10,
+    'iterations': 30,
     'step_size': 2.,
     'octaves': 6,
     'octave_cutoff': 6,
-    'octave_scale': 1.8,
-    'iteration_mult': 0.0,
-    'step_mult': 0.00,
-    'model': 'places365',
+    'octave_scale': 1.5,
+    'iteration_mult': 0.25,
+    'step_mult': 0.01,
+    'model': 'googlenet',
     'layers': [
         {
-            'name': 'inception_4b/5x5',
+            'name': 'inception_4d/5x5',
             'features': range(-1,256)
         },
         {
@@ -89,29 +89,42 @@ program.append({
             'features': range(-1,256)
         }
     ],
-    'cyclefx': [],
-    'stepfx': []
-})
-
-program.append({
-    'name': 'cambrian-implosion',
-    'iterations': 5,
-    'step_size': 4.,
-    'octaves': 6,
-    'octave_cutoff': 6,
-    'octave_scale': 1.8,
-    'iteration_mult': 0.2,
-    'step_mult': 0.01,
-    'model': 'places365',
-    'layers': [
-        [],
-        []
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.01}
+        },
     ],
-    'features': range(-1, 256),
-    'cyclefx': [],
-    'stepfx': []
+    'stepfx': [
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0,12],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 1000,
+                'frequency': 3,
+                'range_out':[30,30],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[3,3],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+    ]
 })
-
 
 
 

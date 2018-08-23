@@ -129,6 +129,15 @@ class Model(object):
                     wavetype = params['wavetype'],
                     dutycycle = params['dutycycle']
                 )
+            if fx['name'] == 'featuremap':
+                params = fx['index']
+                fx['osc1'] = postprocess.oscillator(
+                    cycle_length = params['cycle_length'],
+                    frequency = params['frequency'],
+                    range_out = params['range_out'],
+                    wavetype = params['wavetype'],
+                    dutycycle = params['dutycycle']
+                )
 
         log.warning('program:{} started:{}'.format(program['name'], self.program_start_time))
         console.log_value('program', self.package_name)
@@ -169,7 +178,7 @@ class Model(object):
         self.end = self.layers[layer_index]['name']
         self.features = self.layers[layer_index]['features']
         self.current_feature = 0
-        self.set_featuremap()
+        self.log_featuremap()
         # self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
@@ -186,7 +195,7 @@ class Model(object):
             self.current_layer = 0
         self.set_endlayer(self.current_layer)
 
-    def set_featuremap(self):
+    def log_featuremap(self):
         log.warning('featuremap:{}'.format(self.features[self.current_feature]))
         console.log_value('featuremap', self.features[self.current_feature])
         # self.Renderer.request_wakeup()
@@ -196,14 +205,14 @@ class Model(object):
         self.current_feature -= 1
         if self.current_feature < 0:
             self.current_feature = max_feature_index - 1
-        self.set_featuremap()
+        self.log_featuremap()
 
     def next_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
         self.current_feature += 1
         if self.current_feature > max_feature_index - 1:
             self.current_feature = -1
-        self.set_featuremap()
+        self.log_featuremap()
 
     def reset_feature(self):
         pass
@@ -225,8 +234,11 @@ class Model(object):
         if self.program_running:
             self.next_program()
 
-    def cycle_feature(self):
-        log.critical('TESTFUNCTION')
+    def set_featuremap(self, index):
+        index = int(round(index))
+        log.critical('index:{}'.format(index))
+        self.current_feature = index
+        self.log_featuremap()
 
 models = {
     'path': '../models',
