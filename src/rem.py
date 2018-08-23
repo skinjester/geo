@@ -323,10 +323,10 @@ if __name__ == "__main__":
             portrait_alignment=True,
             Viewport=Viewport,
             Framebuffer=Framebuffer,
-            flip_h=True,
-            flip_v=True,
+            flip_h=False,
+            flip_v=False,
             gamma=0.5,
-            floor=10000,
+            floor=40000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
