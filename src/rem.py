@@ -158,6 +158,8 @@ class Composer(object):
                         interval=fx['osc2'].next()
                         )
                     self.send(0,img_avg)
+                if fx['name'] == 'featuremap':
+                    Model.set_featuremap(index=fx['osc1'].next())
 
         self.send(1, camera_img)
         data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
@@ -170,6 +172,8 @@ class Composer(object):
         if Model.program_running and Model.program_duration > 0:
             if time.time() - Model.program_start_time > Model.program_duration:
                 Model.next_program()
+
+
 
 
 def make_sure_path_exists(directoryname):
@@ -327,7 +331,7 @@ if __name__ == "__main__":
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
     Composer = Composer()
     main()
 
