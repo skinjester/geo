@@ -70,6 +70,88 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'neomorph-neo',
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 3,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.0,
+    'step_mult': 0.01,
+    'model': 'googlenet',
+    'layers': [
+        {
+            'name':'inception_4c/5x5',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/5x5_reduce',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/5x5_reduce',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/output',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/pool',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4d/3x3',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4d/5x5',
+            'features':range(64),
+        },
+    ],
+    'cyclefx': [
+        inception_xform_default
+    ],
+    'stepfx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[1.4,1.7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'bilateral_filter',
+            'radius': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[7.0,7.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'sigma-color': {
+                'cycle_length': 1000,
+                'frequency': 2,
+                'range_out':[16,16],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'sigma-xy': {
+                'cycle_length': 1000,
+                'frequency': 2,
+                'range_out':[60,60],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+    ]
+})
+
+
+program.append({
     'name': 'cambrian-implosion',
     'iterations': 30,
     'step_size': 2.,
@@ -77,8 +159,8 @@ program.append({
     'octave_cutoff': 6,
     'octave_scale': 1.5,
     'iteration_mult': 0.25,
-    'step_mult': 0.01,
-    'model': 'googlenet',
+    'step_mult': 0.0,
+    'model': 'places365',
     'layers': [
         {
             'name': 'inception_4d/5x5',
@@ -93,6 +175,16 @@ program.append({
         {
             'name': 'inception_xform',
             'params': {'scale': 0.01}
+        },
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 4,
+                'frequency': 1,
+                'range_out':[1.2,1.5],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
         },
     ],
     'stepfx': [
@@ -883,36 +975,3 @@ program.append({
 
 
 
-# program.append({
-#     'name': 'neomorph-neo',
-#     'iterations': 10,
-#     'step_size': 2,
-#     'octaves': 5,
-#     'octave_cutoff': 3,
-#     'octave_scale': 1.5,
-#     'iteration_mult': 0.0,
-#     'step_mult': 0.01,
-#     'model': 'googlenet',
-#     'layers': [
-#         'inception_4c/5x5',
-#         'inception_4c/5x5_reduce',
-#         'inception_4c/output',
-#         'inception_4c/pool',
-#         'inception_4d/3x3',
-#         'inception_4d/5x5'
-#     ],
-#     'features': range(64),
-#     'cyclefx': [
-#         inception_xform_default
-#     ],
-#     'stepfx': [
-#         {
-#             'name': 'octave_scaler',
-#             'params': {'step': 0.01, 'min_scale': 1.4, 'max_scale': 1.7}
-#         },
-#         {
-#             'name': 'bilateral_filter',
-#             'params': {'radius': 7, 'sigma_color': 16, 'sigma_xy': 60}
-#         }
-#     ]
-# })
