@@ -58,9 +58,182 @@ stepfx_default = [
 
 
 program = []
+program.append({
+    'name': 'neomorph-neo-v5',
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 3,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.0,
+    'step_mult': 0.01,
+    'model': 'googlenet',
+    'layers': [
+        {
+            'name':'inception_4c/5x5',
+            'features':range(64),
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.05}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[1.4,1.7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'bilateral_filter',
+            'radius': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[7.0,7.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'sigma-color': {
+                'cycle_length': 1000,
+                'frequency': 2,
+                'range_out':[16,16],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'sigma-xy': {
+                'cycle_length': 1000,
+                'frequency': 10,
+                'range_out':[20,60],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 1000,
+                'frequency': 3,
+                'range_out':[10,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[1,3],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+    ]
+})
 
 program.append({
-    'name': 'peyoteworld-1',
+    'name': 'Paris-v5',
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 3,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.0,
+    'step_mult': 0.01,
+    'model': 'places365',
+    'layers': [
+        {
+            'name':'inception_4c/5x5_reduce',
+            'features':range(64),
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': -0.01}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[1.4,1.7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'bilateral_filter',
+            'radius': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[7.0,7.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'sigma-color': {
+                'cycle_length': 1000,
+                'frequency': 2,
+                'range_out':[16,16],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'sigma-xy': {
+                'cycle_length': 1000,
+                'frequency': 2,
+                'range_out':[60,60],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0,2,3,4,5,6,7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 10000,
+                'frequency': 2,
+                'range_out':[1,15],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[1,1],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+    ]
+})
+
+program.append({
+    'name': 'peyoteworld-v5',
     'iterations': 5,
     'step_size': 2,
     'octaves': 5,
@@ -112,6 +285,81 @@ program.append({
 
     ]
 })
+
+program.append({
+    'name': 'kwisatzhaderach',
+    'iterations': 5,
+    'step_size': 3,
+    'octaves': 4,
+    'octave_cutoff': 4,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.0,
+    'step_mult': 0.002,
+    'model': 'vgg19',
+    'layers': [
+        {
+            'name': 'conv5_1',
+            'features': range(90, 100)
+        }
+    ],
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': -0.05}
+        },
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10000,
+                'frequency': 10,
+                'range_out':[1.1,2.0],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'nd_gaussian',
+            'params': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0.1,3.0],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 10000,
+                'frequency': 10,
+                'range_out':[10,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 2,
+                'range_out':[1,3],
+                'wavetype': 'saw',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0,5],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+    ]
+})
+
+
 
 program.append({
     'name': 'peyoteworld-2',
@@ -308,179 +556,7 @@ program.append({
     ],
 })
 
-program.append({
-    'name': 'neomorph-neo-v5',
-    'iterations': 10,
-    'step_size': 2,
-    'octaves': 5,
-    'octave_cutoff': 3,
-    'octave_scale': 1.5,
-    'iteration_mult': 0.0,
-    'step_mult': 0.01,
-    'model': 'googlenet',
-    'layers': [
-        {
-            'name':'inception_4c/5x5',
-            'features':range(64),
-        },
-    ],
-    'cyclefx': [
-        {
-            'name': 'inception_xform',
-            'params': {'scale': 0.05}
-        },
-    ],
-    'stepfx': [
-        {
-            'name': 'octave_scaler',
-            'params': {
-                'cycle_length': 1000,
-                'frequency': 1,
-                'range_out':[1.4,1.7],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        },
-        {
-            'name': 'bilateral_filter',
-            'radius': {
-                'cycle_length': 1000,
-                'frequency': 1,
-                'range_out':[7.0,7.0],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            },
-            'sigma-color': {
-                'cycle_length': 1000,
-                'frequency': 2,
-                'range_out':[16,16],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-            'sigma-xy': {
-                'cycle_length': 1000,
-                'frequency': 10,
-                'range_out':[20,60],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            },
-        },
-        {
-            'name': 'slowshutter',
-            'samplesize': {
-                'cycle_length': 1000,
-                'frequency': 3,
-                'range_out':[10,10],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-            'interval': {
-                'cycle_length': 10000,
-                'frequency': 1,
-                'range_out':[1,3],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-        },
-        {
-            'name': 'featuremap',
-            'index': {
-                'cycle_length': 10000,
-                'frequency': 1,
-                'range_out':[0,10],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        },
-    ]
-})
 
-program.append({
-    'name': 'Paris-v5',
-    'iterations': 10,
-    'step_size': 2,
-    'octaves': 5,
-    'octave_cutoff': 3,
-    'octave_scale': 1.5,
-    'iteration_mult': 0.0,
-    'step_mult': 0.01,
-    'model': 'places365',
-    'layers': [
-        {
-            'name':'inception_4c/5x5_reduce',
-            'features':range(64),
-        },
-    ],
-    'cyclefx': [
-        {
-            'name': 'inception_xform',
-            'params': {'scale': -0.01}
-        },
-    ],
-    'stepfx': [
-        {
-            'name': 'octave_scaler',
-            'params': {
-                'cycle_length': 1000,
-                'frequency': 1,
-                'range_out':[1.4,1.7],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        },
-        {
-            'name': 'bilateral_filter',
-            'radius': {
-                'cycle_length': 1000,
-                'frequency': 1,
-                'range_out':[7.0,7.0],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            },
-            'sigma-color': {
-                'cycle_length': 1000,
-                'frequency': 2,
-                'range_out':[16,16],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-            'sigma-xy': {
-                'cycle_length': 1000,
-                'frequency': 2,
-                'range_out':[60,60],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-        },
-        {
-            'name': 'featuremap',
-            'index': {
-                'cycle_length': 10000,
-                'frequency': 1,
-                'range_out':[0,2,3,4,5,6,7],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        },
-        {
-            'name': 'slowshutter',
-            'samplesize': {
-                'cycle_length': 10000,
-                'frequency': 2,
-                'range_out':[1,15],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-            'interval': {
-                'cycle_length': 10000,
-                'frequency': 1,
-                'range_out':[1,1],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-        },
-    ]
-})
 
 program.append({
     'name': 'Windows 2049',
@@ -559,46 +635,7 @@ program.append({
 
 
 
-# program.append({
-#     'name': 'kwisatzhaderach',
-#     'iterations': 5,
-#     'step_size': 3,
-#     'octaves': 4,
-#     'octave_cutoff': 4,
-#     'octave_scale': 1.8,
-#     'iteration_mult': 0.0,
-#     'step_mult': 0.002,
-#     'model': 'vgg19',
-#     'layers': [
-#         'conv5_1',
-#         'conv3_1',
-#         'conv3_2',
-#         'conv3_3',
-#         'conv3_4',
-#         'conv4_1',
-#         'conv4_2',
-#         'conv4_3',
-#         'conv4_4',
-#         'conv5_3',
-#     ],
-#     'features': range(90, 100),
-#     'cyclefx': [
-#         {
-#             'name': 'inception_xform',
-#             'params': {'scale': 0.2}
-#         },
-#         {
-#             'name': 'octave_scaler',
-#             'params': {'step': 5, 'min_scale': 1.1, 'max_scale': 2.0}
-#         },
-#     ],
-#     'stepfx': [
-#         {
-#             'name': 'nd_gaussian',
-#             'params': {'sigma': 0.7, 'order': 0}
-#         },
-#     ]
-# })
+
 
 # program.append({
 #     'name': 'PIKHAL',
