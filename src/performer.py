@@ -60,6 +60,124 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'peyoteworld-1',
+    'iterations': 5,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 3,
+    'octave_scale': 1.2,
+    'iteration_mult': 0.0,
+    'step_mult': 0.1,
+    'model': 'vgg19',
+    'layers': [
+        {
+            'name':'conv3_2',
+            'features':range(-1, 255)
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10000,
+                'frequency': 10,
+                'range_out':[1.1,1.5],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.15}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 10000,
+                'frequency': 3,
+                'range_out':[10,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[3,3],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+
+    ]
+})
+
+program.append({
+    'name': 'peyoteworld-2',
+    'iterations': 5,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 3,
+    'octave_scale': 1.2,
+    'iteration_mult': 0.0,
+    'step_mult': 0.1,
+    'model': 'vgg19',
+    'layers': [
+        {
+            'name':'conv3_3',
+            'features':range(-1, 255)
+        }
+    ],
+    'cyclefx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10000,
+                'frequency': 10,
+                'range_out':[1.1,1.3],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.05}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 10000,
+                'frequency': 3,
+                'range_out':[10,30],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[1,1],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 4,
+                'range_out':[0,20],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+
+    ]
+})
+
+program.append({
     'name': 'Lobe-v5',
     'iterations': 10,
     'step_size': 4.0,
@@ -440,17 +558,6 @@ program.append({
 
 
 
-'''
-program.append({
-    'name': 'basic',
-    'step_size': 2.0,
-
-    'octaves': (10,10,10,10),   # 4 octaves, 10 iterations each octave
-    'octaves': (10,10,5,2),     # 4 octaves, variable iterations per octave
-    'octaves': (10,10,5,5,0),   # 5 octaves, cutoff after octave 4
-    'octaves': (10,-1,5,5]      # 5 octaves, skip octave 2
-
-'''
 
 # program.append({
 #     'name': 'kwisatzhaderach',
