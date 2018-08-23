@@ -566,12 +566,12 @@ program.append({
     'octave_cutoff': 6,
     'octave_scale': 1.5,
     'iteration_mult': 0.25,
-    'step_mult': 0.0,
+    'step_mult': 0.02,
     'model': 'places365',
     'layers': [
         {
             'name': 'inception_3b/output',
-            'features': [-1,2,4]
+            'features': [-1,6,-1,-1]
         },
         {
             'name': 'inception_4b/output',
@@ -581,36 +581,103 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.01}
+            'params': {'scale': 0.03}
         },
         {
             'name': 'octave_scaler',
             'params': {
-                'cycle_length': 4,
-                'frequency': 1,
-                'range_out':[1.3,1.6],
+                'cycle_length': 10,
+                'frequency': 2,
+                'range_out':[1.1,1.4],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
         },
     ],
     'stepfx': [
+        # {
+        #     'name': 'featuremap',
+        #     'index': {
+        #         'cycle_length': 10000,
+        #         'frequency': 50,
+        #         'range_out':[0,2],
+        #         'wavetype': 'sin',
+        #         'dutycycle': 0.5
+        #     }
+        # },
         {
-            'name': 'featuremap',
-            'index': {
+            'name': 'slowshutter',
+            'samplesize': {
                 'cycle_length': 10000,
-                'frequency': 5,
-                'range_out':[0,2],
+                'frequency': 3,
+                'range_out':[30,30],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[1,1],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+    ]
+})
+
+program.append({
+    'name': 'Windows 2050',
+    'iterations': 30,
+    'step_size': 2.,
+    'octaves': 6,
+    'octave_cutoff': 6,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.25,
+    'step_mult': 0.02,
+    'model': 'places365',
+    'layers': [
+        {
+            'name': 'inception_3b/pool',
+            'features': range(-1,256)
+        },
+        {
+            'name': 'inception_4b/output',
+            'features': range(-1,256)
+        }
+    ],
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.03}
+        },
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10,
+                'frequency': 2,
+                'range_out':[1.1,1.4],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
         },
+    ],
+    'stepfx': [
+        # {
+        #     'name': 'featuremap',
+        #     'index': {
+        #         'cycle_length': 10000,
+        #         'frequency': 50,
+        #         'range_out':[0,3],
+        #         'wavetype': 'sin',
+        #         'dutycycle': 0.5
+        #     }
+        # },
         {
             'name': 'slowshutter',
             'samplesize': {
-                'cycle_length': 1000,
+                'cycle_length': 10000,
                 'frequency': 3,
-                'range_out':[30,30],
+                'range_out':[15,15],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             },
@@ -624,7 +691,6 @@ program.append({
         },
     ]
 })
-
 
 
 
