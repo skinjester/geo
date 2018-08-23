@@ -70,7 +70,7 @@ stepfx_default = [
 program = []
 
 program.append({
-    'name': 'neomorph-neo',
+    'name': 'neomorph-neo-v5',
     'iterations': 10,
     'step_size': 2,
     'octaves': 5,
@@ -84,33 +84,99 @@ program.append({
             'name':'inception_4c/5x5',
             'features':range(64),
         },
+    ],
+    'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.05}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[1.4,1.7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'bilateral_filter',
+            'radius': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[7.0,7.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'sigma-color': {
+                'cycle_length': 1000,
+                'frequency': 2,
+                'range_out':[16,16],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'sigma-xy': {
+                'cycle_length': 1000,
+                'frequency': 10,
+                'range_out':[20,60],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 1000,
+                'frequency': 3,
+                'range_out':[10,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[1,3],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+    ]
+})
+
+program.append({
+    'name': 'Paris-v5',
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 3,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.0,
+    'step_mult': 0.01,
+    'model': 'places365',
+    'layers': [
         {
             'name':'inception_4c/5x5_reduce',
-            'features':range(64),
-        },
-        {
-            'name':'inception_4c/5x5_reduce',
-            'features':range(64),
-        },
-        {
-            'name':'inception_4c/output',
-            'features':range(64),
-        },
-        {
-            'name':'inception_4c/pool',
-            'features':range(64),
-        },
-        {
-            'name':'inception_4d/3x3',
-            'features':range(64),
-        },
-        {
-            'name':'inception_4d/5x5',
             'features':range(64),
         },
     ],
     'cyclefx': [
-        inception_xform_default
+        {
+            'name': 'inception_xform',
+            'params': {'scale': -0.01}
+        },
     ],
     'stepfx': [
         {
@@ -147,12 +213,38 @@ program.append({
                 'dutycycle': 0.5
             },
         },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[0,2,3,4,5,6,7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 10000,
+                'frequency': 2,
+                'range_out':[1,15],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[1,1],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
     ]
 })
 
-
 program.append({
-    'name': 'cambrian-implosion',
+    'name': 'Windows 2049',
     'iterations': 30,
     'step_size': 2.,
     'octaves': 6,
@@ -163,11 +255,11 @@ program.append({
     'model': 'places365',
     'layers': [
         {
-            'name': 'inception_4d/5x5',
-            'features': range(-1,256)
+            'name': 'inception_3b/output',
+            'features': [-1,2,4]
         },
         {
-            'name': 'inception_3b/5x5',
+            'name': 'inception_4b/output',
             'features': range(-1,256)
         }
     ],
@@ -181,7 +273,7 @@ program.append({
             'params': {
                 'cycle_length': 4,
                 'frequency': 1,
-                'range_out':[1.2,1.5],
+                'range_out':[1.3,1.6],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
@@ -192,8 +284,8 @@ program.append({
             'name': 'featuremap',
             'index': {
                 'cycle_length': 10000,
-                'frequency': 1,
-                'range_out':[0,12],
+                'frequency': 5,
+                'range_out':[0,2],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
