@@ -179,7 +179,7 @@ class Model(object):
         self.features = self.layers[layer_index]['features']
         self.current_feature = 0
         self.log_featuremap()
-        # self.Renderer.request_wakeup()
+        self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
         console.log_value('layer','{} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
 
