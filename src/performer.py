@@ -60,6 +60,70 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'Lobe-v5',
+    'iterations': 10,
+    'step_size': 4.0,
+    'octaves': 6,
+    'octave_cutoff': 5,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.2,
+    'step_mult': 0.01,
+    'model': 'milesdeep',
+    'layers': [
+        {
+            'name':'conv_stage2_block4_branch2b',
+            'features': range(-1, 128)
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10000,
+                'frequency': 4,
+                'range_out':[1.2,1.8],
+                'wavetype': 'saw',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'inception_xform',
+            'params': {'scale': -0.05}
+        },
+    ],
+    'stepfx': [
+        {
+            'name': 'median_blur',
+            'params': {
+                'cycle_length': 1000,
+                'frequency': 5,
+                'range_out':[0.0,3],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 10000,
+                'frequency': 3,
+                'range_out':[10,10],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[3,3],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+
+    ]
+})
+
+program.append({
     'name': 'JOI-v5',
     'iterations': 10,
     'step_size': 1.2,
@@ -369,79 +433,7 @@ program.append({
 
 
 
-# program.append({
-#     'name': 'basic',
-#     'iterations': 10,
-#     'step_size': 4.0,
-#     'octaves': 6,
-#     'octave_cutoff': 5,
-#     'octave_scale': 1.5,
-#     'iteration_mult': 0.2,
-#     'step_mult': 0.01,
-#     'model': 'milesdeep',
-#     'layers': [
-#         'conv_stage2_block4_branch2b',
-#         'conv_stage2_block4_branch2c',
-#         'eltwise_stage2_block4',
-#         'conv_stage2_block5_branch2a',
-#         'conv_stage2_block5_branch2b',
-#         'conv_stage2_block5_branch2c',
-#         'eltwise_stage2_block5',
-#     ],
-#     'features': range(-1, 128),
-#     'cyclefx': [
-#         {
-#             'name': 'octave_scaler',
-#             'params': {
-#                 'cycle_length': 50,
-#                 'frequency': 4,
-#                 'range_out':[1.2,1.8],
-#                 'wavetype': 'saw',
-#                 'dutycycle': 0.5
-#             }
-#         },
-#         {
-#             'name': 'inception_xform',
-#             'params': {'scale': 0.05}
-#         },
-#     ],
-#     'stepfx': [
-#         # {
-#         #     'name': 'median_blur',
-#         #     'params': {
-#         #         'cycle_length': 50,
-#         #         'frequency': 5,
-#         #         'range_out':[0.0,3],
-#         #         'wavetype': 'square',
-#         #         'dutycycle': 0.5
-#         #     }
-#         # },
-#         {
-#             'name': 'bilateral_filter',
-#             'radius': {
-#                 'cycle_length': 50,
-#                 'frequency': 1,
-#                 'range_out':[5.0,7.0],
-#                 'wavetype': 'square',
-#                 'dutycycle': 0.5
-#             },
-#             'sigma-color': {
-#                 'cycle_length': 50,
-#                 'frequency': 3,
-#                 'range_out':[0.0,30.0],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             },
-#             'sigma-xy': {
-#                 'cycle_length': 50,
-#                 'frequency': 2,
-#                 'range_out':[30.0,100.0],
-#                 'wavetype': 'sin',
-#                 'dutycycle': 0.5
-#             },
-#         }
-#     ]
-# })
+
 
 
 
