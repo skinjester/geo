@@ -42,7 +42,7 @@ username = "dev"  # can be overriden w commandline
 
 # monitor coordinates for window placement
 MONITOR_MAIN = (0, 0)
-MONITOR_SECOND = (2560, 0)
+MONITOR_SECOND = (3840, 0)
 MONITOR_TV = (0, 0)
 MONITOR_PROJECTOR = (0, 0)
 
