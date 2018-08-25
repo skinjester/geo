@@ -6,7 +6,10 @@ import datetime
 from threading import Thread
 import sys
 import data
-from hud.console import console_log, console_draw
+import hud.console as console
+import postprocess
+
+
 
 # Camera collection
 class Cameras(object):
@@ -37,6 +40,9 @@ class Cameras(object):
         log.debug('cameraID: {}'.format(self.current_camera))
         return self.source[self.current_camera]
 
+    def get_camera_list(self):
+        return self.source
+
 
 # camera object
 class WebcamVideoStream(object):
@@ -48,11 +54,13 @@ class WebcamVideoStream(object):
         width,
         height,
         portrait_alignment,
+        Viewport,
+        Framebuffer,
         flip_h=False,
         flip_v=False,
         gamma=1.0,
         floor=1000,
-        threshold_filter=32
+        threshold_filter=32,
     ):
 
         # camera
@@ -76,7 +84,7 @@ class WebcamVideoStream(object):
 
         # motion detection
         self.motiondetector = MotionDetector(floor)
-        self.delta = 0  # difference between current frame and previous
+        self.delta = 0
         self.buffer_t = np.zeros((self.height, self.width, 3),
             np.uint8)
         self.threshold_filter = threshold_filter
@@ -84,7 +92,7 @@ class WebcamVideoStream(object):
         # frame buffer housekeeping
         self.rawframe = np.zeros((self.height, self.width, 3), np.uint8)
         (self.grabbed,
-         self.frame) = self.stream.read()  # initial frame to prime the queue
+         self.frame) = self.stream.read()
         self.frame = self.transpose(self.frame)
         self.t_minus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
@@ -92,6 +100,10 @@ class WebcamVideoStream(object):
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
+
+        # asyncplayback
+        self.Viewport = Viewport
+        self.Framebuffer = Framebuffer
 
     def start(self):
         Thread(target=self.update, args=()).start()
@@ -101,6 +113,7 @@ class WebcamVideoStream(object):
     def set_gamma(self, gamma):
         # generates internal table for gamma correction
         log.debug('gamma: {}'.format(gamma))
+        console.log_value('gamma','{}'.format(gamma))
         return np.array([((i / 255.0) ** (1.0 / gamma)) * 255 for i in
             np.arange(0, 256)]).astype("uint8")
 
@@ -133,8 +146,19 @@ class WebcamVideoStream(object):
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
 
+            # frame averaging on input frames
+            # img1 = self.gamma_correct(self.transpose(img))
+            # _osc1 = osc1.next()
+            # img2 = self.Framebuffer.slowshutter(img1,samplesize=10,interval=20)
+            # self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
+
             # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
+
+
+            # threaded playback
+            # self.Viewport.show(data.playback)
+
 
     def read(self):
         log.debug('read camera:{} RGB:{}'.format(self.stream, self.frame.shape))
@@ -175,7 +199,7 @@ class MotionDetector(object):
         self.is_paused = False
         self.floor = floor
         self.history = []
-        self.history_queue_length = 100
+        self.history_queue_length = 50
         self.monitor_msg = '****'
 
     def process(self, delta):
@@ -187,8 +211,10 @@ class MotionDetector(object):
 
         lastmsg = '{:0>6}'.format(self.delta_history)
         nowmsg = '{:0>6}'.format(self.delta)
-        console_log('last', lastmsg)
-        console_log('now', nowmsg)
+        console.log_value('last', lastmsg)
+        console.log_value('now', nowmsg)
+        console.log_value('threshold', '{:0>6}'.format(self.delta_trigger))
+        console.log_value('floor', '{:0>6}'.format(self.floor))
 
         #  track delta count history
         self.delta_history = self.delta
@@ -228,3 +254,28 @@ log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
 threadlog = data.logging.getLogger('threadlog')
 threadlog.setLevel(data.logging.CRITICAL)
+
+osc1 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 3,
+            range_out = [0,0.5],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+osc2 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.2,
+            range_out = [-3.0,3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
+osc3 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 1.5,
+            range_out = [3.0,-3.0],
+            wavetype = 'sin',
+            dutycycle = 0.5
+            )
+
+_toggle = postprocess.counter(99999)

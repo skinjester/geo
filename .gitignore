@@ -59,4 +59,8 @@ target/
 
 dreamer/tmp\.prototxt
 models/
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
 src/tmp\.prototxt

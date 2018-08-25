@@ -1,4 +1,5 @@
 from data import viewsize, FONT, WHITE, GREEN
+import data
 import numpy as np, cv2
 
 def counter(func):
@@ -8,13 +9,13 @@ def counter(func):
     wrapper.counter=0
     return wrapper
 
-def console_log(key, new_value):
-    log[key][1] = log[key][0]
-    log[key][0] = new_value
+def log_value(key, new_value):
+    hud_log[key][1] = hud_log[key][0]
+    hud_log[key][0] = new_value
 
-def console_draw(image):
+def draw(image):
     clearscreen = cv2.rectangle(screen, (0, 0), (viewsize[0], viewsize[1]), (0, 0, 0), -1)
-    cv2.putText(screen, log['detect'][0], (x[0], 40), FONT, 1.0, (0, 255, 0))
+    cv2.putText(screen, hud_log['detect'][0], (x[0], 40), FONT, 1.0, (0, 255, 0))
     cv2.putText(screen, 'DEEPDREAMVISIONQUEST', (x[0], 100), FONT, 1.0, WHITE)
     layout('program')
     layout('interval')
@@ -41,18 +42,18 @@ def console_draw(image):
 def layout(key):
     color = WHITE
     row = y[0] + layout.counter * y[1]
-    if log[key][0] != log[key][1]:
+    if hud_log[key][0] != hud_log[key][1]:
         color = GREEN
-        log[key][1] = log[key][0]
+        hud_log[key][1] = hud_log[key][0]
     cv2.putText(screen, key, (x[0], row), FONT, opacity, color)
-    cv2.putText(screen, '{}'.format(log[key][0]), (x[1], row), FONT, opacity, color)
+    cv2.putText(screen, '{}'.format(hud_log[key][0]), (x[1], row), FONT, opacity, color)
 
 # -------
 # INITIALIZE
 # -------
 screen = np.zeros((viewsize[1], viewsize[0], 3), np.uint8)
 opacity = 0.5
-log = {
+hud_log = {
     'octave': [None, None],
     'width': [None, None],
     'height': [None, None],
@@ -80,3 +81,9 @@ x = (40, 180) # col1, col2
 y = (150, 20) # row, row height
 row = None
 
+# --------
+# INIT.
+# --------
+# CRITICAL ERROR WARNING INFO DEBUG
+log = data.logging.getLogger('mainlog')
+log.setLevel(data.logging.CRITICAL)
