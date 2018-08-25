@@ -157,7 +157,7 @@ class Model(object):
         open('tmp.prototxt', 'w').write(str(model))
 
         self.net = caffe.Classifier('tmp.prototxt',
-            self.param_fn, mean=np.float32([11.0, 12.0, 321.0]),
+            self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
             # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
             # self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
@@ -273,6 +273,7 @@ models = {
         'Miles_Deep.caffemodel'
     ]
 }
+
 
 layers = [
     'inception_4d/5x5_reduce',

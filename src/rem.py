@@ -323,14 +323,14 @@ if __name__ == "__main__":
             portrait_alignment=True,
             Viewport=Viewport,
             Framebuffer=Framebuffer,
-            flip_h=True,
-            flip_v=True,
+            flip_h=False,
+            flip_v=False,
             gamma=0.5,
-            floor=10000,
+            floor=40000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
-    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
+    Model = neuralnet.Model(program_duration=45, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
     Composer = Composer()
     main()
