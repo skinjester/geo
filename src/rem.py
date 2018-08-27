@@ -149,21 +149,23 @@ class Composer(object):
         # compositing
         camera_img = Webcam.get().read()
         self.send(0, vis)
+        self.send(1, camera_img)
+        data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
         if Model.stepfx is not None:
             for fx in Model.stepfx:
                 if fx['name'] == 'slowshutter':
-                    img_avg = Framebuffer.slowshutter(
-                        Composer.buffer[0],
+                    data.playback = Framebuffer.slowshutter(
+                        data.playback,
                         samplesize=fx['osc1'].next(),
                         interval=fx['osc2'].next()
                         )
-                    self.send(0,img_avg)
+                    # self.send(0,img_avg)
                 if fx['name'] == 'featuremap':
                     Model.set_featuremap(index=fx['osc1'].next())
 
-        self.send(1, camera_img)
-        data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
+
         Viewport.show(data.playback)
+
 
         console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
         console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - Model.program_start_time, 2), Model.program_duration))
@@ -326,7 +328,7 @@ if __name__ == "__main__":
             flip_h=False,
             flip_v=False,
             gamma=0.5,
-            floor=40000,
+            floor=5000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
