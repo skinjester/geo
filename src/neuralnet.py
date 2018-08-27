@@ -236,8 +236,11 @@ class Model(object):
 
     def set_featuremap(self, index):
         index = int(round(index))
-        log.critical('index:{}'.format(index))
+        max_feature_index = self.net.blobs[self.end].data.shape[1]
         self.current_feature = index
+        if self.current_feature > max_feature_index - 1:
+            self.current_feature = -1
+        log.critical('index:{}'.format(self.current_feature))
         self.log_featuremap()
 
 models = {
