@@ -126,21 +126,22 @@ class Composer(object):
         motion.peak_last = motion.peak
         motion.peak = motion.delta_history_peak
 
+        self.opacity = osc4.next()
         if motion.delta > motion.delta_trigger:
             _Deepdreamer.request_wakeup()
-            if self.running == False:
-                self.opacity += 0.1
-            if self.opacity > 0.1:
-                self.opacity =1.0
-                self.running  = True
+            # if self.running == False:
+            #     self.opacity += 0.1
+            # if self.opacity > 0.1:
+            #     self.opacity =1.0
+            #     self.running  = True
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.05
+            self.opacity -= 0.1
             if self.opacity < 0.0:
                 self.opacity = 0.0
                 self.running = False
         else:
-            _Deepdreamer.request_wakeup()
+            # _Deepdreamer.request_wakeup()
             self.opacity += 0.1
             if self.opacity > 1.0:
                 self.opacity = 1.0
@@ -151,6 +152,7 @@ class Composer(object):
         self.send(0, vis)
         self.send(1, camera_img)
         data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
+        data.playback = postprocess.equalize(data.playback)
         if Model.stepfx is not None:
             for fx in Model.stepfx:
                 if fx['name'] == 'slowshutter':
@@ -238,9 +240,9 @@ def main():
 
         if Model.cyclefx is not None:
             for fx in Model.cyclefx:
-                if fx['name'] == 'octave_scaler':
-                    Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
-                    log.critical('octave_scale: {}'.format(Model.octave_scale))
+                # if fx['name'] == 'octave_scaler':
+                #     Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
+                #     log.critical('octave_scale: {}'.format(Model.octave_scale))
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
@@ -306,6 +308,14 @@ osc3 = postprocess.oscillator(
             dutycycle = 0.5
             )
 
+osc4 = postprocess.oscillator(
+            cycle_length = 100,
+            frequency = 2,
+            range_out = [0.0,1.0],
+            wavetype = 'sin',
+            dutycycle = 0.2
+            )
+
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
@@ -325,14 +335,14 @@ if __name__ == "__main__":
             portrait_alignment=True,
             Viewport=Viewport,
             Framebuffer=Framebuffer,
-            flip_h=False,
+            flip_h=True,
             flip_v=False,
             gamma=0.5,
             floor=5000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
-    Model = neuralnet.Model(program_duration=45, current_program=0, Renderer=_Deepdreamer)
+    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
     Composer = Composer()
     main()

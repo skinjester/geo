@@ -203,7 +203,7 @@ class Model(object):
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
         self.current_feature -= 1
-        if self.current_feature < 0:
+        if self.current_feature < -1:
             self.current_feature = max_feature_index - 1
         self.log_featuremap()
 

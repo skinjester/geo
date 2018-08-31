@@ -67,6 +67,13 @@ class Artist(object):
         src = Model.net.blobs['data']
         octaves = [data.rgb2caffe(Model.net, base_image)]
         log.warning('octave_n: {}'.format(octave_n))
+
+        if Model.cyclefx is not None:
+         for fx in Model.cyclefx:
+             if fx['name'] == 'octave_scaler':
+                 Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
+                 log.critical('octave_scale: {}'.format(Model.octave_scale))
+
         for i in xrange(octave_n - 1):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
         detail = np.zeros_like(octaves[-1])
