@@ -129,30 +129,30 @@ class Composer(object):
         self.opacity = osc4.next()
         if motion.delta > motion.delta_trigger:
             _Deepdreamer.request_wakeup()
-            # if self.running == False:
-            #     self.opacity += 0.1
-            # if self.opacity > 0.1:
-            #     self.opacity =1.0
-            #     self.running  = True
+        #     if self.running == False:
+        #         self.opacity += 0.1
+        #     if self.opacity > 0.1:
+        #         self.opacity =1.0
+        #         self.running  = True
 
-        if motion.peak < motion.floor:
-            self.opacity -= 0.1
-            if self.opacity < 0.0:
-                self.opacity = 0.0
-                self.running = False
-        else:
-            # _Deepdreamer.request_wakeup()
-            self.opacity += 0.1
-            if self.opacity > 1.0:
-                self.opacity = 1.0
-                self.running  = True
+        # if motion.peak < motion.floor:
+        #     self.opacity -= 0.1
+        #     if self.opacity < 0.0:
+        #         self.opacity = 0.0
+        #         self.running = False
+        # else:
+        #     # _Deepdreamer.request_wakeup()
+        #     self.opacity += 0.1
+        #     if self.opacity > 1.0:
+        #         self.opacity = 1.0
+        #         self.running  = True
 
         # compositing
         camera_img = Webcam.get().read()
         self.send(0, vis)
         self.send(1, camera_img)
         data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
-        data.playback = postprocess.equalize(data.playback)
+        # data.playback = postprocess.equalize(data.playback)
         if Model.stepfx is not None:
             for fx in Model.stepfx:
                 if fx['name'] == 'slowshutter':
@@ -310,8 +310,8 @@ osc3 = postprocess.oscillator(
 
 osc4 = postprocess.oscillator(
             cycle_length = 100,
-            frequency = 2,
-            range_out = [0.0,1.0],
+            frequency = 10,
+            range_out = [0.0,0.5],
             wavetype = 'sin',
             dutycycle = 0.2
             )

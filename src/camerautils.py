@@ -148,6 +148,7 @@ class WebcamVideoStream(object):
 
             # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
+            self.frame = postprocess.equalize(self.frame)
 
 
 
