@@ -126,26 +126,27 @@ class Composer(object):
         motion.peak_last = motion.peak
         motion.peak = motion.delta_history_peak
 
-        self.opacity = osc4.next()
+        # self.opacity = osc4.next()
         if motion.delta > motion.delta_trigger:
             _Deepdreamer.request_wakeup()
-        #     if self.running == False:
-        #         self.opacity += 0.1
-        #     if self.opacity > 0.1:
-        #         self.opacity =1.0
-        #         self.running  = True
+            if self.running == False:
+                self.opacity = osc4.next()
+                # self.opacity += 0.1
+            if self.opacity > 1.0:
+                self.opacity =1.0
+                self.running  = True
 
-        # if motion.peak < motion.floor:
-        #     self.opacity -= 0.1
-        #     if self.opacity < 0.0:
-        #         self.opacity = 0.0
-        #         self.running = False
-        # else:
-        #     # _Deepdreamer.request_wakeup()
-        #     self.opacity += 0.1
-        #     if self.opacity > 1.0:
-        #         self.opacity = 1.0
-        #         self.running  = True
+        if motion.peak < motion.floor:
+            self.opacity -= 0.1
+            if self.opacity < 0.0:
+                self.opacity = 0.0
+                self.running = False
+        else:
+            # _Deepdreamer.request_wakeup()
+            self.opacity += 0.1
+            if self.opacity > 1.0:
+                self.opacity = 1.0
+                self.running  = True
 
         # compositing
         camera_img = Webcam.get().read()
@@ -268,9 +269,11 @@ def main():
             Framebuffer = Framebuffer
             )
 
-        Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
-            (data.viewsize[0], data.viewsize[1]),
-            interpolation=cv2.INTER_LINEAR)
+        # Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
+        #     (data.viewsize[0], data.viewsize[1]),
+        #     interpolation=cv2.INTER_LINEAR)
+
+        Composer.dreambuffer = data.playback
 
 
 

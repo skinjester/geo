@@ -139,16 +139,17 @@ class Artist(object):
             else:
                 dst.diff.fill(0.0)
                 dst.diff[0, feature, :] = dst.data[0, feature, :]
+            Model.net.backward(start=end)
+            g = src.diff[0]
+            if np.abs(g).mean() * g.any() != 0:
+                src.data[:] += step_size / np.abs(g).mean() * g
+                src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
+                bias = Model.net.transformer.mean['data']
+                src.data[:] = np.clip(src.data, -bias, 255 - bias)
+                src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
         except:
             log.critical('RENDERINGERROR')
-        Model.net.backward(start=end)
-        g = src.diff[0]
-        if np.abs(g).mean() * g.any() != 0:
-            src.data[:] += step_size / np.abs(g).mean() * g
-            src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
-            bias = Model.net.transformer.mean['data']
-            src.data[:] = np.clip(src.data, -bias, 255 - bias)
-            src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
+
 
     def postprocess_step(self, Model, src, stepfx):
         rgb = data.caffe2rgb(Model.net, src)

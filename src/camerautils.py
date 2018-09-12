@@ -85,8 +85,7 @@ class WebcamVideoStream(object):
         # motion detection
         self.motiondetector = MotionDetector(floor)
         self.delta = 0
-        self.buffer_t = np.zeros((self.height, self.width, 3),
-            np.uint8)
+        self.buffer_t = np.zeros((self.height, self.width, 3), np.uint8)
         self.threshold_filter = threshold_filter
 
         # frame buffer housekeeping
@@ -148,7 +147,7 @@ class WebcamVideoStream(object):
 
             # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
-            self.frame = postprocess.equalize(self.frame)
+            # self.frame = postprocess.equalize(self.frame)
 
 
 
