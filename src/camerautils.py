@@ -105,7 +105,9 @@ class WebcamVideoStream(object):
         self.Framebuffer = Framebuffer
 
     def start(self):
-        Thread(target=self.update, args=()).start()
+        my_thread = Thread(target=self.update, args=())
+        my_thread.daemon = True
+        my_thread.start()
         log.debug('started camera thread')
         return self
 
