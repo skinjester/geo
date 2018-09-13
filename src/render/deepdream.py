@@ -91,7 +91,9 @@ class Artist(object):
             while i < iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    return Webcam.get().read()
+                    # data.playback = Webcam.get().read()
+                    return
+                    # return Webcam.get().read()
 
                 self.make_step(Model=Model,
                     step_size=step_size,
@@ -124,8 +126,8 @@ class Artist(object):
             if octave > octave_cutoff - 1:
                 break
 
-        rgb = data.caffe2rgb(Model.net, src.data[0])
-        return rgb
+        # rgb = data.caffe2rgb(Model.net, src.data[0])
+        return
 
     def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
         src = Model.net.blobs['data']

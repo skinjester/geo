@@ -126,23 +126,23 @@ class Composer(object):
         motion.peak_last = motion.peak
         motion.peak = motion.delta_history_peak
 
-        # self.opacity = osc4.next()
         if motion.delta > motion.delta_trigger:
             _Deepdreamer.request_wakeup()
             if self.running == False:
-                self.opacity = osc4.next()
-                # self.opacity += 0.1
-            if self.opacity > 1.0:
+                self.opacity += 0.1
+            if self.opacity > 0.1:
                 self.opacity =1.0
                 self.running  = True
+        else:
+            self.opacity = osc4.next()
 
         if motion.peak < motion.floor:
-            self.opacity -= 0.1
+            self.opacity -= 0.05
             if self.opacity < 0.0:
                 self.opacity = 0.0
                 self.running = False
         else:
-            # _Deepdreamer.request_wakeup()
+            _Deepdreamer.request_wakeup()
             self.opacity += 0.1
             if self.opacity > 1.0:
                 self.opacity = 1.0
@@ -152,7 +152,7 @@ class Composer(object):
         camera_img = Webcam.get().read()
         self.send(0, vis)
         self.send(1, camera_img)
-        data.playback = Composer.mix(Composer.buffer[0], Composer.buffer[1], Composer.opacity, 1.0)
+        data.playback = Composer.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
         # data.playback = postprocess.equalize(data.playback)
         if Model.stepfx is not None:
             for fx in Model.stepfx:
@@ -233,7 +233,7 @@ def main():
     # the madness begins
     initial_image = Webcam.get().read()
     Composer.send(1, initial_image)
-    Composer.dreambuffer = initial_image  # initial camera image for starting
+    data.playback = initial_image  # initial camera image for starting
 
     while True:
         log.debug('new cycle')
@@ -250,9 +250,9 @@ def main():
                     Composer.dreambuffer = postprocess.inception_xform(Composer.dreambuffer, **fx['params'])
 
         # new rem sleep test
-        Composer.dreambuffer = _Deepdreamer.paint(
+        _Deepdreamer.paint(
             Model=Model,
-            base_image=Composer.dreambuffer,
+            base_image=data.playback,
             iteration_max = Model.iterations,
             iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
@@ -273,7 +273,7 @@ def main():
         #     (data.viewsize[0], data.viewsize[1]),
         #     interpolation=cv2.INTER_LINEAR)
 
-        Composer.dreambuffer = data.playback
+        # Composer.dreambuffer = data.playback
 
 
 
@@ -313,10 +313,10 @@ osc3 = postprocess.oscillator(
 
 osc4 = postprocess.oscillator(
             cycle_length = 100,
-            frequency = 10,
+            frequency = 2,
             range_out = [0.0,0.5],
             wavetype = 'sin',
-            dutycycle = 0.2
+            dutycycle = 0.5
             )
 
 if __name__ == "__main__":
