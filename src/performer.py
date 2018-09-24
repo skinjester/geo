@@ -60,6 +60,159 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'basic-1',
+    'iterations': 10,
+    'step_size': 1.1,
+    'octaves': 4,
+    'octave_cutoff': 4,
+    'octave_scale': 1.2,
+    'iteration_mult': 0.0,
+    'step_mult': 0.0,
+    'model': 'googlenet',
+    'layers': [
+        {
+            'name':'inception_5b/pool_proj',
+            'features':[-1],
+        },
+        {
+            'name':'inception_4c/3x3',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/3x3_reduce',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/5x5',
+            'features':range(64),
+        },
+    ],
+    'cyclefx': [
+    ],
+    'stepfx': [
+    # {
+    #     'name': 'gaussian',
+    #     'sigma': {
+    #         'cycle_length': 100,
+    #         'frequency': 1,
+    #         'range_out':[0.0,0.3],
+    #         'wavetype': 'square',
+    #         'dutycycle': 0.5
+    #     }
+    # },
+    # {
+    #     'name': 'step_mixer',
+    #     'opacity': {
+    #         'cycle_length': 1000,
+    #         'frequency': 10,
+    #         'range_out':[0.5,0.5],
+    #         'wavetype': 'sin',
+    #         'dutycycle': 0.5
+    #     },
+    # },
+    ]
+})
+
+program.append({
+    'name': 'New Paris',
+    'iterations': 10,
+    'step_size': 1.4,
+    'octaves': 5,
+    'octave_cutoff': 5,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.0,
+    'step_mult': 0.0,
+    'model': 'places365',
+    'layers': [
+        {
+            'name':'inception_4b/pool_proj',
+            'features':range(-1,64),
+        },
+        {
+            'name':'inception_4b/pool_proj',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4b/pool_proj',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4b/pool_proj',
+            'features':range(64),
+        },
+    ],
+    'cyclefx': [
+        # {
+        #     'name': 'inception_xform',
+        #     'params': {'scale': 0.2}
+        # },
+        # {
+        #     'name': 'octave_scaler',
+        #     'params': {
+        #         'cycle_length': 10,
+        #         'frequency': 1,
+        #         'range_out':[1.6,2.2],
+        #         'wavetype': 'saw',
+        #         'dutycycle': 0.5
+        #     }
+        # },
+    ],
+    'stepfx': [
+        {
+            'name': 'bilateral_filter',
+            'radius': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[3.0,3.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'sigma-color': {
+                'cycle_length': 1000,
+                'frequency': 100,
+                'range_out':[0,0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+            'sigma-xy': {
+                'cycle_length': 1000,
+                'frequency': 100,
+                'range_out':[5,5],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            },
+        },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 20000,
+                'frequency': 1,
+                'range_out':[0,64],
+                'wavetype': 'saw',
+                'dutycycle': 0.5
+            }
+        },
+        {
+            'name': 'slowshutter',
+            'samplesize': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[10,30],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+            'interval': {
+                'cycle_length': 10000,
+                'frequency': 1,
+                'range_out':[3,3],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            },
+        },
+    ]
+})
+
+program.append({
     'name': 'peyoteworld-v6',
     'iterations': 20,
     'step_size': 1.05,
@@ -1354,14 +1507,14 @@ program.append({
             'samplesize': {
                 'cycle_length': 10000,
                 'frequency': 3,
-                'range_out':[30,30],
+                'range_out':[5,5],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             },
             'interval': {
                 'cycle_length': 10000,
                 'frequency': 1,
-                'range_out':[1,1],
+                'range_out':[2,2],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             },

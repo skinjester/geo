@@ -91,7 +91,9 @@ class Artist(object):
             while i < iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    return Webcam.get().read()
+                    data.playback = Webcam.get().read()
+                    return
+                    # return Webcam.get().read()
 
                 self.make_step(Model=Model,
                     step_size=step_size,
@@ -108,11 +110,12 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                log.critical('octave: {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
-                Composer.update(vis, Webcam)
+
+                Composer.update(vis, Webcam, Model, self)
 
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
@@ -124,8 +127,8 @@ class Artist(object):
             if octave > octave_cutoff - 1:
                 break
 
-        rgb = data.caffe2rgb(Model.net, src.data[0])
-        return rgb
+        # rgb = data.caffe2rgb(Model.net, src.data[0])
+        return
 
     def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
         src = Model.net.blobs['data']
@@ -139,16 +142,17 @@ class Artist(object):
             else:
                 dst.diff.fill(0.0)
                 dst.diff[0, feature, :] = dst.data[0, feature, :]
+            Model.net.backward(start=end)
+            g = src.diff[0]
+            if np.abs(g).mean() * g.any() != 0:
+                src.data[:] += step_size / np.abs(g).mean() * g
+                src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
+                bias = Model.net.transformer.mean['data']
+                src.data[:] = np.clip(src.data, -bias, 255 - bias)
+                src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
         except:
             log.critical('RENDERINGERROR')
-        Model.net.backward(start=end)
-        g = src.diff[0]
-        if np.abs(g).mean() * g.any() != 0:
-            src.data[:] += step_size / np.abs(g).mean() * g
-            src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
-            bias = Model.net.transformer.mean['data']
-            src.data[:] = np.clip(src.data, -bias, 255 - bias)
-            src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
+
 
     def postprocess_step(self, Model, src, stepfx):
         rgb = data.caffe2rgb(Model.net, src)
@@ -161,7 +165,9 @@ class Artist(object):
                 rgb = postprocess.bilateral_filter(rgb, fx['osc1'], fx['osc2'], fx['osc3'])
             if fx['name'] == 'gaussian':
                 rgb = postprocess.nd_gaussian(src, fx['osc'])
-                rgb = data.caffe2rgb(Model.net, src)
+                rgb = data.caffe2rgb(Model.net, rgb)
+
+        for fx in stepfx:
             if fx['name'] == 'step_mixer':
                 opacity = postprocess.step_mixer(fx['osc'])
         rgb_out = cv2.addWeighted(rgb, opacity, rgb_out, 1.0-opacity, 0.0)

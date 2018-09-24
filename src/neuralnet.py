@@ -265,11 +265,17 @@ models = {
         'deploy.prototxt',
         'googlenet_places365.caffemodel'
     ],
+    'vgg16': [
+        'VGG_ILSVRC_16',
+        'deploy.prototxt',
+        'VGG_ILSVRC_16_layers.caffemodel'
+    ],
     'vgg19': [
         'VGG_ILSVRC_19',
         'deploy.prototxt',
         'VGG_ILSVRC_19_layers.caffemodel'
     ],
+
     'milesdeep': [
         'Miles_Deep',
         'deploy.prototxt',
