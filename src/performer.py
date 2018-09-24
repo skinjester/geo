@@ -88,6 +88,10 @@ program.append({
         },
     ],
     'cyclefx': [
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.2}
+        },
     ],
     'stepfx': [
     # {
