@@ -60,6 +60,60 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'basic-1',
+    'iterations': 10,
+    'step_size': 1.1,
+    'octaves': 4,
+    'octave_cutoff': 4,
+    'octave_scale': 1.2,
+    'iteration_mult': 0.0,
+    'step_mult': 0.0,
+    'model': 'googlenet',
+    'layers': [
+        {
+            'name':'inception_5b/pool_proj',
+            'features':[-1],
+        },
+        {
+            'name':'inception_4c/3x3',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/3x3_reduce',
+            'features':range(64),
+        },
+        {
+            'name':'inception_4c/5x5',
+            'features':range(64),
+        },
+    ],
+    'cyclefx': [
+    ],
+    'stepfx': [
+    # {
+    #     'name': 'gaussian',
+    #     'sigma': {
+    #         'cycle_length': 100,
+    #         'frequency': 1,
+    #         'range_out':[0.0,0.3],
+    #         'wavetype': 'square',
+    #         'dutycycle': 0.5
+    #     }
+    # },
+    # {
+    #     'name': 'step_mixer',
+    #     'opacity': {
+    #         'cycle_length': 1000,
+    #         'frequency': 10,
+    #         'range_out':[0.5,0.5],
+    #         'wavetype': 'sin',
+    #         'dutycycle': 0.5
+    #     },
+    # },
+    ]
+})
+
+program.append({
     'name': 'New Paris',
     'iterations': 10,
     'step_size': 1.4,

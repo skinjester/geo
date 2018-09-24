@@ -91,7 +91,7 @@ class Artist(object):
             while i < iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    # data.playback = Webcam.get().read()
+                    data.playback = Webcam.get().read()
                     return
                     # return Webcam.get().read()
 
@@ -110,11 +110,12 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                log.critical('octave: {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
-                Composer.update(vis, Webcam)
+
+                Composer.update(vis, Webcam, Model, self)
 
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
@@ -164,7 +165,9 @@ class Artist(object):
                 rgb = postprocess.bilateral_filter(rgb, fx['osc1'], fx['osc2'], fx['osc3'])
             if fx['name'] == 'gaussian':
                 rgb = postprocess.nd_gaussian(src, fx['osc'])
-                rgb = data.caffe2rgb(Model.net, src)
+                rgb = data.caffe2rgb(Model.net, rgb)
+
+        for fx in stepfx:
             if fx['name'] == 'step_mixer':
                 opacity = postprocess.step_mixer(fx['osc'])
         rgb_out = cv2.addWeighted(rgb, opacity, rgb_out, 1.0-opacity, 0.0)
