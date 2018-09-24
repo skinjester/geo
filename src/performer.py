@@ -61,17 +61,17 @@ program = []
 
 program.append({
     'name': 'basic-1',
-    'iterations': 10,
-    'step_size': 1.1,
-    'octaves': 4,
-    'octave_cutoff': 4,
-    'octave_scale': 1.2,
-    'iteration_mult': 0.0,
-    'step_mult': 0.0,
+    'iterations': 20,
+    'step_size': 1.0,
+    'octaves': 6,
+    'octave_cutoff': 6,
+    'octave_scale': 1.6,
+    'iteration_mult': 0.25,
+    'step_mult': 0.075,
     'model': 'googlenet',
     'layers': [
         {
-            'name':'inception_5b/pool_proj',
+            'name':'inception_5b/pool',
             'features':[-1],
         },
         {
@@ -90,30 +90,30 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': 0.2}
+            'params': {'scale': 0.075}
         },
     ],
     'stepfx': [
-    # {
-    #     'name': 'gaussian',
-    #     'sigma': {
-    #         'cycle_length': 100,
-    #         'frequency': 1,
-    #         'range_out':[0.0,0.3],
-    #         'wavetype': 'square',
-    #         'dutycycle': 0.5
-    #     }
-    # },
-    # {
-    #     'name': 'step_mixer',
-    #     'opacity': {
-    #         'cycle_length': 1000,
-    #         'frequency': 10,
-    #         'range_out':[0.5,0.5],
-    #         'wavetype': 'sin',
-    #         'dutycycle': 0.5
-    #     },
-    # },
+    {
+        'name': 'gaussian',
+        'sigma': {
+            'cycle_length': 1000,
+            'frequency': 200,
+            'range_out':[0.0,0.5],
+            'wavetype': 'square',
+            'dutycycle': 0.5
+        }
+    },
+    {
+        'name': 'step_mixer',
+        'opacity': {
+            'cycle_length': 1000,
+            'frequency': 210,
+            'range_out':[0.0,1.0],
+            'wavetype': 'sin',
+            'dutycycle': 0.5
+        },
+    },
     ]
 })
 
