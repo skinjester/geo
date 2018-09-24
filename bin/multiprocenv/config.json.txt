@@ -1,0 +1,13 @@
+{
+  "frameThreshold": "4",
+  "staticThreshold":"100",
+  "min_area":"650",
+  "postSeconds":"7",
+  "readCamNice":"-6",
+  "checkMotionNice":"5",
+  "writeCamNice":"5",
+  "maxqsize":"6",
+  "checkfps":"3",
+  "ShowBlueFrame":"off",
+  "ShowGreenFrame":"on"
+}
