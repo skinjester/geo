@@ -15,75 +15,15 @@ from random import randint
 
 # program modules
 import data
-from data import rgb2caffe
-from camerautils import WebcamVideoStream, Cameras
-from listener import listener
 import hud.console as console
 import render.deepdream as dreamer
 import neuralnet
 import postprocess
+from listener import listener
 from composer import Composer
-
-class Viewport(object):
-
-    def __init__(self, window_name, monitor, fullscreen, listener):
-        self.window_name = '{}-{}'.format(window_name, data.username)
-        self.b_show_HUD = False
-        self.b_show_monitor = False
-        self.imagesavepath = '/home/gary/Pictures/{}'.format(data.username)
-        self.listener = listener
-        self.force_refresh = True
-        self.fullscreen = fullscreen
-        cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
-        if self.fullscreen:
-            cv2.setWindowProperty(self.window_name, 0, 1)
-        cv2.moveWindow(self.window_name, monitor[0], monitor[1])
-
-    def show(self, image):
-        if self.b_show_HUD:
-            image = console.draw(image)
-        cv2.imshow(self.window_name, image)
-        self.monitor()
-        self.listener(Model, Webcam, Viewport, log, console.log_value)
-
-    def export(self, image):
-        make_sure_path_exists(self.imagesavepath)
-        log.warning('{}:{}'.format('export image', self.imagesavepath))
-        export_path = '{}/{}.jpg'.format(
-            self.imagesavepath,
-            time.strftime('%m-%d-%H-%M-%s')
-        )
-        savefile = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        PIL.Image.fromarray(np.uint8(savefile)).save(export_path)
-        # tweet(export_path)
-
-    # forces new cycle with new camera image
-    def refresh(self):
-        self.force_refresh = True
-
-    def monitor(self):
-        if self.b_show_monitor:
-            msg = Webcam.get().motiondetector.monitor_msg
-            image = Webcam.get().buffer_t
-            cv2.putText(image, msg, (20, 20), data.FONT, 0.5, data.WHITE)
-            cv2.imshow('delta', image)
-
-    def toggle_HUD(self):
-        self.b_show_HUD = not self.b_show_HUD
-
-    def toggle_monitor(self):
-        self.b_show_monitor = not self.b_show_monitor
-        if self.b_show_monitor:
-            cv2.namedWindow('delta', cv2.WINDOW_AUTOSIZE)
-        else:
-            cv2.destroyWindow('delta')
-
-
-    def shutdown(self):
-        cv2.destroyAllWindows()
-        for camera in Webcam.get_camera_list():
-            camera.stop()
-        sys.exit()
+from viewport import Viewport
+from data import rgb2caffe
+from camerautils import WebcamVideoStream, Cameras
 
 def make_sure_path_exists(directoryname):
     try:
@@ -140,18 +80,19 @@ def main():
     data.playback = initial_image  # initial camera image for starting
 
     while True:
-        log.debug('new cycle')
+        log.warning('new cycle')
         _Deepdreamer.set_cycle_start_time(time.time())
 
         if Model.cyclefx is not None:
             for fx in Model.cyclefx:
-                # if fx['name'] == 'octave_scaler':
-                #     Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
-                #     log.critical('octave_scale: {}'.format(Model.octave_scale))
+                if fx['name'] == 'octave_scaler':
+                    Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
+                    log.critical('octave_scale: {}'.format(Model.octave_scale))
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
-                    Composer.dreambuffer = postprocess.inception_xform(Composer.dreambuffer, **fx['params'])
+                    print '**'
+                    data.playback = postprocess.inception_xform(data.playback, **fx['params'])
 
         # new rem sleep test
         _Deepdreamer.paint(
@@ -170,7 +111,7 @@ def main():
             stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
-            Framebuffer = Framebuffer
+            Framebuffer = data.Framebuffer
             )
 
         # Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
@@ -232,7 +173,7 @@ if __name__ == "__main__":
     if args.username:
         data.username = args.username
     width, height = data.capturesize
-    Framebuffer = postprocess.Buffer(10,width,height)
+    data.Framebuffer = postprocess.Buffer(10,width,height)
     camera=[]
     camera.append(
         WebcamVideoStream(
@@ -241,17 +182,22 @@ if __name__ == "__main__":
             height=height,
             portrait_alignment=True,
             Viewport=Viewport,
-            Framebuffer=Framebuffer,
+            Framebuffer=data.Framebuffer,
             flip_h=True,
             flip_v=False,
             gamma=0.5,
             floor=5000,
             threshold_filter=8).start())
     Webcam = Cameras(source=camera, current_camera=0)
-    _Deepdreamer = dreamer.Artist('test', Framebuffer=Framebuffer)
+    _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
     Composer = Composer(Viewport=Viewport)
+    data.Model=Model
+    data.Webcam=Webcam
+    data.Viewport=Viewport
+
+
     main()
 
 
