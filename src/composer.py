@@ -45,7 +45,6 @@ class Composer(object):
         motion.peak_last = motion.peak
         motion.peak = motion.delta_history_peak
 
-        self.opacity = osc.next()
         if motion.delta > motion.delta_trigger:
             Renderer.request_wakeup()
             if self.running == False:
@@ -53,6 +52,8 @@ class Composer(object):
             if self.opacity > 0.1:
                 self.opacity =1.0
                 self.running  = True
+            else:
+                self.opacity = osc.next()
 
         if motion.peak < motion.floor:
             self.opacity -= 0.05
@@ -60,6 +61,7 @@ class Composer(object):
                 self.opacity = 0.0
                 self.running = False
         else:
+            Renderer.request_wakeup()
             self.opacity += 0.1
             if self.opacity > 1.0:
                 self.opacity = 1.0
@@ -104,8 +106,8 @@ log.setLevel(data.logging.CRITICAL)
 
 osc = postprocess.oscillator(
             cycle_length = 100,
-            frequency = 1,
-            range_out = [0.0,0.5],
+            frequency = 10,
+            range_out = [-0.2,1.2],
             wavetype = 'sin',
             dutycycle = 0.5
             )
