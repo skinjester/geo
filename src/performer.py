@@ -61,30 +61,34 @@ program = []
 
 program.append({
     'name': 'basic-1',
-    'iterations': 20,
+    'iterations': 10,
     'step_size': 1.0,
     'octaves': 6,
     'octave_cutoff': 6,
-    'octave_scale': 1.6,
-    'iteration_mult': 0.25,
-    'step_mult': 0.075,
+    'octave_scale': 1.5,
+    'iteration_mult': 0.0,
+    'step_mult': 0.2,
     'model': 'googlenet',
     'layers': [
         {
             'name':'inception_5b/pool',
-            'features':[-1],
+            'features':range(-1,64),
         },
         {
-            'name':'inception_4c/3x3',
-            'features':range(64),
+            'name':'inception_5b/output',
+            'features':range(-1,64),
         },
         {
-            'name':'inception_4c/3x3_reduce',
-            'features':range(64),
+            'name':'inception_5b/5x5_reduce',
+            'features':range(-1,64),
         },
         {
-            'name':'inception_4c/5x5',
-            'features':range(64),
+            'name':'inception_5b/5x5',
+            'features':range(-1,64),
+        },
+        {
+            'name':'inception_5b/3x3',
+            'features':range(-1,64),
         },
     ],
     'cyclefx': [
@@ -98,19 +102,36 @@ program.append({
         'name': 'gaussian',
         'sigma': {
             'cycle_length': 1000,
-            'frequency': 200,
-            'range_out':[0.0,0.5],
+            'frequency': 3,
+            'range_out':[0.7,0.7],
             'wavetype': 'square',
             'dutycycle': 0.5
         }
     },
+    # {
+    #     'name': 'step_mixer',
+    #     'opacity': {
+    #         'cycle_length': 10,
+    #         'frequency': 3,
+    #         'range_out':[0.0,1.0],
+    #         'wavetype': 'sin',
+    #         'dutycycle': 0.5
+    #     },
+    # },
     {
-        'name': 'step_mixer',
-        'opacity': {
+        'name': 'slowshutter',
+        'samplesize': {
             'cycle_length': 1000,
-            'frequency': 210,
-            'range_out':[0.0,1.0],
-            'wavetype': 'sin',
+            'frequency': 1,
+            'range_out':[3,3],
+            'wavetype': 'square',
+            'dutycycle': 0.5
+        },
+        'interval': {
+            'cycle_length': 10000,
+            'frequency': 1,
+            'range_out':[2,2],
+            'wavetype': 'square',
             'dutycycle': 0.5
         },
     },
