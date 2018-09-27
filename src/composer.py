@@ -47,25 +47,22 @@ class Composer(object):
 
         if motion.delta > motion.delta_trigger:
             Renderer.request_wakeup()
-            if self.running == False:
-                self.opacity += 0.1
+            self.opacity += 0.1
             if self.opacity > 0.1:
                 self.opacity =1.0
-                self.running  = True
-            else:
-                self.opacity = osc.next()
+        else:
+            self.opacity = osc.next()
 
         if motion.peak < motion.floor:
             self.opacity -= 0.05
             if self.opacity < 0.0:
                 self.opacity = 0.0
-                self.running = False
+
         else:
             Renderer.request_wakeup()
             self.opacity += 0.1
             if self.opacity > 1.0:
                 self.opacity = 1.0
-                self.running  = True
 
         # compositing
         camera_img = Webcam.get().read()
@@ -106,8 +103,8 @@ log.setLevel(data.logging.CRITICAL)
 
 osc = postprocess.oscillator(
             cycle_length = 100,
-            frequency = 10,
-            range_out = [-0.2,1.2],
+            frequency = 1,
+            range_out = [-1.0,2.0],
             wavetype = 'sin',
             dutycycle = 0.5
             )
