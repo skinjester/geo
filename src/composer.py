@@ -47,34 +47,21 @@ class Composer(object):
 
         if motion.delta > motion.delta_trigger:
             Renderer.request_wakeup()
-            self.opacity += 0.1
-            if self.opacity > 0.1:
-                self.opacity =1.0
+            Model.next_feature()
+            self.opacity = 1.0
         else:
-            self.opacity = osc.next()
-
-        if motion.peak < motion.floor:
-            self.opacity -= 0.05
-            if self.opacity < 0.0:
-                self.opacity = 0.0
-
-        else:
-            Renderer.request_wakeup()
-            self.opacity += 0.1
-            if self.opacity > 1.0:
-                self.opacity = 1.0
+            self.opacity = 0.0
 
         # compositing
         camera_img = Webcam.get().read()
         self.send(0, vis)
         self.send(1, camera_img)
-        data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-        # data.playback = postprocess.equalize(data.playback)
+        self.dreambuffer = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
         if Model.stepfx is not None:
             for fx in Model.stepfx:
                 if fx['name'] == 'slowshutter':
                     data.playback = data.Framebuffer.slowshutter(
-                        data.playback,
+                        self.dreambuffer ,
                         samplesize=fx['osc1'].next(),
                         interval=fx['osc2'].next()
                         )
@@ -102,9 +89,9 @@ log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
 
 osc = postprocess.oscillator(
-            cycle_length = 100,
+            cycle_length = 1000,
             frequency = 1,
-            range_out = [-1.0,2.0],
+            range_out = [-1.0, 2.0],
             wavetype = 'sin',
             dutycycle = 0.5
             )

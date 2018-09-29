@@ -196,8 +196,8 @@ class Model(object):
         self.set_endlayer(self.current_layer)
 
     def log_featuremap(self):
-        log.warning('featuremap:{}'.format(self.features[self.current_feature]))
-        console.log_value('featuremap', self.features[self.current_feature])
+        # log.warning('featuremap:{}'.format(self.features[self.current_feature]))
+        console.log_value('featuremap', self.current_feature)
         # self.Renderer.request_wakeup()
 
     def prev_feature(self):
@@ -212,6 +212,7 @@ class Model(object):
         self.current_feature += 1
         if self.current_feature > max_feature_index - 1:
             self.current_feature = -1
+        log.critical('current_feature:{} max_feature:{}'.format(self.current_feature,max_feature_index))
         self.log_featuremap()
 
     def reset_feature(self):

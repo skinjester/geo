@@ -91,13 +91,12 @@ def main():
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
-                    print '**'
-                    data.playback = postprocess.inception_xform(data.playback, **fx['params'])
+                    Composer.dreambuffer = postprocess.inception_xform(data.playback, **fx['params'])
 
         # new rem sleep test
         _Deepdreamer.paint(
             Model=Model,
-            base_image=data.playback,
+            base_image=Composer.dreambuffer,
             iteration_max = Model.iterations,
             iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
@@ -107,7 +106,7 @@ def main():
             objective = dreamer.objective_L2,
             stepsize_base = Model.stepsize_base,
             step_mult = Model.step_mult,
-            feature = Model.features[Model.current_feature],
+            feature = Model.current_feature,
             stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
@@ -177,7 +176,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            1,
+            0,
             width=width,
             height=height,
             portrait_alignment=True,

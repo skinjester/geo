@@ -73,7 +73,7 @@ class Buffer(object):
     def slowshutter(self,img,samplesize,interval):
         if self.frame.next() % int(interval) != 0:
             return self.accumulated
-        log.critical('samplesize:{} interval:{}'.format(samplesize,interval))
+        log.debug('samplesize:{} interval:{}'.format(samplesize,interval))
         (B, G, R) = cv2.split(img.astype("float"))
         if self.rAvg is None:
             self.rAvg = R
@@ -124,7 +124,7 @@ def step_mixer(osc):
 
 def equalize(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    clahe = cv2.createCLAHE(clipLimit=2, tileGridSize=(4,4))
+    clahe = cv2.createCLAHE(clipLimit=2, tileGridSize=(2,2))
     equalized = clahe.apply(gray)
     img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
     return img

@@ -91,29 +91,28 @@ class Artist(object):
             while i < iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    data.playback = Webcam.get().read()
-                    return
-                    # return Webcam.get().read()
+                    vis = Webcam.get().read()
+                    data.playback = vis
+                else:
+                    self.make_step(Model=Model,
+                        step_size=step_size,
+                        end=end,
+                        feature=feature,
+                        objective=objective,
+                        stepfx=stepfx,
+                        jitter=32)
 
-                self.make_step(Model=Model,
-                    step_size=step_size,
-                    end=end,
-                    feature=feature,
-                    objective=objective,
-                    stepfx=stepfx,
-                    jitter=32)
+                    console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                    console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
+                    console.log_value('step_size','{:02.3f} x{:02.3f}'.format(step_size, step_mult))
+                    console.log_value('width', w)
+                    console.log_value('height', h)
+                    console.log_value('scale', octave_scale)
 
-                console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
-                console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
-                console.log_value('step_size','{:02.3f} x{:02.3f}'.format(step_size, step_mult))
-                console.log_value('width', w)
-                console.log_value('height', h)
-                console.log_value('scale', octave_scale)
+                    log.critical('octave: {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
 
-                log.critical('octave: {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
-
-                vis = data.caffe2rgb(Model.net,src.data[0])
-                vis = vis * (255.0 / np.percentile(vis, 99.98))
+                    vis = data.caffe2rgb(Model.net,src.data[0])
+                    vis = vis * (255.0 / np.percentile(vis, 99.98))
 
                 Composer.update(vis, Webcam, Model, self)
 
@@ -122,10 +121,10 @@ class Artist(object):
                     step_size = 1.1
                 i += 1
 
-            detail = src.data[0] - octave_current
-            iteration_max = int(iteration_max - (iteration_max * iteration_mult))
-            if octave > octave_cutoff - 1:
-                break
+                detail = src.data[0] - octave_current
+                iteration_max = int(iteration_max - (iteration_max * iteration_mult))
+                if octave > octave_cutoff - 1:
+                    break
 
         # rgb = data.caffe2rgb(Model.net, src.data[0])
         return
