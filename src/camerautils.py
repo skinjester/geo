@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 import datetime
+import threading
 from threading import Thread
 import sys
 import data
@@ -101,13 +102,15 @@ class WebcamVideoStream(object):
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
         # asyncplayback
+        ## DELETE ?
         self.Viewport = Viewport
         self.Framebuffer = Framebuffer
 
     def start(self):
-        my_thread = Thread(target=self.update, args=())
-        my_thread.daemon = True
-        my_thread.start()
+        e=threading.Event()
+        camera_thread = Thread(target=self.update, name='camera', args=(e,))
+        camera_thread.setDaemon(True)
+        camera_thread.start()
         log.debug('started camera thread')
         return self
 
@@ -121,7 +124,7 @@ class WebcamVideoStream(object):
     def update_gamma(self, gamma):
         self.table = self.set_gamma(gamma)
 
-    def update(self):
+    def update(self, e):
         # loop until the thread is stopped
         while True:
             if self.stopped:
