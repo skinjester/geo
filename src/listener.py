@@ -89,7 +89,6 @@ def listener():
     elif key == 27:  # ESC: Exit
         log.warning('{}:{} {} {}'.format('**', key, 'ESC', 'SHUTDOWN'))
         data.Viewport.shutdown()
-        data.Webcam.get().motiondetector.export.close()  # close the motion detector data export file
         return
 
     elif key == 32:  # SPACE: toggle program cycle

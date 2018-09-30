@@ -191,11 +191,17 @@ if __name__ == "__main__":
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
-    Composer = Composer(Viewport=Viewport)
+
+    # new idea, so objects have common pointers
     data.Model=Model
     data.Webcam=Webcam
     data.Viewport=Viewport
+    data.Renderer=_Deepdreamer
+    data.vis = np.zeros((data.viewsize[1], data.viewsize[0], 3), np.uint8)
 
+    Composer = Composer()
+    data.Composer = Composer
+    Composer.start()
 
     main()
 

@@ -60,6 +60,7 @@ class Viewport(object):
         cv2.destroyAllWindows()
         for camera in data.Webcam.get_camera_list():
             camera.stop()
+        data.Composer.stop()
         sys.exit()
 
 # --------
