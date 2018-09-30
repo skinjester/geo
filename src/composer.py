@@ -4,19 +4,13 @@ import cv2, numpy as np
 
 class Composer(object):
     def __init__(self, Viewport):
-        self.isDreaming = False
-        self.xform_scale = 0.05
-        self.emptybuffer = np.zeros((data.viewsize[1], data.viewsize[0], 3),
-            np.uint8)
+        emptybuffer = np.zeros((data.viewsize[1], data.viewsize[0], 3), np.uint8)
         self.buffer = []
-        self.buffer.append(self.emptybuffer)
-        self.buffer.append(self.emptybuffer)
-        self.mixbuffer = self.emptybuffer
-        self.dreambuffer = self.emptybuffer
+        self.buffer.append(emptybuffer)
+        self.buffer.append(emptybuffer)
+        self.mixbuffer = emptybuffer
+        self.dreambuffer = emptybuffer
         self.opacity = 0
-        self.opacity_step = 0.1
-        self.buffer3_opacity = 1.0
-        self.running = True
         self.Viewport = Viewport
 
     def send(self, channel, image):
@@ -29,12 +23,12 @@ class Composer(object):
     def get(self, channel):
         return self.buffer[channel]
 
-    def mix(self, image_back, image_front, mix_opacity, gamma):
+    def mix(self, image_front, image_back, front_opacity, gamma):
         cv2.addWeighted(
             image_front,
-            mix_opacity,  #
+            front_opacity,  #
             image_back,
-            1 - mix_opacity,
+            1 - front_opacity,
             gamma,
             self.mixbuffer
         )
@@ -48,9 +42,9 @@ class Composer(object):
         if motion.delta > motion.delta_trigger:
             Renderer.request_wakeup()
             Model.next_feature()
-            self.opacity = 1.0
-        else:
             self.opacity = 0.0
+        else:
+            self.opacity = osc.next()
 
         # compositing
         camera_img = Webcam.get().read()
@@ -89,9 +83,9 @@ log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
 
 osc = postprocess.oscillator(
-            cycle_length = 1000,
+            cycle_length = 10,
             frequency = 1,
-            range_out = [-1.0, 2.0],
-            wavetype = 'sin',
+            range_out = [-0.1, 1.5],
+            wavetype = 'square',
             dutycycle = 0.5
             )

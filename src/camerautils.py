@@ -101,11 +101,6 @@ class WebcamVideoStream(object):
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
-        # asyncplayback
-        ## DELETE ?
-        self.Viewport = Viewport
-        self.Framebuffer = Framebuffer
-
     def start(self):
         e=threading.Event()
         camera_thread = Thread(target=self.update, name='camera', args=(e,))
