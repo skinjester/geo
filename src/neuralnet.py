@@ -241,7 +241,7 @@ class Model(object):
         self.current_feature = index
         if self.current_feature > max_feature_index - 1:
             self.current_feature = -1
-        log.critical('index:{}'.format(self.current_feature))
+        log.debug('index:{}'.format(self.current_feature))
         self.log_featuremap()
 
 models = {

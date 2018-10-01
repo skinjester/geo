@@ -14,21 +14,21 @@ class Composer(object):
         self.stopped = False
 
     def start(self):
-        e=threading.Event()
-        composer_thread = threading.Thread(target=self.update1, name='composer', args=(e,))
+        threadlog.critical('start composer thread')
+        composer_thread = threading.Thread(target=self.update, name='composer')
         composer_thread.setDaemon(True)
         composer_thread.start()
-        log.critical('started composer thread')
         return self
 
     def stop(self):
         self.stopped = True
-        log.critical('stopped composer thread')
+        threadlog.critical('stop composer thread')
 
-    def update1(self, e):
+    def update(self):
         while True:
             if self.stopped:
                 return
+            threadlog.critical('** update composer thread')
             motion = data.Webcam.get().motiondetector
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
@@ -59,10 +59,7 @@ class Composer(object):
                             )
                     if fx['name'] == 'featuremap':
                         data.Model.set_featuremap(index=fx['osc1'].next())
-
-
             data.Viewport.show(data.playback)
-
 
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))
             console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - data.Model.program_start_time, 2), data.Model.program_duration))
@@ -93,55 +90,14 @@ class Composer(object):
         )
         return self.mixbuffer
 
-
-
-    def update(self, vis, Webcam, Model, Renderer):
-        motion = Webcam.get().motiondetector
-        motion.peak_last = motion.peak
-        motion.peak = motion.delta_history_peak
-
-        if motion.delta > motion.delta_trigger:
-            Renderer.request_wakeup()
-            Model.next_feature()
-            self.opacity = 0.0
-        else:
-            self.opacity = osc.next()
-
-        # compositing
-        camera_img = Webcam.get().read()
-        self.send(0, vis)
-        self.send(1, camera_img)
-        self.dreambuffer = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-        if Model.stepfx is not None:
-            for fx in Model.stepfx:
-                if fx['name'] == 'slowshutter':
-                    data.playback = data.Framebuffer.slowshutter(
-                        self.dreambuffer ,
-                        samplesize=fx['osc1'].next(),
-                        interval=fx['osc2'].next()
-                        )
-                    # self.send(0,img_avg)
-                if fx['name'] == 'featuremap':
-                    Model.set_featuremap(index=fx['osc1'].next())
-
-
-        data.Viewport.show(data.playback)
-
-
-        console.log_value('runtime', '{:0>2}'.format(round(time.time() - Model.installation_startup, 2)))
-        console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - Model.program_start_time, 2), Model.program_duration))
-
-        # program sequencer. don't run if program_duration is -1 though
-        if Model.program_running and Model.program_duration > 0:
-            if time.time() - Model.program_start_time > Model.program_duration:
-                Model.next_program()
-
 # --------
 # INIT.
 # --------
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
+threadlog = data.logging.getLogger('threadlog')
+threadlog.setLevel(data.logging.CRITICAL)
 
 osc = postprocess.oscillator(
             cycle_length = 100,

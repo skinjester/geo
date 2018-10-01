@@ -256,25 +256,25 @@ program.append({
 
 program.append({
     'name': 'cambrian-implosion-1',
-    'iterations': 80,
+    'iterations':10,
     'step_size': 1.1,
-    'octaves': 5,
+    'octaves': 4,
     'octave_cutoff': 4,
     'octave_scale': 1.8,
     'iteration_mult': 0.0,
-    'step_mult': 0.02,
-    'model': 'googlenet',
+    'step_mult': 0.0,
+    'model': 'places365',
     'layers': [
         {
-            'name': 'inception_4c/3x3_reduce',
+            'name': 'inception_4d/3x3_reduce',
             'features': range(-1,256),
         },
         {
-            'name': 'inception_3b/pool',
+            'name': 'inception_4d/3x3',
             'features': range(-1,256),
         },
         {
-            'name': 'inception_4a/1x1',
+            'name': 'inception_4d/output',
             'features': range(-1,256),
         },
         {
@@ -286,7 +286,7 @@ program.append({
     'cyclefx': [
         {
             'name': 'inception_xform',
-            'params': {'scale': -0.05}
+            'params': {'scale': 0.02}
         },
         {
             'name': 'octave_scaler',
@@ -301,32 +301,32 @@ program.append({
     ],
     'stepfx': [
 
-        {
-            'name': 'gaussian',
-            'sigma': {
-                'cycle_length': 100,
-                'frequency': 20,
-                'range_out':[0.1,0.6],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        },
+        # {
+        #     'name': 'gaussian',
+        #     'sigma': {
+        #         'cycle_length': 100,
+        #         'frequency': 20,
+        #         'range_out':[0.1,0.6],
+        #         'wavetype': 'sin',
+        #         'dutycycle': 0.5
+        #     }
+        # },
 
-        {
-            'name': 'featuremap',
-            'index': {
-                'cycle_length': 1000,
-                'frequency': 1,
-                'range_out':[0,29],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        },
+        # {
+        #     'name': 'featuremap',
+        #     'index': {
+        #         'cycle_length': 1000,
+        #         'frequency': 1,
+        #         'range_out':[0,29],
+        #         'wavetype': 'sin',
+        #         'dutycycle': 0.5
+        #     }
+        # },
         {
             'name': 'slowshutter',
             'samplesize': {
-                'cycle_length': 10000,
-                'frequency': 2,
+                'cycle_length': 10,
+                'frequency': 1,
                 'range_out':[10,10],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
@@ -339,27 +339,37 @@ program.append({
                 'dutycycle': 0.5
             },
         },
+        # {
+        #     'name': 'bilateral_filter',
+        #     'radius': {
+        #         'cycle_length': 1000,
+        #         'frequency': 100,
+        #         'range_out':[5.0,5.0],
+        #         'wavetype': 'square',
+        #         'dutycycle': 0.5
+        #     },
+        #     'sigma-color': {
+        #         'cycle_length': 100,
+        #         'frequency': 1,
+        #         'range_out':[10,10],
+        #         'wavetype': 'saw',
+        #         'dutycycle': 0.5
+        #     },
+        #     'sigma-xy': {
+        #         'cycle_length': 1000,
+        #         'frequency': 10,
+        #         'range_out':[10,200],
+        #         'wavetype': 'saw',
+        #         'dutycycle': 0.5
+        #     },
+        # },
         {
-            'name': 'bilateral_filter',
-            'radius': {
-                'cycle_length': 1000,
-                'frequency': 100,
-                'range_out':[5.0,5.0],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            },
-            'sigma-color': {
-                'cycle_length': 100,
+            'name': 'step_mixer',
+            'opacity': {
+                'cycle_length': 10,
                 'frequency': 1,
-                'range_out':[10,10],
-                'wavetype': 'saw',
-                'dutycycle': 0.5
-            },
-            'sigma-xy': {
-                'cycle_length': 1000,
-                'frequency': 10,
-                'range_out':[200,200],
-                'wavetype': 'square',
+                'range_out':[0.0,1.0],
+                'wavetype': 'sin',
                 'dutycycle': 0.5
             },
         },

@@ -62,6 +62,8 @@ def monitor2():
 # MAIN
 # -------
 def main():
+    Composer.start()
+    Webcam.get().start()
     now = time.time()  # start timer
 
     iterations = Model.iterations
@@ -113,14 +115,6 @@ def main():
             Framebuffer = data.Framebuffer
             )
 
-        # Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
-        #     (data.viewsize[0], data.viewsize[1]),
-        #     interpolation=cv2.INTER_LINEAR)
-
-        # Composer.dreambuffer = data.playback
-
-
-
         # logging
         later = time.time()
         duration_msg = '{:.2f}s'.format(later - now)
@@ -166,6 +160,8 @@ osc4 = postprocess.oscillator(
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
+    threadlog = data.logging.getLogger('threadlog')
+    threadlog.setLevel(data.logging.CRITICAL)
     parser = argparse.ArgumentParser()
     parser.add_argument('--username', help='twitter userid for sharing')
     args = parser.parse_args()
@@ -176,7 +172,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            1,
+            0,
             width=width,
             height=height,
             portrait_alignment=True,
@@ -186,23 +182,20 @@ if __name__ == "__main__":
             flip_v=False,
             gamma=0.5,
             floor=5000,
-            threshold_filter=8).start())
+            threshold_filter=8))
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
+    Composer = Composer()
 
     # new idea, so objects have common pointers
+    data.vis = np.zeros((data.viewsize[1], data.viewsize[0], 3), np.uint8)
     data.Model=Model
     data.Webcam=Webcam
     data.Viewport=Viewport
     data.Renderer=_Deepdreamer
-    data.vis = np.zeros((data.viewsize[1], data.viewsize[0], 3), np.uint8)
-
-    Composer = Composer()
     data.Composer = Composer
-    Composer.start()
-
     main()
 
 

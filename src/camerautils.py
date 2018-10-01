@@ -102,12 +102,15 @@ class WebcamVideoStream(object):
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
     def start(self):
-        e=threading.Event()
-        camera_thread = Thread(target=self.update, name='camera', args=(e,))
+        threadlog.critical('start camera thread')
+        camera_thread = Thread(target=self.update, name='camera')
         camera_thread.setDaemon(True)
         camera_thread.start()
-        log.debug('started camera thread')
         return self
+
+    def stop(self):
+        threadlog.critical('stop camera thread')
+        self.stopped = True
 
     def set_gamma(self, gamma):
         # generates internal table for gamma correction
@@ -119,11 +122,12 @@ class WebcamVideoStream(object):
     def update_gamma(self, gamma):
         self.table = self.set_gamma(gamma)
 
-    def update(self, e):
+    def update(self):
         # loop until the thread is stopped
         while True:
             if self.stopped:
                 return
+            threadlog.critical('** update camera thread')
             _, img = self.stream.read()
             self.t_minus = self.t_now
             self.t_now = self.t_plus
@@ -140,15 +144,9 @@ class WebcamVideoStream(object):
                 self.buffer_t, self.threshold_filter, 255, cv2.THRESH_BINARY
             )
             self.delta = cv2.countNonZero(self.buffer_t)
-
-            # dont process motion detection when paused
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
-
-            # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
-            # self.frame = postprocess.equalize(self.frame)
-
 
 
     def read(self):
@@ -164,8 +162,6 @@ class WebcamVideoStream(object):
     def gamma_correct(self, img):
         return cv2.LUT(img, self.table)
 
-    def stop(self):
-        self.stopped = True
 
     def diffImg(self, t0, t1, t2):
         d1 = cv2.absdiff(t2, t1)

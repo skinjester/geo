@@ -1,10 +1,12 @@
 import data
+import sys
 import hud.console as console
 import scipy.ndimage as nd
 import cv2
 import math, numpy as np
 from random import randint
 import postprocess
+import thread
 
 
 # def objective_guide(dst):
@@ -63,6 +65,7 @@ class Artist(object):
         clip=False
         ):
 
+
         # # SETUP OCTAVES
         src = Model.net.blobs['data']
         octaves = [data.rgb2caffe(Model.net, base_image)]
@@ -113,22 +116,15 @@ class Artist(object):
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
-
                 data.vis = vis
-
-                # Composer.update(vis, Webcam, Model, self)
-
                 step_size += stepsize_base * step_mult
                 if step_size < 1.1:
                     step_size = 1.1
                 i += 1
-
                 detail = src.data[0] - octave_current
                 iteration_max = int(iteration_max - (iteration_max * iteration_mult))
                 if octave > octave_cutoff - 1:
                     break
-
-        # rgb = data.caffe2rgb(Model.net, src.data[0])
         return
 
     def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
@@ -151,6 +147,8 @@ class Artist(object):
                 bias = Model.net.transformer.mean['data']
                 src.data[:] = np.clip(src.data, -bias, 255 - bias)
                 src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
+        except KeyboardInterrupt:
+            sys.exit()
         except:
             log.critical('RENDERINGERROR')
 
