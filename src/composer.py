@@ -33,14 +33,16 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
+            # self.opacity = osc.next()
+            # self.opacity = 0.5
             if motion.delta > motion.delta_trigger:
                 data.Renderer.request_wakeup()
-                data.Model.next_feature()
-                self.opacity -= 0.1
-                if self.opacity < 0:
-                    self.opacity = 0
+                # data.Model.next_feature()
+                self.opacity = 0
+                # if self.opacity < 0:
+                #     self.opacity = 0
             else:
-                self.opacity += 0.1
+                self.opacity += 0.01
                 if self.opacity > 1.0:
                     self.opacity = 1.0
 
@@ -49,11 +51,13 @@ class Composer(object):
             self.send(0, data.vis)
             self.send(1, camera_img)
             self.dreambuffer = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
+            data.playback = self.dreambuffer
+            # data.playback = postprocess.equalize(self.dreambuffer)
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
                     if fx['name'] == 'slowshutter':
                         data.playback = data.Framebuffer.slowshutter(
-                            self.dreambuffer ,
+                            data.playback ,
                             samplesize=fx['osc1'].next(),
                             interval=fx['osc2'].next()
                             )

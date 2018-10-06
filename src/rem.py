@@ -62,10 +62,9 @@ def monitor2():
 # MAIN
 # -------
 def main():
+    now = time.time()  # start timer
     Composer.start()
     Webcam.get().start()
-    now = time.time()  # start timer
-
     iterations = Model.iterations
     stepsize = Model.stepsize_base
     octave_n = Model.octave_n
@@ -172,7 +171,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            0,
+            1,
             width=width,
             height=height,
             portrait_alignment=True,
@@ -196,6 +195,7 @@ if __name__ == "__main__":
     data.Viewport=Viewport
     data.Renderer=_Deepdreamer
     data.Composer = Composer
+
     main()
 
 

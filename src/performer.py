@@ -108,29 +108,29 @@ stepfx_default = [
 
 program = []
 
-program.append({
-    'name': 'peyoteworld-v6',
-    'iterations': 2,
-    'step_size': 1.1,
-    'octaves': 6,
-    'octave_cutoff': 6,
-    'octave_scale': 1.3,
-    'iteration_mult': 0.0,
-    'step_mult': 0.0,
-    'model': 'vgg19',
-    'layers': [
-        {
-            'name':'conv3_1',
-            'features':range(-1,255)
-        },
-    ],
-    'cyclefx': [
-        inception_xform_default
-    ],
-    'stepfx': [
-        slowshutter_default
-    ]
-})
+# program.append({
+#     'name': 'peyoteworld-v6',
+#     'iterations': 2,
+#     'step_size': 1.1,
+#     'octaves': 5,
+#     'octave_cutoff': 5,
+#     'octave_scale': 1.8,
+#     'iteration_mult': 0.0,
+#     'step_mult': 0.0,
+#     'model': 'vgg19',
+#     'layers': [
+#         {
+#             'name':'conv3_1',
+#             'features':range(-1,255)
+#         },
+#     ],
+#     'cyclefx': [
+#         inception_xform_default
+#     ],
+#     'stepfx': [
+#         slowshutter_default
+#     ]
+# })
 
 program.append({
     'name': 'Rivendell-1',
@@ -140,12 +140,12 @@ program.append({
     'octave_cutoff': 4,
     'octave_scale': 1.8,
     'iteration_mult': 0.0,
-    'step_mult': 0.0,
+    'step_mult': 0.05,
     'model': 'places365',
     'layers': [
         {
             'name': 'inception_4d/3x3',
-            'features': range(-1, 256)
+            'features': [101]
         }
     ],
     'cyclefx': [
@@ -158,7 +158,7 @@ program.append({
             'params': {
                 'cycle_length': 100,
                 'frequency': 10,
-                'range_out':[1.5,2.0],
+                'range_out':[1.8,2.2],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
@@ -184,7 +184,7 @@ program.append({
             'sigma-xy': {
                 'cycle_length': 1000,
                 'frequency': 10,
-                'range_out':[10,10],
+                'range_out':[30,30],
                 'wavetype': 'square',
                 'dutycycle': 0.5
             },
@@ -199,16 +199,17 @@ program.append({
                 'dutycycle': 0.5
             },
         },
+        {
+            'name': 'featuremap',
+            'index': {
+                'cycle_length': 1000,
+                'frequency': 1,
+                'range_out':[101,101],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
         slowshutter_default
-
-        # {
-        #   'name': 'step_opacity',
-        #   'params': {'opacity':0.5}
-        # },
-        # {
-        #   'name': 'bilateral_filter',
-        #   'params': {'radius': 3, 'sigma_color':5, 'sigma_xy': 10}
-        # },
     ]
 })
 
