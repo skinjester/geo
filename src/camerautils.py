@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 import datetime
+import threading
 from threading import Thread
 import sys
 import data
@@ -100,16 +101,16 @@ class WebcamVideoStream(object):
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
-        # asyncplayback
-        self.Viewport = Viewport
-        self.Framebuffer = Framebuffer
-
     def start(self):
-        my_thread = Thread(target=self.update, args=())
-        my_thread.daemon = True
-        my_thread.start()
-        log.debug('started camera thread')
+        threadlog.critical('start camera thread')
+        camera_thread = Thread(target=self.update, name='camera')
+        camera_thread.setDaemon(True)
+        camera_thread.start()
         return self
+
+    def stop(self):
+        threadlog.critical('stop camera thread')
+        self.stopped = True
 
     def set_gamma(self, gamma):
         # generates internal table for gamma correction
@@ -126,6 +127,7 @@ class WebcamVideoStream(object):
         while True:
             if self.stopped:
                 return
+            threadlog.critical('** update camera thread')
             _, img = self.stream.read()
             self.t_minus = self.t_now
             self.t_now = self.t_plus
@@ -142,15 +144,9 @@ class WebcamVideoStream(object):
                 self.buffer_t, self.threshold_filter, 255, cv2.THRESH_BINARY
             )
             self.delta = cv2.countNonZero(self.buffer_t)
-
-            # dont process motion detection when paused
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
-
-            # update internal buffer w camera frame
             self.frame = self.gamma_correct(self.transpose(img))
-            # self.frame = postprocess.equalize(self.frame)
-
 
 
     def read(self):
@@ -166,8 +162,6 @@ class WebcamVideoStream(object):
     def gamma_correct(self, img):
         return cv2.LUT(img, self.table)
 
-    def stop(self):
-        self.stopped = True
 
     def diffImg(self, t0, t1, t2):
         d1 = cv2.absdiff(t2, t1)

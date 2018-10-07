@@ -63,7 +63,8 @@ def monitor2():
 # -------
 def main():
     now = time.time()  # start timer
-
+    Composer.start()
+    Webcam.get().start()
     iterations = Model.iterations
     stepsize = Model.stepsize_base
     octave_n = Model.octave_n
@@ -91,13 +92,12 @@ def main():
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
-                    print '**'
-                    data.playback = postprocess.inception_xform(data.playback, **fx['params'])
+                    Composer.dreambuffer = postprocess.inception_xform(data.playback, **fx['params'])
 
         # new rem sleep test
         _Deepdreamer.paint(
             Model=Model,
-            base_image=data.playback,
+            base_image=Composer.dreambuffer,
             iteration_max = Model.iterations,
             iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
@@ -107,20 +107,12 @@ def main():
             objective = dreamer.objective_L2,
             stepsize_base = Model.stepsize_base,
             step_mult = Model.step_mult,
-            feature = Model.features[Model.current_feature],
+            feature = Model.current_feature,
             stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
             Framebuffer = data.Framebuffer
             )
-
-        # Composer.dreambuffer = cv2.resize(Composer.dreambuffer,
-        #     (data.viewsize[0], data.viewsize[1]),
-        #     interpolation=cv2.INTER_LINEAR)
-
-        # Composer.dreambuffer = data.playback
-
-
 
         # logging
         later = time.time()
@@ -167,6 +159,8 @@ osc4 = postprocess.oscillator(
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
     log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
+    threadlog = data.logging.getLogger('threadlog')
+    threadlog.setLevel(data.logging.CRITICAL)
     parser = argparse.ArgumentParser()
     parser.add_argument('--username', help='twitter userid for sharing')
     args = parser.parse_args()
@@ -187,16 +181,20 @@ if __name__ == "__main__":
             flip_v=False,
             gamma=0.5,
             floor=5000,
-            threshold_filter=8).start())
+            threshold_filter=8))
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
-    Composer = Composer(Viewport=Viewport)
+    Composer = Composer()
+
+    # new idea, so objects have common pointers
+    data.vis = np.zeros((data.viewsize[1], data.viewsize[0], 3), np.uint8)
     data.Model=Model
     data.Webcam=Webcam
     data.Viewport=Viewport
-
+    data.Renderer=_Deepdreamer
+    data.Composer = Composer
 
     main()
 

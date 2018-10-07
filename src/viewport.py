@@ -1,4 +1,4 @@
-import data, cv2, sys
+import data, cv2, sys, thread
 import hud.console as console
 
 class Viewport(object):
@@ -55,12 +55,13 @@ class Viewport(object):
         else:
             cv2.destroyWindow('delta')
 
-
     def shutdown(self):
-        cv2.destroyAllWindows()
+        log.critical('-------- EXITING --------')
         for camera in data.Webcam.get_camera_list():
             camera.stop()
-        sys.exit()
+        data.Composer.stop()
+        cv2.destroyAllWindows()
+        thread.interrupt_main()
 
 # --------
 # INIT.

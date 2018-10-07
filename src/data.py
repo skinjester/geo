@@ -37,6 +37,12 @@ RED = (255, 0, 0)
 capturesize = (864, 480)
 viewsize = (480, 864)
 
+# capturesize = (1280, 720)
+# viewsize = (720, 1280)
+
+# capturesize = (1920, 1080)
+# viewsize = (1080, 1920)
+
 # outreach
 username = "dev"  # can be overriden w commandline
 
