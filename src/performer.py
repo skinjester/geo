@@ -145,7 +145,7 @@ program.append({
     'layers': [
         {
             'name': 'inception_4d/3x3',
-            'features': [101]
+            'features': range(-1,101)
         }
     ],
     'cyclefx': [
@@ -199,16 +199,6 @@ program.append({
                 'dutycycle': 0.5
             },
         },
-        {
-            'name': 'featuremap',
-            'index': {
-                'cycle_length': 1000,
-                'frequency': 1,
-                'range_out':[101,101],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            }
-        },
         slowshutter_default
     ]
 })
@@ -255,7 +245,7 @@ program.append({
         {
             'name': 'featuremap',
             'index': {
-                'cycle_length': 1000,
+                'cycle_length': 10000,
                 'frequency': 1,
                 'range_out':[-1,320],
                 'wavetype': 'saw',

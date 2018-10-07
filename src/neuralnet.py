@@ -177,7 +177,7 @@ class Model(object):
     def set_endlayer(self, layer_index):
         self.end = self.layers[layer_index]['name']
         self.features = self.layers[layer_index]['features']
-        # self.current_feature = 0
+        self.current_feature = 0
         self.log_featuremap()
         self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
