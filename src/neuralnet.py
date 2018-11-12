@@ -1,7 +1,7 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
-import performer
+import photobooth
 import postprocess
 
 
