@@ -34,8 +34,8 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
 # image I/O
-capturesize = (864, 480)
-viewsize = (480, 864)
+capturesize = (1920, 1080)
+viewsize = (1920, 1080)
 
 # capturesize = (1280, 720)
 # viewsize = (720, 1280)
@@ -57,6 +57,9 @@ floor_adjust = 5000  # default step size for motion floor adjustment
 
 # async playback?
 playback = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
+
+# store paused image for photo mode
+pause_img = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 
 # utility functions
 def rgb2caffe(net, image):

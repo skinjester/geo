@@ -12,6 +12,7 @@ class Composer(object):
         self.dreambuffer = emptybuffer
         self.opacity = 0
         self.stopped = False
+        self.counter = 0
 
     def start(self):
         threadlog.critical('start composer thread')
@@ -28,23 +29,28 @@ class Composer(object):
         while True:
             if self.stopped:
                 return
-            threadlog.critical('** update composer thread')
             motion = data.Webcam.get().motiondetector
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
-            # self.opacity = osc.next()
-            # self.opacity = 0.5
+
+
             if motion.delta > motion.delta_trigger:
                 data.Renderer.request_wakeup()
-                # data.Model.next_feature()
-                self.opacity = 0
-                # if self.opacity < 0:
-                #     self.opacity = 0
+                data.Model.next_feature()
+                self.counter = 0
+                self.opacity -= 0.1
+                if self.opacity < 0:
+                    self.opacity = 0
             else:
-                self.opacity += 0.01
-                if self.opacity > 1.0:
-                    self.opacity = 1.0
+                if self.counter < 10:
+                    self.counter += 2
+                if self.counter > 10:
+                    self.counter = 10
+                if self.counter == 10:
+                    self.opacity += 0.1
+                    if self.opacity > 1.0:
+                        self.opacity = 1.0
 
             # compositing
             camera_img = data.Webcam.get().read()
@@ -93,6 +99,15 @@ class Composer(object):
             self.mixbuffer
         )
         return self.mixbuffer
+
+    def request_message(self):
+        pass
+
+    def was_message_requested():
+        pass
+
+    def clear_message_request():
+        pass
 
 # --------
 # INIT.

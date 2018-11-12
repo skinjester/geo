@@ -127,7 +127,6 @@ class WebcamVideoStream(object):
         while True:
             if self.stopped:
                 return
-            threadlog.critical('** update camera thread')
             _, img = self.stream.read()
             self.t_minus = self.t_now
             self.t_now = self.t_plus
@@ -144,10 +143,11 @@ class WebcamVideoStream(object):
                 self.buffer_t, self.threshold_filter, 255, cv2.THRESH_BINARY
             )
             self.delta = cv2.countNonZero(self.buffer_t)
+            self.frame = self.gamma_correct(self.transpose(img))
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
-            self.frame = self.gamma_correct(self.transpose(img))
-
+            else:
+                data.pause_img = self.frame
 
     def read(self):
         log.debug('read camera:{} RGB:{}'.format(self.stream, self.frame.shape))
@@ -231,6 +231,7 @@ class MotionDetector(object):
 
     def toggle_pause(self):
         self.is_paused = not self.is_paused
+        threadlog.critical('{} paused:{}'.format('-'*12,self.is_paused))
 
 
 # --------

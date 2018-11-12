@@ -97,7 +97,7 @@ def main():
         # new rem sleep test
         _Deepdreamer.paint(
             Model=Model,
-            base_image=Composer.dreambuffer,
+            base_image=data.playback,
             iteration_max = Model.iterations,
             iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
@@ -174,10 +174,10 @@ if __name__ == "__main__":
             1,
             width=width,
             height=height,
-            portrait_alignment=True,
+            portrait_alignment=False,
             Viewport=Viewport,
             Framebuffer=data.Framebuffer,
-            flip_h=True,
+            flip_h=False,
             flip_v=False,
             gamma=0.5,
             floor=5000,
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_PROJECTOR, fullscreen=False, listener=listener)
     Composer = Composer()
 
     # new idea, so objects have common pointers

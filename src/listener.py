@@ -74,6 +74,8 @@ def listener():
     elif key == 112:  # p key : pause/unpause motion detection
         data.Webcam.get().motiondetector.toggle_pause()
         log.warning('{}:{} {} {}:{}'.format('F2', key, 'P', 'PAUSE',data.Webcam.get().motiondetector.is_paused))
+        if not data.Webcam.get().motiondetector.is_paused:
+            data.Renderer.request_wakeup()
         return
 
     elif key == 96:  # `(tilde) key: toggle HUD

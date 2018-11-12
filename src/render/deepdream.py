@@ -103,7 +103,7 @@ class Artist(object):
                     feature=feature,
                     objective=objective,
                     stepfx=stepfx,
-                    jitter=32)
+                    jitter=200)
 
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))

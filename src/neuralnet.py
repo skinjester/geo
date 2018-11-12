@@ -1,7 +1,7 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
-import photobooth
+import photobooth as performer
 import postprocess
 
 
@@ -156,8 +156,10 @@ class Model(object):
         model.force_backward = True
         open('tmp.prototxt', 'w').write(str(model))
 
+        magic_numbers = [128.0, 168.0, 96.0]
+
         self.net = caffe.Classifier('tmp.prototxt',
-            self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
+            self.param_fn, mean=np.float32(magic_numbers),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
             # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
             # self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
