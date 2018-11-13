@@ -25,13 +25,6 @@ from viewport import Viewport
 from data import rgb2caffe
 from camerautils import WebcamVideoStream, Cameras
 
-def make_sure_path_exists(directoryname):
-    try:
-        os.makedirs(directoryname)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
 def tweet(path_to_image):
     consumer_key = '3iSUitN4D5Fi52fgmF5zMQodc'
     consumer_secret = 'Kj9biRwpjCBGQOmYJXd9xV4ni68IO99gZT2HfdHv86HuPhx5Mq'

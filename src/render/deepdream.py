@@ -176,13 +176,21 @@ class Artist(object):
         self.b_wakeup = True
         log.warning('request new')
 
-
     def was_wakeup_requested(self):
         return self.b_wakeup
 
 
     def clear_request(self):
         self.b_wakeup = False
+
+    def request_photo(self):
+        pass
+
+    def was_photo_requested():
+        pass
+
+    def clear_photo_request():
+        pass
 
     def set_cycle_start_time(self, start_time):
         self.cycle_start_time = start_time

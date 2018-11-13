@@ -1,5 +1,7 @@
+import os, os.path, sys, errno, time, warnings
 import numpy as np
 import cv2
+
 
 # logging
 import logging
@@ -91,7 +93,16 @@ def remap(in_value, in_minmax=[-1,1], out_minmax=[-1,1]):
 def clamp(value, range):
     return max(range[0], min(value, range[1]))
 
+def make_sure_path_exists(directoryname):
+    try:
+        os.makedirs(directoryname)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
 
+
+
+# LAYERS AND FEATURE LISTS
 layers_googlenet = [
     {
         'name': 'pool1/3x3_s2',

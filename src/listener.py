@@ -73,6 +73,7 @@ def listener():
 
     elif key == 112:  # p key : pause/unpause motion detection
         data.Webcam.get().motiondetector.toggle_pause()
+        # data.Model.autofeature = not data.Webcam.get().motiondetector.is_paused
         log.warning('{}:{} {} {}:{}'.format('F2', key, 'P', 'PAUSE',data.Webcam.get().motiondetector.is_paused))
         if not data.Webcam.get().motiondetector.is_paused:
             data.Renderer.request_wakeup()
@@ -96,6 +97,12 @@ def listener():
     elif key == 32:  # SPACE: toggle program cycle
         data.Model.toggle_program_cycle()
         log.warning('{}:{} {} {}:{}'.format('**', key, 'SPACE', 'PROGRAM CYCLE', data.Model.program_running ))
+        return
+
+    elif key==10: # ENTER key: save picture
+        log.warning('{}:{} {} {}'.format('**',key,'ENTER','SAVE IMAGE'))
+        data.Viewport.export()
+        # data.Renderer.request_photo()
         return
 
 # --------
