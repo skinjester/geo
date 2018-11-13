@@ -33,28 +33,28 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
-
-
-            if motion.delta > motion.delta_trigger:
-                data.Renderer.request_wakeup()
-                if data.Model.autofeature:
-                    data.Model.next_feature()
-                self.counter = 0
-                self.opacity -= 0.01
-                if self.opacity < 0:
-                    self.opacity = 0
+            if not data.Webcam.get().motiondetector.is_paused:
+                if motion.delta > motion.delta_trigger:
+                    data.Renderer.request_wakeup()
+                    if data.Model.autofeature:
+                        data.Model.next_feature()
+                    self.counter = 0
+                    self.opacity -= 0.1
+                    if self.opacity < 0:
+                        self.opacity = 0
+                else:
+                    if self.counter < 10:
+                        self.counter += 1
+                    if self.counter > 10:
+                        self.counter = 10
+                    if self.counter == 10:
+                        self.opacity += 0.1
+                        if self.opacity > 1.0:
+                            self.opacity = 1.0
+                camera_img = data.Webcam.get().read()
             else:
-                if self.counter < 10:
-                    self.counter += 1
-                if self.counter > 10:
-                    self.counter = 10
-                if self.counter == 10:
-                    self.opacity += 0.01
-                    if self.opacity > 1.0:
-                        self.opacity = 1.0
+                self.opacity = 1.0
 
-            # compositing
-            camera_img = data.Webcam.get().read()
             self.send(0, data.vis)
             self.send(1, camera_img)
             self.dreambuffer = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
