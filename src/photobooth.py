@@ -117,8 +117,8 @@ program.append({
     'octave_scale': 1.8,
     'iteration_mult': 0.0,
     'step_mult': 0.0,
-    'model': 'places365',
-    'layers': data.layers_googlenet,
+    'model': 'vgg19',
+    'layers': data.layers_vgg19,
     'cyclefx': [
         {
             'name': 'inception_xform',

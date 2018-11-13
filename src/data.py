@@ -417,3 +417,94 @@ layers_googlenet = [
     },
 ]
 
+layers_vgg19 = [
+    {
+        'name': 'conv1_1',
+        'features': range(-1,64)
+    },
+    {
+        'name': 'conv1_2',
+        'features': range(-1,64)
+    },
+    {
+        'name': 'pool1',
+        'features': range(-1,64)
+    },
+    {
+        'name': 'conv2_1',
+        'features': range(-1,128)
+    },
+    {
+        'name': 'conv2_2',
+        'features': range(-1,128)
+    },
+    {
+        'name': 'pool2',
+        'features': range(-1,128)
+    },
+    {
+        'name': 'conv3_1',
+        'features': range(-1,256)
+    },
+    {
+        'name': 'conv3_2',
+        'features': range(-1,256)
+    },
+    {
+        'name': 'conv3_3',
+        'features': range(-1,256)
+    },
+    {
+        'name': 'conv3_4',
+        'features': range(-1,256)
+    },
+    {
+        'name': 'pool3',
+        'features': range(-1,256)
+    },
+    {
+        'name': 'conv4_1',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv4_2',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv4_3',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv4_4',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'pool4',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv5_1',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv5_2',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv5_2',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv5_3',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'conv5_4',
+        'features': range(-1,512)
+    },
+    {
+        'name': 'pool5',
+        'features': range(-1,512)
+    },
+]
+
