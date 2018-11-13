@@ -216,7 +216,7 @@ program.append({
         octave_scaler_default
     ],
     'stepfx': [
-        bilateral_filter_default,
+        # bilateral_filter_default,
         slowshutter_default,
     ]
 })
