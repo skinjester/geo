@@ -34,8 +34,8 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
 # image I/O
-capturesize = (864, 480)
-viewsize = (864, 480)
+capturesize = (1280, 720)
+viewsize = (1280, 720)
 
 # capturesize = (1280, 720)
 # viewsize = (720, 1280)
