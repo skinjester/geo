@@ -109,6 +109,27 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'demo-1',
+    'autofeature': True,
+    'iterations': 10,
+    'step_size': 0.5,
+    'octaves': 5,
+    'octave_cutoff': 4,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.0,
+    'step_mult': 0.1,
+    'model': 'places365',
+    'layers': data.layers_googlenet[18:19],
+    'cyclefx': [
+        octave_scaler_default
+    ],
+    'stepfx': [
+        bilateral_filter_default,
+        slowshutter_default,
+    ]
+})
+
+program.append({
     'name': 'demo',
     'autofeature': True,
     'iterations': 2,
@@ -129,31 +150,7 @@ program.append({
     'stepfx': [],
 })
 
-program.append({
-    'name': 'demo-1',
-    'autofeature': True,
-    'iterations': 10,
-    'step_size': 0.5,
-    'octaves': 5,
-    'octave_cutoff': 4,
-    'octave_scale': 1.8,
-    'iteration_mult': 0.0,
-    'step_mult': 0.1,
-    'model': 'places365',
-    'layers': [
-        {
-            'name': 'conv2/3x3',
-            'features': range(-1,280)
-        }
-    ],
-    'cyclefx': [
-        octave_scaler_default
-    ],
-    'stepfx': [
-        bilateral_filter_default,
-        slowshutter_default,
-    ]
-})
+
 
 program.append({
     'name': 'demo-2',
