@@ -123,9 +123,10 @@ class Artist(object):
                     step_size = 0.1
                 i += 1
                 detail = src.data[0] - octave_current
-                iteration_max = int(iteration_max - (iteration_max * iteration_mult))
                 if octave > octave_cutoff:
                     break
+            iteration_max = int(iteration_max - (iteration_max * iteration_mult))
+
         if self.was_photo_requested():
             self.clear_photo_request()
             data.Viewport.export()
