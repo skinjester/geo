@@ -89,8 +89,8 @@ class Buffer(object):
 def inception_xform(image, scale):
     h = image.shape[0]
     w = image.shape[1]
-    image = nd.affine_transform(image, [1 - scale, 1 - scale, 1],
-        [h * scale / 2, w * scale / 2, 0], order=1)
+    image = nd.affine_transform(image, [1 - scale, 1-scale, 1],
+        [h * scale / 2, w*scale/2, 0], order=1)
     return image
 
 def octave_scaler(osc):

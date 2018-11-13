@@ -25,13 +25,6 @@ from viewport import Viewport
 from data import rgb2caffe
 from camerautils import WebcamVideoStream, Cameras
 
-def make_sure_path_exists(directoryname):
-    try:
-        os.makedirs(directoryname)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
 def tweet(path_to_image):
     consumer_key = '3iSUitN4D5Fi52fgmF5zMQodc'
     consumer_secret = 'Kj9biRwpjCBGQOmYJXd9xV4ni68IO99gZT2HfdHv86HuPhx5Mq'
@@ -92,12 +85,12 @@ def main():
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
-                    Composer.dreambuffer = postprocess.inception_xform(data.playback, **fx['params'])
+                    data.playback = postprocess.inception_xform(data.playback, **fx['params'])
 
         # new rem sleep test
         _Deepdreamer.paint(
             Model=Model,
-            base_image=Composer.dreambuffer,
+            base_image=data.playback,
             iteration_max = Model.iterations,
             iteration_mult = Model.iteration_mult,
             octave_n = Model.octave_n,
@@ -158,7 +151,7 @@ osc4 = postprocess.oscillator(
 
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
-    log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
+    log.setLevel(data.logging.WARNING)  # CRITICAL ERROR WARNING INFO DEBUG
     threadlog = data.logging.getLogger('threadlog')
     threadlog.setLevel(data.logging.CRITICAL)
     parser = argparse.ArgumentParser()
@@ -174,10 +167,10 @@ if __name__ == "__main__":
             1,
             width=width,
             height=height,
-            portrait_alignment=True,
+            portrait_alignment=False,
             Viewport=Viewport,
             Framebuffer=data.Framebuffer,
-            flip_h=True,
+            flip_h=False,
             flip_v=False,
             gamma=0.5,
             floor=5000,
@@ -185,7 +178,7 @@ if __name__ == "__main__":
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_SECOND, fullscreen=True, listener=listener)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_PROJECTOR, fullscreen=False, listener=listener)
     Composer = Composer()
 
     # new idea, so objects have common pointers

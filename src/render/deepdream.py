@@ -39,6 +39,7 @@ class Artist(object):
     def __init__(self, id, Framebuffer):
         self.id = id
         self.b_wakeup = True
+        self.b_capture_now = False
         self.cycle_start_time = 0
         self.repeat = 0
         self.Framebuffer = Framebuffer
@@ -90,8 +91,8 @@ class Artist(object):
             src.data[0] = octave_current + detail
 
             # OCTAVE CYCLE
-            i = 0
-            while i < iteration_max:
+            i = 1
+            while i <= iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
                     data.playback = Webcam.get().read()
@@ -103,7 +104,7 @@ class Artist(object):
                     feature=feature,
                     objective=objective,
                     stepfx=stepfx,
-                    jitter=32)
+                    jitter=200)
 
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
@@ -112,19 +113,23 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('octave: {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                log.critical('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
                 data.vis = vis
                 step_size += stepsize_base * step_mult
-                if step_size < 1.1:
-                    step_size = 1.1
+                if step_size < 0.1:
+                    step_size = 0.1
                 i += 1
                 detail = src.data[0] - octave_current
-                iteration_max = int(iteration_max - (iteration_max * iteration_mult))
-                if octave > octave_cutoff - 1:
+                if octave > octave_cutoff:
                     break
+            iteration_max = int(iteration_max - (iteration_max * iteration_mult))
+
+        if self.was_photo_requested():
+            self.clear_photo_request()
+            data.Viewport.export()
         return
 
     def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
@@ -176,13 +181,23 @@ class Artist(object):
         self.b_wakeup = True
         log.warning('request new')
 
-
     def was_wakeup_requested(self):
         return self.b_wakeup
 
-
     def clear_request(self):
         self.b_wakeup = False
+
+    def request_photo(self):
+        self.b_capture_now = True
+        pass
+
+    def was_photo_requested(self):
+        return self.b_capture_now
+        pass
+
+    def clear_photo_request(self):
+        self.b_capture_now = False
+        pass
 
     def set_cycle_start_time(self, start_time):
         self.cycle_start_time = start_time
@@ -191,4 +206,4 @@ class Artist(object):
 # --------
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
-log.setLevel(data.logging.CRITICAL)
+log.setLevel(data.logging.WARNING)

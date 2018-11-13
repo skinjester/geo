@@ -1,7 +1,7 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
-import performer
+import photobooth1080 as performer
 import postprocess
 
 
@@ -44,7 +44,7 @@ class Model(object):
         self.choose_model(self.modelname)
         self.set_endlayer(self.current_layer)
         self.stepfx = program['stepfx']
-
+        self.autofeature = program['autofeature']
         self.cyclefx = program['cyclefx']
         self.pool = None
         for fx in self.cyclefx:
@@ -156,8 +156,10 @@ class Model(object):
         model.force_backward = True
         open('tmp.prototxt', 'w').write(str(model))
 
+        magic_numbers = [104.0, 116.0, 122.0]
+
         self.net = caffe.Classifier('tmp.prototxt',
-            self.param_fn, mean=np.float32([104.0, 116.0, 122.0]),
+            self.param_fn, mean=np.float32(magic_numbers),
             # self.param_fn, mean=np.float32([64.0, 480.0, -120.0]),
             # self.param_fn, mean=np.float32([364.0, 20.0, -20.0]),
             # self.param_fn, mean=np.float32([128.0, 168.0, 96.0]),
@@ -177,7 +179,7 @@ class Model(object):
     def set_endlayer(self, layer_index):
         self.end = self.layers[layer_index]['name']
         self.features = self.layers[layer_index]['features']
-        self.current_feature = 0
+        self.current_feature = self.features[0]
         self.log_featuremap()
         self.Renderer.request_wakeup()
         log.warning('layer: {} ({})'.format(self.end, self.net.blobs[self.end].data.shape[1]))
@@ -196,9 +198,10 @@ class Model(object):
         self.set_endlayer(self.current_layer)
 
     def log_featuremap(self):
-        # log.warning('featuremap:{}'.format(self.features[self.current_feature]))
+        max_feature_index = self.net.blobs[self.end].data.shape[1]
+        log.critical('feature:{}/{}'.format(self.current_feature,max_feature_index))
         console.log_value('featuremap', self.current_feature)
-        # self.Renderer.request_wakeup()
+        self.Renderer.request_wakeup()
 
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
@@ -212,7 +215,6 @@ class Model(object):
         self.current_feature += 1
         if self.current_feature > max_feature_index - 1:
             self.current_feature = -1
-        log.critical('current_feature:{} max_feature:{}'.format(self.current_feature,max_feature_index))
         self.log_featuremap()
 
     def reset_feature(self):

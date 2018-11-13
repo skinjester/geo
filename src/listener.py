@@ -73,7 +73,10 @@ def listener():
 
     elif key == 112:  # p key : pause/unpause motion detection
         data.Webcam.get().motiondetector.toggle_pause()
+        # data.Model.autofeature = not data.Webcam.get().motiondetector.is_paused
         log.warning('{}:{} {} {}:{}'.format('F2', key, 'P', 'PAUSE',data.Webcam.get().motiondetector.is_paused))
+        if not data.Webcam.get().motiondetector.is_paused:
+            data.Renderer.request_wakeup()
         return
 
     elif key == 96:  # `(tilde) key: toggle HUD
@@ -91,9 +94,15 @@ def listener():
         data.Viewport.shutdown()
         return
 
-    elif key == 32:  # SPACE: toggle program cycle
-        data.Model.toggle_program_cycle()
-        log.warning('{}:{} {} {}:{}'.format('**', key, 'SPACE', 'PROGRAM CYCLE', data.Model.program_running ))
+    elif key == 32:  # SPACE: toggle autofeature
+        data.Model.autofeature = not data.Model.autofeature
+        log.warning('{}:{} {} {}:{}'.format('**', key, 'SPACE', 'AUTOFEATURE', data.Model.autofeature ))
+        return
+
+    elif key==10: # ENTER key: save picture
+        log.warning('{}:{} {} {}'.format('**',key,'ENTER','SAVE IMAGE'))
+        # data.Viewport.export()
+        data.Renderer.request_photo()
         return
 
 # --------
@@ -101,4 +110,4 @@ def listener():
 # --------
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
-log.setLevel(data.logging.CRITICAL)
+log.setLevel(data.logging.WARNING)

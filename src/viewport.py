@@ -1,4 +1,4 @@
-import data, cv2, sys, thread
+import data, cv2, sys, thread, time, PIL.Image, numpy as np
 import hud.console as console
 
 class Viewport(object):
@@ -7,7 +7,8 @@ class Viewport(object):
         self.window_name = '{}-{}'.format(window_name, data.username)
         self.b_show_HUD = False
         self.b_show_monitor = False
-        self.imagesavepath = '/home/gary/Pictures/{}'.format(data.username)
+        self.imagesavepath = '/home/gary/Desktop/testpics'
+        self.currentview = None
         self.listener = listener
         self.force_refresh = True
         self.fullscreen = fullscreen
@@ -19,20 +20,20 @@ class Viewport(object):
     def show(self, image):
         if self.b_show_HUD:
             image = console.draw(image)
-        cv2.imshow(self.window_name, image)
+        self.currentview = image
+        cv2.imshow(self.window_name, self.currentview)
         self.monitor()
         self.listener()
 
-    def export(self, image):
-        make_sure_path_exists(self.imagesavepath)
-        log.warning('{}:{}'.format('export image', self.imagesavepath))
-        export_path = '{}/{}.jpg'.format(
+    def export(self):
+        rgb=self.currentview
+        data.make_sure_path_exists(self.imagesavepath)
+        export_path = '{}/{}.png'.format(
             self.imagesavepath,
             time.strftime('%m-%d-%H-%M-%s')
         )
-        savefile = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        PIL.Image.fromarray(np.uint8(savefile)).save(export_path)
-        # tweet(export_path)
+        log.critical('{} {}:{}'.format('*'*8, 'export_path', export_path))
+        cv2.imwrite(export_path, rgb)
 
     # forces new cycle with new camera image
     def refresh(self):
@@ -62,6 +63,8 @@ class Viewport(object):
         data.Composer.stop()
         cv2.destroyAllWindows()
         thread.interrupt_main()
+
+
 
 # --------
 # INIT.
