@@ -7,7 +7,6 @@ import cv2
 import logging
 import logging.config
 import logsettings
-
 logging.config.dictConfig(logsettings.LOGGING_CONFIG)
 
 now = 0  # timing reference updated each rem cycle

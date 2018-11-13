@@ -151,7 +151,7 @@ osc4 = postprocess.oscillator(
 
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
-    log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
+    log.setLevel(data.logging.WARNING)  # CRITICAL ERROR WARNING INFO DEBUG
     threadlog = data.logging.getLogger('threadlog')
     threadlog.setLevel(data.logging.CRITICAL)
     parser = argparse.ArgumentParser()

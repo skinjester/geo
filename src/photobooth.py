@@ -113,7 +113,7 @@ program.append({
     'autofeature': True,
     'iterations': 10,
     'step_size': 0.5,
-    'octaves': 5,
+    'octaves': 4,
     'octave_cutoff': 4,
     'octave_scale': 1.8,
     'iteration_mult': 0.0,

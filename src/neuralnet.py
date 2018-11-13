@@ -200,7 +200,7 @@ class Model(object):
 
     def log_featuremap(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
-        log.critical('current_feature:{} max_feature:{}'.format(self.current_feature,max_feature_index))
+        log.critical('feature:{}/{}'.format(self.current_feature,max_feature_index))
         console.log_value('featuremap', self.current_feature)
         self.Renderer.request_wakeup()
 
@@ -216,7 +216,6 @@ class Model(object):
         self.current_feature += 1
         if self.current_feature > max_feature_index - 1:
             self.current_feature = -1
-        log.critical('current_feature:{} max_feature:{}'.format(self.current_feature,max_feature_index))
         self.log_featuremap()
 
     def reset_feature(self):

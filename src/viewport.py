@@ -32,7 +32,7 @@ class Viewport(object):
             self.imagesavepath,
             time.strftime('%m-%d-%H-%M-%s')
         )
-        log.critical('{} {}:{}'.format('-'*16, 'export_path', export_path))
+        log.critical('{} {}:{}'.format('*'*8, 'export_path', export_path))
         cv2.imwrite(export_path, rgb)
 
     # forces new cycle with new camera image
@@ -63,6 +63,8 @@ class Viewport(object):
         data.Composer.stop()
         cv2.destroyAllWindows()
         thread.interrupt_main()
+
+
 
 # --------
 # INIT.

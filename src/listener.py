@@ -94,15 +94,15 @@ def listener():
         data.Viewport.shutdown()
         return
 
-    elif key == 32:  # SPACE: toggle program cycle
-        data.Model.toggle_program_cycle()
-        log.warning('{}:{} {} {}:{}'.format('**', key, 'SPACE', 'PROGRAM CYCLE', data.Model.program_running ))
+    elif key == 32:  # SPACE: toggle autofeature
+        data.Model.autofeature = not data.Model.autofeature
+        log.warning('{}:{} {} {}:{}'.format('**', key, 'SPACE', 'AUTOFEATURE', data.Model.autofeature ))
         return
 
     elif key==10: # ENTER key: save picture
         log.warning('{}:{} {} {}'.format('**',key,'ENTER','SAVE IMAGE'))
-        data.Viewport.export()
-        # data.Renderer.request_photo()
+        # data.Viewport.export()
+        data.Renderer.request_photo()
         return
 
 # --------
@@ -110,4 +110,4 @@ def listener():
 # --------
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
-log.setLevel(data.logging.CRITICAL)
+log.setLevel(data.logging.WARNING)
