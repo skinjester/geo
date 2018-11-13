@@ -110,6 +110,7 @@ program = []
 
 program.append({
     'name': 'demo',
+    'autofeature': True,
     'iterations': 2,
     'step_size': 2.4,
     'octaves': 4,
@@ -125,11 +126,12 @@ program.append({
             'params': {'scale': 0.01}
         },
     ],
-    'stepfx': []
+    'stepfx': [],
 })
 
 program.append({
     'name': 'demo-1',
+    'autofeature': True,
     'iterations': 10,
     'step_size': 0.5,
     'octaves': 5,
@@ -155,6 +157,7 @@ program.append({
 
 program.append({
     'name': 'demo-2',
+    'autofeature': True,
     'iterations': 40,
     'step_size': 0.1,
     'octaves': 5,
@@ -196,6 +199,7 @@ program.append({
 
 program.append({
     'name': 'Pixels to Semantics',
+    'autofeature': True,
     'iterations': 10,
     'step_size': 0.5,
     'octaves': 5,
@@ -221,7 +225,6 @@ program.append({
 })
 
 googlenet_layers = [
-
     {
         'name':'inception_4b/pool_proj',
         'features':range(-1,64),

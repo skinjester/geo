@@ -44,6 +44,7 @@ class Model(object):
         self.choose_model(self.modelname)
         self.set_endlayer(self.current_layer)
         self.stepfx = program['stepfx']
+        self.autofeature = program['autofeature']
 
         self.cyclefx = program['cyclefx']
         self.pool = None
