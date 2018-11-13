@@ -92,7 +92,7 @@ def main():
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
-                    Composer.dreambuffer = postprocess.inception_xform(data.playback, **fx['params'])
+                    data.playback = postprocess.inception_xform(data.playback, **fx['params'])
 
         # new rem sleep test
         _Deepdreamer.paint(
