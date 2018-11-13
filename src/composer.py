@@ -37,18 +37,18 @@ class Composer(object):
 
             if motion.delta > motion.delta_trigger:
                 data.Renderer.request_wakeup()
-                data.Model.next_feature()
+                # data.Model.next_feature()
                 self.counter = 0
-                self.opacity -= 0.1
+                self.opacity -= 0.01
                 if self.opacity < 0:
                     self.opacity = 0
             else:
                 if self.counter < 10:
-                    self.counter += 2
+                    self.counter += 0.25
                 if self.counter > 10:
                     self.counter = 10
                 if self.counter == 10:
-                    self.opacity += 0.1
+                    self.opacity += 0.01
                     if self.opacity > 1.0:
                         self.opacity = 1.0
 
