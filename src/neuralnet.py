@@ -1,7 +1,7 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
-import photobooth as performer
+import photobooth1080 as performer
 import postprocess
 
 
@@ -45,7 +45,6 @@ class Model(object):
         self.set_endlayer(self.current_layer)
         self.stepfx = program['stepfx']
         self.autofeature = program['autofeature']
-
         self.cyclefx = program['cyclefx']
         self.pool = None
         for fx in self.cyclefx:
