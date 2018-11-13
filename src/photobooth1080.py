@@ -48,17 +48,17 @@ bilateral_filter_default = {
         'dutycycle': 0.25
     },
     'sigma-color': {
-        'cycle_length': 500,
+        'cycle_length': 100,
         'frequency': 1,
-        'range_out':[1,12],
-        'wavetype': 'sin',
+        'range_out':[1,10],
+        'wavetype': 'saw',
         'dutycycle': 0.5
     },
     'sigma-xy': {
-        'cycle_length': 200,
+        'cycle_length': 250,
         'frequency': 1,
-        'range_out':[1,5],
-        'wavetype': 'sin',
+        'range_out':[1,10],
+        'wavetype': 'saw',
         'dutycycle': 0.5
     },
 }
@@ -68,7 +68,7 @@ slowshutter_default = {
     'samplesize': {
         'cycle_length': 1000,
         'frequency': 2,
-        'range_out':[1,10],
+        'range_out':[1,30],
         'wavetype': 'sin',
         'dutycycle': 0.5
     },
@@ -82,9 +82,16 @@ slowshutter_default = {
 }
 
 nd_gaussian_filter_default = {
-    'name': 'nd_gaussian',
-    'params': {'sigma': 0.6, 'order': 0}
+    'name': 'gaussian',
+    'sigma': {
+        'cycle_length': 100,
+        'frequency': 1,
+        'range_out':[0.5,0.5],
+        'wavetype': 'square',
+        'dutycycle': 0.5
+    }
 }
+
 
 step_opacity_default = {
     'name': 'step_opacity',
@@ -109,6 +116,41 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'first demo w xform',
+    'autofeature': False,
+    'iterations': 10,
+    'step_size': 1,
+    'octaves': 5,
+    'octave_cutoff': 5,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.0,
+    'step_mult': 0.25,
+    'model': 'places365',
+    'layers': [
+        {
+            'name': 'inception_4c/pool',
+            'features': range(-1,511)
+        },
+        {
+            'name': 'inception_4d/pool',
+            'features': range(-1,511)
+        },
+    ],
+    'cyclefx': [
+        octave_scaler_default,
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.05}
+        },
+    ],
+    'stepfx': [
+        nd_gaussian_filter_default,
+        step_opacity_default,
+        slowshutter_default,
+    ]
+})
+
+program.append({
     'name': 'first demo',
     'autofeature': False,
     'iterations': 20,
@@ -130,7 +172,7 @@ program.append({
         },
     ],
     'cyclefx': [
-        octave_scaler_default
+        octave_scaler_default,
     ],
     'stepfx': [
         bilateral_filter_default,
