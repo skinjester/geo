@@ -45,7 +45,7 @@ class Composer(object):
                     self.opacity = 0
             else:
                 if self.counter < 10:
-                    self.counter += 0.25
+                    self.counter += 1
                 if self.counter > 10:
                     self.counter = 10
                 if self.counter == 10:
