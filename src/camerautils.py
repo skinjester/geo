@@ -146,8 +146,6 @@ class WebcamVideoStream(object):
             self.frame = self.gamma_correct(self.transpose(img))
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
-            else:
-                data.pause_img = self.frame
 
     def read(self):
         log.debug('read camera:{} RGB:{}'.format(self.stream, self.frame.shape))
