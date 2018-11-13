@@ -41,24 +41,24 @@ median_blur_default = {
 bilateral_filter_default = {
     'name': 'bilateral_filter',
     'radius': {
-        'cycle_length': 10,
-        'frequency': 1,
-        'range_out':[5.0,5.0],
-        'wavetype': 'square',
-        'dutycycle': 0.5
-    },
-    'sigma-color': {
         'cycle_length': 100,
         'frequency': 1,
-        'range_out':[20,20],
-        'wavetype': 'saw',
+        'range_out':[0.0,3.0],
+        'wavetype': 'square',
+        'dutycycle': 0.25
+    },
+    'sigma-color': {
+        'cycle_length': 500,
+        'frequency': 1,
+        'range_out':[1,12],
+        'wavetype': 'sin',
         'dutycycle': 0.5
     },
     'sigma-xy': {
-        'cycle_length': 100,
+        'cycle_length': 200,
         'frequency': 1,
-        'range_out':[5,5],
-        'wavetype': 'square',
+        'range_out':[1,5],
+        'wavetype': 'sin',
         'dutycycle': 0.5
     },
 }
@@ -66,14 +66,14 @@ bilateral_filter_default = {
 slowshutter_default = {
     'name': 'slowshutter',
     'samplesize': {
-        'cycle_length': 10000,
+        'cycle_length': 1000,
         'frequency': 2,
-        'range_out':[10,10],
+        'range_out':[1,10],
         'wavetype': 'sin',
         'dutycycle': 0.5
     },
     'interval': {
-        'cycle_length': 10000,
+        'cycle_length': 1000,
         'frequency': 1,
         'range_out':[1,1],
         'wavetype': 'sin',
@@ -88,7 +88,7 @@ nd_gaussian_filter_default = {
 
 step_opacity_default = {
     'name': 'step_opacity',
-    'params': {'opacity': 1.0}
+    'params': {'opacity': 0.1}
 }
 
 duration_cutoff_default = {
@@ -109,23 +109,33 @@ stepfx_default = [
 program = []
 
 program.append({
-    'name': 'demo-1',
-    'autofeature': True,
-    'iterations': 10,
+    'name': 'first demo',
+    'autofeature': False,
+    'iterations': 20,
     'step_size': 0.5,
-    'octaves': 4,
+    'octaves': 5,
     'octave_cutoff': 4,
     'octave_scale': 1.8,
-    'iteration_mult': 0.0,
-    'step_mult': 0.1,
+    'iteration_mult': 0.1,
+    'step_mult': 0.25,
     'model': 'places365',
-    'layers': data.layers_googlenet[18:19],
+    'layers': [
+        {
+            'name': 'inception_4c/pool',
+            'features': range(-1,511)
+        },
+        {
+            'name': 'inception_4d/pool',
+            'features': range(-1,511)
+        },
+    ],
     'cyclefx': [
         octave_scaler_default
     ],
     'stepfx': [
         bilateral_filter_default,
         slowshutter_default,
+        step_opacity_default
     ]
 })
 
