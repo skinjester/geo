@@ -43,22 +43,22 @@ bilateral_filter_default = {
     'radius': {
         'cycle_length': 100,
         'frequency': 1,
-        'range_out':[0.0,3.0],
+        'range_out':[3.0,3.0],
         'wavetype': 'square',
-        'dutycycle': 0.25
+        'dutycycle': 0.5
     },
     'sigma-color': {
         'cycle_length': 100,
         'frequency': 1,
-        'range_out':[1,10],
-        'wavetype': 'saw',
+        'range_out':[10,10],
+        'wavetype': 'square',
         'dutycycle': 0.5
     },
     'sigma-xy': {
         'cycle_length': 250,
         'frequency': 1,
-        'range_out':[1,10],
-        'wavetype': 'saw',
+        'range_out':[50,50],
+        'wavetype': 'square',
         'dutycycle': 0.5
     },
 }
@@ -158,7 +158,7 @@ program.append({
     'octaves': 5,
     'octave_cutoff': 4,
     'octave_scale': 1.8,
-    'iteration_mult': 0.1,
+    'iteration_mult': 0.5,
     'step_mult': 0.25,
     'model': 'places365',
     'layers': [
@@ -177,7 +177,6 @@ program.append({
     'stepfx': [
         bilateral_filter_default,
         slowshutter_default,
-        step_opacity_default
     ]
 })
 

@@ -40,8 +40,8 @@ LANDSCAPE_480P = (864,480)
 PORTRAIT_1080P = (1080,1920)
 PORTRAIT_720P = (720,1280)
 PORTRAIT_480P = (480,864)
-capturesize = LANDSCAPE_1080P
-viewsize = LANDSCAPE_1080P
+capturesize = LANDSCAPE_720P
+viewsize = LANDSCAPE_720P
 
 # outreach
 username = "dev"  # can be overriden w commandline
@@ -103,32 +103,7 @@ def make_sure_path_exists(directoryname):
 # LAYERS AND FEATURE LISTS
 layers_googlenet = [
     {
-        'name': 'pool1/3x3_s2',
-        'features': range(-1,63)
-    },
-    {
-        'name': 'conv1/7x7_s2',
-        'features': range(-1,63)
-    },
-    {
         'name': 'conv2/3x3_reduce',
-        'features': range(-1,63)
-    },
-    {
-        'name': 'conv2/3x3',
-        'features': range(-1,191)
-    },
-    {
-        'name': 'pool2/3x3_s2',
-        'features': range(-1,191)
-    },
-    {
-        'name': 'conv2/norm2',
-        'features': range(-1,191)
-    },
-
-    {
-        'name': 'inception_3a/1x1',
         'features': range(-1,63)
     },
     {

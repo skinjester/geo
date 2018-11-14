@@ -44,10 +44,12 @@ def listener():
     elif key == 44:  # , key : previous featuremap
         log.warning('{}:{} {} {}'.format('D3', key, ',', 'Feature-'))
         data.Model.prev_feature()
+        data.Renderer.request_wakeup()
 
     elif key == 46:  # . key : next featuremap
         log.warning('{}:{} {} {}'.format('D4', key, '.', 'Feature+'))
         data.Model.next_feature()
+        data.Renderer.request_wakeup()
 
     elif key == 91:  # [
         log.warning('{}:{} {} {}'.format('E1', key, '[', 'GAMMA -'))
@@ -77,6 +79,8 @@ def listener():
         log.warning('{}:{} {} {}:{}'.format('F2', key, 'P', 'PAUSE',data.Webcam.get().motiondetector.is_paused))
         if not data.Webcam.get().motiondetector.is_paused:
             data.Renderer.request_wakeup()
+        else:
+            data.pause_img = data.Webcam.get().read()
         return
 
     elif key == 96:  # `(tilde) key: toggle HUD

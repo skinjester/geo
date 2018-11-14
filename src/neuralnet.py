@@ -1,7 +1,7 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
-import photobooth1080 as performer
+import photobooth720 as performer
 import postprocess
 
 
@@ -201,7 +201,7 @@ class Model(object):
         max_feature_index = self.net.blobs[self.end].data.shape[1]
         log.critical('feature:{}/{}'.format(self.current_feature,max_feature_index))
         console.log_value('featuremap', self.current_feature)
-        self.Renderer.request_wakeup()
+        # self.Renderer.request_wakeup()
 
     def prev_feature(self):
         max_feature_index = self.net.blobs[self.end].data.shape[1]

@@ -134,6 +134,7 @@ program = []
 
 program.append({
     'name': 'Rivendell-1',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 1.5,
     'octaves': 4,
@@ -205,6 +206,7 @@ program.append({
 
 program.append({
     'name': 'basic-1',
+    'autofeature': False,
     'iterations': 20,
     'step_size': 1.0001,
     'octaves': 5,
@@ -379,6 +381,7 @@ program.append({
 
 program.append({
     'name': 'New Paris',
+    'autofeature': False,
     'iterations': 20,
     'step_size': 1.4,
     'octaves': 5,
@@ -651,6 +654,7 @@ program.append({
 
 program.append({
     'name': 'Lobe-v9',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 2.0,
     'octaves': 6,
@@ -873,6 +877,7 @@ program.append({
 
 program.append({
     'name': 'neomorph-neo-v5',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 2,
     'octaves': 5,
@@ -962,6 +967,7 @@ program.append({
 
 program.append({
     'name': 'peyoteworld-v5',
+    'autofeature': False,
     'iterations': 5,
     'step_size': 2,
     'octaves': 5,
@@ -1104,6 +1110,7 @@ program.append({
 
 program.append({
     'name': 'kwisatzhaderach',
+    'autofeature': False,
     'iterations': 5,
     'step_size': 3,
     'octaves': 4,
@@ -1177,6 +1184,7 @@ program.append({
 
 program.append({
     'name': 'Lobe-v7',
+    'autofeature': False,
     'iterations': 20,
     'step_size': 2.0,
     'octaves': 6,
@@ -1251,6 +1259,7 @@ program.append({
 
 program.append({
     'name': 'peyoteworld-2',
+    'autofeature': False,
     'iterations': 5,
     'step_size': 2,
     'octaves': 5,
@@ -1315,6 +1324,7 @@ program.append({
 
 program.append({
     'name': 'Lobe-v5',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 4.0,
     'octaves': 6,
@@ -1379,6 +1389,7 @@ program.append({
 
 program.append({
     'name': 'JOI-v5',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 1.2,
     'octaves': 6,
@@ -1446,6 +1457,7 @@ program.append({
 
 program.append({
     'name': 'Lobe-v8',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 2.0,
     'octaves': 6,
@@ -1611,6 +1623,7 @@ program.append({
 
 program.append({
     'name': 'Paris-v6',
+    'autofeature': False,
     'iterations': 10,
     'step_size': 2,
     'octaves': 5,
