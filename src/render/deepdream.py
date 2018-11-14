@@ -137,7 +137,11 @@ class Artist(object):
         dst = Model.net.blobs[end]
         ox, oy = np.random.randint(-jitter, jitter + 1, 2)
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
-        Model.net.forward(end=end)
+        try:
+            Model.net.forward(end=end)
+        except:
+            log.critical('MISSING LAYER')
+
         try:
             if feature == -1:
                 objective(dst)

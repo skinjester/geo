@@ -7,7 +7,7 @@ class Viewport(object):
         self.window_name = '{}-{}'.format(window_name, data.username)
         self.b_show_HUD = False
         self.b_show_monitor = False
-        self.imagesavepath = '/home/gary/Desktop/testpics'
+        self.imagesavepath = '/home/gary/Desktop/magicmirror'
         self.currentview = None
         self.listener = listener
         self.force_refresh = True
