@@ -164,7 +164,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            1,
+            0,
             width=width,
             height=height,
             portrait_alignment=False,
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_PROJECTOR, fullscreen=False, listener=listener)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=True, listener=listener)
     Composer = Composer()
 
     # new idea, so objects have common pointers

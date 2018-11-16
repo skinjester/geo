@@ -398,7 +398,7 @@ program.append({
 
 program.append({
     'name': 'magicmirror-1',
-    'autofeature': False,
+    'autofeature': True,
     'iterations': 20,
     'step_size': 2,
     'octaves': 5,
