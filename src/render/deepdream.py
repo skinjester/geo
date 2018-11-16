@@ -1,10 +1,12 @@
 import data
+import sys
 import hud.console as console
 import scipy.ndimage as nd
 import cv2
 import math, numpy as np
 from random import randint
 import postprocess
+import thread
 
 
 # def objective_guide(dst):
@@ -37,6 +39,7 @@ class Artist(object):
     def __init__(self, id, Framebuffer):
         self.id = id
         self.b_wakeup = True
+        self.b_capture_now = False
         self.cycle_start_time = 0
         self.repeat = 0
         self.Framebuffer = Framebuffer
@@ -63,10 +66,18 @@ class Artist(object):
         clip=False
         ):
 
+
         # # SETUP OCTAVES
         src = Model.net.blobs['data']
         octaves = [data.rgb2caffe(Model.net, base_image)]
         log.warning('octave_n: {}'.format(octave_n))
+
+        if Model.cyclefx is not None:
+         for fx in Model.cyclefx:
+             if fx['name'] == 'octave_scaler':
+                 Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
+                 log.critical('octave_scale: {}'.format(Model.octave_scale))
+
         for i in xrange(octave_n - 1):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
         detail = np.zeros_like(octaves[-1])
@@ -80,11 +91,12 @@ class Artist(object):
             src.data[0] = octave_current + detail
 
             # OCTAVE CYCLE
-            i = 0
-            while i < iteration_max:
+            i = 1
+            while i <= iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    return Webcam.get().read()
+                    data.playback = Webcam.get().read()
+                    return
 
                 self.make_step(Model=Model,
                     step_size=step_size,
@@ -92,7 +104,7 @@ class Artist(object):
                     feature=feature,
                     objective=objective,
                     stepfx=stepfx,
-                    jitter=32)
+                    jitter=200)
 
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
@@ -101,46 +113,54 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('octave {}/{}({})'.format(octave+1, octave_n, octave_cutoff))
+                log.critical('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
 
                 vis = data.caffe2rgb(Model.net,src.data[0])
                 vis = vis * (255.0 / np.percentile(vis, 99.98))
-                Composer.update(vis, Webcam)
-
+                data.vis = vis
                 step_size += stepsize_base * step_mult
-                if step_size < 1.1:
-                    step_size = 1.1
+                if step_size < 0.1:
+                    step_size = 0.1
                 i += 1
-
-            detail = src.data[0] - octave_current
+                detail = src.data[0] - octave_current
+                if octave > octave_cutoff:
+                    break
             iteration_max = int(iteration_max - (iteration_max * iteration_mult))
-            if octave > octave_cutoff - 1:
-                break
 
-        rgb = data.caffe2rgb(Model.net, src.data[0])
-        return rgb
+        if self.was_photo_requested():
+            self.clear_photo_request()
+            data.Viewport.export()
+        return
 
     def make_step(self, Model, step_size, end, feature, objective, stepfx, jitter):
         src = Model.net.blobs['data']
         dst = Model.net.blobs[end]
         ox, oy = np.random.randint(-jitter, jitter + 1, 2)
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)
-        Model.net.forward(end=end)
+        try:
+            Model.net.forward(end=end)
+        except:
+            log.critical('MISSING LAYER')
+
         try:
             if feature == -1:
                 objective(dst)
             else:
                 dst.diff.fill(0.0)
                 dst.diff[0, feature, :] = dst.data[0, feature, :]
+            Model.net.backward(start=end)
+            g = src.diff[0]
+            if np.abs(g).mean() * g.any() != 0:
+                src.data[:] += step_size / np.abs(g).mean() * g
+                src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
+                bias = Model.net.transformer.mean['data']
+                src.data[:] = np.clip(src.data, -bias, 255 - bias)
+                src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
+        except KeyboardInterrupt:
+            sys.exit()
         except:
             log.critical('RENDERINGERROR')
-        Model.net.backward(start=end)
-        g = src.diff[0]
-        src.data[:] += step_size / np.abs(g).mean() * g
-        src.data[0] = np.roll(np.roll(src.data[0], -ox, -1), -oy, -2)
-        bias = Model.net.transformer.mean['data']
-        src.data[:] = np.clip(src.data, -bias, 255 - bias)
-        src.data[0] = self.postprocess_step(Model, src.data[0], stepfx)
+
 
     def postprocess_step(self, Model, src, stepfx):
         rgb = data.caffe2rgb(Model.net, src)
@@ -153,7 +173,9 @@ class Artist(object):
                 rgb = postprocess.bilateral_filter(rgb, fx['osc1'], fx['osc2'], fx['osc3'])
             if fx['name'] == 'gaussian':
                 rgb = postprocess.nd_gaussian(src, fx['osc'])
-                rgb = data.caffe2rgb(Model.net, src)
+                rgb = data.caffe2rgb(Model.net, rgb)
+
+        for fx in stepfx:
             if fx['name'] == 'step_mixer':
                 opacity = postprocess.step_mixer(fx['osc'])
         rgb_out = cv2.addWeighted(rgb, opacity, rgb_out, 1.0-opacity, 0.0)
@@ -163,13 +185,23 @@ class Artist(object):
         self.b_wakeup = True
         log.warning('request new')
 
-
     def was_wakeup_requested(self):
         return self.b_wakeup
 
-
     def clear_request(self):
         self.b_wakeup = False
+
+    def request_photo(self):
+        self.b_capture_now = True
+        pass
+
+    def was_photo_requested(self):
+        return self.b_capture_now
+        pass
+
+    def clear_photo_request(self):
+        self.b_capture_now = False
+        pass
 
     def set_cycle_start_time(self, start_time):
         self.cycle_start_time = start_time
@@ -178,4 +210,4 @@ class Artist(object):
 # --------
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
-log.setLevel(data.logging.CRITICAL)
+log.setLevel(data.logging.WARNING)

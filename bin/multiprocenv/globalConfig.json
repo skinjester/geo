@@ -1,0 +1,20 @@
+{
+  "CHECK_RUNNING":"off",
+  "DROPBOX_RUNNING":"off",
+  "FILEMAINT_RUNNING":"off",
+  "VIDEO_ROOT":"/",
+  "REMOTE_CONFIG_FILE":"config.json.txt",
+  "MASKED_FILE":"maskedAreas.json.txt",
+  "LOG_FILE":"md.log",
+  "VIDEO_NAME":"V{0}.avi",
+  "VIDEO_DIR":"MV{0}",
+  "CAP_PROP_FRAME_WIDTH":"3",
+  "CAP_PROP_FRAME_HEIGHT":"4",
+  "CAP_PROP_FPS":"5",
+  "CAP_PROP_FOURCC":"6",
+  "SMALL_CAMERA_WIDTH":"160",
+  "SMALL_CAMERA_HEIGHT":"120",
+  "CAMERA_WIDTH":"160",
+  "CAMERA_HEIGHT":"120",
+  "ACCESS_KEY":"Put your dropbox key here"
+}

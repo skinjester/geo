@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 import datetime
+import threading
 from threading import Thread
 import sys
 import data
@@ -85,8 +86,7 @@ class WebcamVideoStream(object):
         # motion detection
         self.motiondetector = MotionDetector(floor)
         self.delta = 0
-        self.buffer_t = np.zeros((self.height, self.width, 3),
-            np.uint8)
+        self.buffer_t = np.zeros((self.height, self.width, 3), np.uint8)
         self.threshold_filter = threshold_filter
 
         # frame buffer housekeeping
@@ -101,14 +101,16 @@ class WebcamVideoStream(object):
         self.t_plus = self.transpose(
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
-        # asyncplayback
-        self.Viewport = Viewport
-        self.Framebuffer = Framebuffer
-
     def start(self):
-        Thread(target=self.update, args=()).start()
-        log.debug('started camera thread')
+        threadlog.critical('start camera thread')
+        camera_thread = Thread(target=self.update, name='camera')
+        camera_thread.setDaemon(True)
+        camera_thread.start()
         return self
+
+    def stop(self):
+        threadlog.critical('stop camera thread')
+        self.stopped = True
 
     def set_gamma(self, gamma):
         # generates internal table for gamma correction
@@ -141,24 +143,11 @@ class WebcamVideoStream(object):
                 self.buffer_t, self.threshold_filter, 255, cv2.THRESH_BINARY
             )
             self.delta = cv2.countNonZero(self.buffer_t)
-
-            # dont process motion detection when paused
+            self.frame = self.gamma_correct(self.transpose(img))
             if self.motiondetector.is_paused == False:
                 self.motiondetector.process(self.delta)
-
-            # frame averaging on input frames
-            # img1 = self.gamma_correct(self.transpose(img))
-            # _osc1 = osc1.next()
-            # img2 = self.Framebuffer.slowshutter(img1,samplesize=10,interval=20)
-            # self.frame=cv2.addWeighted(img1, _osc1, img2, 1-_osc1, 0)
-
-            # update internal buffer w camera frame
-            self.frame = self.gamma_correct(self.transpose(img))
-
-
-            # threaded playback
-            # self.Viewport.show(data.playback)
-
+            # else:
+            #     data.pause_img = self.frame
 
     def read(self):
         log.debug('read camera:{} RGB:{}'.format(self.stream, self.frame.shape))
@@ -173,8 +162,6 @@ class WebcamVideoStream(object):
     def gamma_correct(self, img):
         return cv2.LUT(img, self.table)
 
-    def stop(self):
-        self.stopped = True
 
     def diffImg(self, t0, t1, t2):
         d1 = cv2.absdiff(t2, t1)
@@ -244,6 +231,7 @@ class MotionDetector(object):
 
     def toggle_pause(self):
         self.is_paused = not self.is_paused
+        threadlog.critical('{} paused:{}'.format('-'*12,self.is_paused))
 
 
 # --------
