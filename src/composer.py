@@ -33,6 +33,7 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
+            self.opacity = 0.5
             if not data.Webcam.get().motiondetector.is_paused:
                 if motion.delta > motion.delta_trigger:
                     data.Renderer.request_wakeup()
@@ -52,8 +53,7 @@ class Composer(object):
                         if self.opacity > 1.0:
                             self.opacity = 1.0
                 camera_img = data.Webcam.get().read()
-            else:
-                self.opacity = 1.0
+
 
             self.send(0, data.vis)
             self.send(1, camera_img)

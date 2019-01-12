@@ -40,8 +40,8 @@ LANDSCAPE_480P = (864,480)
 PORTRAIT_1080P = (1080,1920)
 PORTRAIT_720P = (720,1280)
 PORTRAIT_480P = (480,864)
-capturesize = LANDSCAPE_720P
-viewsize = LANDSCAPE_720P
+capturesize = PORTRAIT_480P
+viewsize = PORTRAIT_480P
 
 # outreach
 username = "dev"  # can be overriden w commandline

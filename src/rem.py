@@ -167,18 +167,18 @@ if __name__ == "__main__":
             0,
             width=width,
             height=height,
-            portrait_alignment=False,
+            portrait_alignment=True,
             Viewport=Viewport,
             Framebuffer=data.Framebuffer,
-            flip_h=False,
-            flip_v=False,
+            flip_h=True,
+            flip_v=True,
             gamma=0.5,
             floor=5000,
             threshold_filter=8))
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
-    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=True, listener=listener)
+    Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
 
     # new idea, so objects have common pointers

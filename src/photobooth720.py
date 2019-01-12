@@ -366,7 +366,7 @@ program.append({
     ],
     'cyclefx': [
         octave_scaler_default,
-        inception_xform_default
+        # inception_xform_default
     ],
     'stepfx': [
         bilateral_filter_default,
