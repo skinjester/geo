@@ -33,32 +33,72 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
-            self.opacity = 0.5
+
+            # dream: opacity = 1, webcam: opacity = 0
+
+            # check for paused condition
+            # not paused
+            data.img_dreambuffer = data.vis
             if not data.Webcam.get().motiondetector.is_paused:
+                # motion detected on this update
                 if motion.delta > motion.delta_trigger:
+                    # get new camera frame
                     data.Renderer.request_wakeup()
-                    if data.Model.autofeature:
-                        data.Model.next_feature()
+
+                    # reset delay counter
                     self.counter = 0
+
+                    # reduce dream opacity so we see more of the camera img
                     self.opacity -= 0.1
                     if self.opacity < 0:
                         self.opacity = 0
+
+                    data.img_dreambuffer = data.img_wakeup
+
+                # motion not detected this update
                 else:
+                    # delay before increasing opacity when coming from low opacity condition
                     if self.counter < 10:
-                        self.counter += 0.5
-                    if self.counter > 10:
-                        self.counter = 10
-                    if self.counter == 10:
+                        self.counter += 1
+                    else:
+                        # clamp counter to max value, so next time thru there is no delay
+                        data.img_dreambuffer = data.vis
+                        self.counter == 10
                         self.opacity += 0.1
                         if self.opacity > 1.0:
                             self.opacity = 1.0
-                camera_img = data.Webcam.get().read()
+            # paused
+            else:
+                self.opacity = 1.0
 
 
-            self.send(0, data.vis)
-            self.send(1, camera_img)
-            self.dreambuffer = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-            data.playback = self.dreambuffer
+
+            # if not data.Webcam.get().motiondetector.is_paused:
+            #     if motion.delta > motion.delta_trigger:
+            #         data.Renderer.request_wakeup()
+            #         if data.Model.autofeature:
+            #             data.Model.next_feature()
+            #         self.counter = 0
+            #         self.opacity -= 0.1
+            #         if self.opacity < 0:
+            #             self.opacity = 0
+            #     else:
+            #         if self.counter < 10:
+            #             self.counter += 0.5
+            #         if self.counter > 10:
+            #             self.counter = 10
+            #         if self.counter == 10:
+            #             self.opacity += 0.1
+            #             if self.opacity > 1.0:
+            #                 self.opacity = 1.0
+            #     camera_img = data.Webcam.get().read()
+            # else:
+            #     self.opacity = 1.0
+
+
+            self.send(0, data.img_dreambuffer)
+            self.send(1, data.img_wakeup)
+            data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
             # data.playback = postprocess.equalize(self.dreambuffer)
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:

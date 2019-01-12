@@ -87,7 +87,6 @@ def main():
                 if fx['name'] == 'inception_xform':
                     data.playback = postprocess.inception_xform(data.playback, **fx['params'])
 
-        # new rem sleep test
         _Deepdreamer.paint(
             Model=Model,
             base_image=data.playback,
@@ -164,7 +163,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            0,
+            1,
             width=width,
             height=height,
             portrait_alignment=True,

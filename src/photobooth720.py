@@ -128,9 +128,9 @@ program = []
 
 program.append({
     'name': 'Places',
-    'autofeature': False,
+    'autofeature': True,
     'iterations': 5,
-    'step_size': 1,
+    'step_size': 2,
     'octaves': 5,
     'octave_cutoff': 4,
     'octave_scale': 1.8,
@@ -366,10 +366,10 @@ program.append({
     ],
     'cyclefx': [
         octave_scaler_default,
-        # inception_xform_default
+        inception_xform_default
     ],
     'stepfx': [
-        bilateral_filter_default,
+        # bilateral_filter_default,
         # slowshutter_default,
     ]
 })

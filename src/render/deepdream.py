@@ -95,7 +95,7 @@ class Artist(object):
             while i <= iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    data.playback = Webcam.get().read()
+                    data.img_wakeup = Webcam.get().read()
                     return
 
                 self.make_step(Model=Model,
@@ -115,9 +115,8 @@ class Artist(object):
 
                 log.critical('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
 
-                vis = data.caffe2rgb(Model.net,src.data[0])
-                vis = vis * (255.0 / np.percentile(vis, 99.98))
-                data.vis = vis
+                data.vis = data.caffe2rgb(Model.net,src.data[0])
+                data.vis = data.vis * (255.0 / np.percentile(data.vis, 99.98))
                 step_size += stepsize_base * step_mult
                 if step_size < 0.1:
                     step_size = 0.1

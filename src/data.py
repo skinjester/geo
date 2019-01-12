@@ -27,6 +27,7 @@ guides.append('./img/eyeballs.jpg')
 # I'm using it like a scratchpad, but initializes to None
 data_img = None
 
+
 # opencv font and color
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 WHITE = (255, 255, 255)
@@ -40,8 +41,8 @@ LANDSCAPE_480P = (864,480)
 PORTRAIT_1080P = (1080,1920)
 PORTRAIT_720P = (720,1280)
 PORTRAIT_480P = (480,864)
-capturesize = PORTRAIT_480P
-viewsize = PORTRAIT_480P
+capturesize = LANDSCAPE_480P
+viewsize = (480,853)
 
 # outreach
 username = "dev"  # can be overriden w commandline
@@ -60,6 +61,13 @@ playback = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 
 # store paused image for photo mode
 pause_img = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
+
+# using this to store camera ing at time of motion detection trigger
+img_wakeup = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
+
+# using this for...?
+img_dreambuffer = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
+
 
 # utility functions
 def rgb2caffe(net, image):
