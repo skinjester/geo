@@ -102,14 +102,14 @@ class WebcamVideoStream(object):
             cv2.cvtColor(self.stream.read()[1], cv2.COLOR_RGB2GRAY))
 
     def start(self):
-        threadlog.critical('start camera thread')
+        threadlog.warning('start camera thread')
         camera_thread = Thread(target=self.update, name='camera')
         camera_thread.setDaemon(True)
         camera_thread.start()
         return self
 
     def stop(self):
-        threadlog.critical('stop camera thread')
+        threadlog.warning('stop camera thread')
         self.stopped = True
 
     def set_gamma(self, gamma):
@@ -231,7 +231,7 @@ class MotionDetector(object):
 
     def toggle_pause(self):
         self.is_paused = not self.is_paused
-        threadlog.critical('{} paused:{}'.format('-'*12,self.is_paused))
+        threadlog.warning('{} paused:{}'.format('-'*12,self.is_paused))
 
 
 # --------

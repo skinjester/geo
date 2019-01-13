@@ -12,10 +12,9 @@ class Composer(object):
         self.dreambuffer = emptybuffer
         self.opacity = 0
         self.stopped = False
-        self.counter = 0
 
     def start(self):
-        threadlog.critical('start composer thread')
+        threadlog.warning('start composer thread')
         composer_thread = threading.Thread(target=self.update, name='composer')
         composer_thread.setDaemon(True)
         composer_thread.start()
@@ -23,7 +22,7 @@ class Composer(object):
 
     def stop(self):
         self.stopped = True
-        threadlog.critical('stop composer thread')
+        threadlog.warning('stop composer thread')
 
     def update(self):
         while True:
@@ -33,68 +32,29 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
-
-            # dream: opacity = 1, webcam: opacity = 0
-
-            # check for paused condition
-            # not paused
             data.img_dreambuffer = data.vis
+            # not paused
             if not data.Webcam.get().motiondetector.is_paused:
                 # motion detected on this update
                 if motion.delta > motion.delta_trigger:
-                    # get new camera frame
                     data.Renderer.request_wakeup()
-
-                    # reset delay counter
-                    self.counter = 0
-
-                    # reduce dream opacity so we see more of the camera img
-                    self.opacity -= 0.1
-                    if self.opacity < 0:
-                        self.opacity = 0
-
                     data.img_dreambuffer = data.img_wakeup
-
+                    if data.Model.autofeature:
+                        data.Model.update_feature(release=10)
+                    self.opacity -= 0.1
+                    if self.opacity < 0.3:
+                        self.opacity = 0.3
                 # motion not detected this update
                 else:
-                    # delay before increasing opacity when coming from low opacity condition
-                    if self.counter < 10:
-                        self.counter += 1
-                    else:
-                        # clamp counter to max value, so next time thru there is no delay
+                    if data.Renderer.new_cycle:
                         data.img_dreambuffer = data.vis
-                        self.counter == 10
+                    else:
                         self.opacity += 0.1
                         if self.opacity > 1.0:
                             self.opacity = 1.0
             # paused
             else:
                 self.opacity = 1.0
-
-
-
-            # if not data.Webcam.get().motiondetector.is_paused:
-            #     if motion.delta > motion.delta_trigger:
-            #         data.Renderer.request_wakeup()
-            #         if data.Model.autofeature:
-            #             data.Model.next_feature()
-            #         self.counter = 0
-            #         self.opacity -= 0.1
-            #         if self.opacity < 0:
-            #             self.opacity = 0
-            #     else:
-            #         if self.counter < 10:
-            #             self.counter += 0.5
-            #         if self.counter > 10:
-            #             self.counter = 10
-            #         if self.counter == 10:
-            #             self.opacity += 0.1
-            #             if self.opacity > 1.0:
-            #                 self.opacity = 1.0
-            #     camera_img = data.Webcam.get().read()
-            # else:
-            #     self.opacity = 1.0
-
 
             self.send(0, data.img_dreambuffer)
             self.send(1, data.img_wakeup)

@@ -41,7 +41,6 @@ def tweet(path_to_image):
     api.update_with_media(path_to_image, status=myStatusText)
 
 def show_stats(image):
-    log.warning('show stats')
     stats_overlay = image.copy()
     opacity = 1.0
     cv2.putText(stats_overlay, 'show_stats()', (30, 40), data.FONT, 0.5,
@@ -81,7 +80,6 @@ def main():
             for fx in Model.cyclefx:
                 if fx['name'] == 'octave_scaler':
                     Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
-                    log.critical('octave_scale: {}'.format(Model.octave_scale))
                 if fx['name'] == 'xform_array':
                     postprocess.xform_array(Composer.dreambuffer, **fx['params'])
                 if fx['name'] == 'inception_xform':
@@ -111,7 +109,7 @@ def main():
         duration_msg = '{:.2f}s'.format(later - now)
         now = time.time()  # the new now
         console.log_value('cycle_time',duration_msg)
-        log.critical('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
+        log.warning('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
 
 # -------
 # INITIALIZE
@@ -150,7 +148,7 @@ osc4 = postprocess.oscillator(
 
 if __name__ == "__main__":
     log = data.logging.getLogger('mainlog')
-    log.setLevel(data.logging.WARNING)  # CRITICAL ERROR WARNING INFO DEBUG
+    log.setLevel(data.logging.CRITICAL)  # CRITICAL ERROR WARNING INFO DEBUG
     threadlog = data.logging.getLogger('threadlog')
     threadlog.setLevel(data.logging.CRITICAL)
     parser = argparse.ArgumentParser()
@@ -163,7 +161,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            1,
+            0,
             width=width,
             height=height,
             portrait_alignment=True,

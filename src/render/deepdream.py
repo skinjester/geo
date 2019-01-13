@@ -43,8 +43,7 @@ class Artist(object):
         self.cycle_start_time = 0
         self.repeat = 0
         self.Framebuffer = Framebuffer
-        log.debug('dreaming with Render instance: {}'.format(self.id))
-
+        self.new_cycle = True
 
     def paint(self,
         Model,
@@ -76,7 +75,7 @@ class Artist(object):
          for fx in Model.cyclefx:
              if fx['name'] == 'octave_scaler':
                  Model.octave_scale = round(postprocess.octave_scaler(fx['osc']),4)
-                 log.critical('octave_scale: {}'.format(Model.octave_scale))
+                 log.warning('octave_scale: {}'.format(Model.octave_scale))
 
         for i in xrange(octave_n - 1):
             octaves.append(nd.zoom(octaves[-1], (1, round((1.0 / octave_scale), 2), round((1.0 / octave_scale), 2)), order=1))
@@ -106,6 +105,8 @@ class Artist(object):
                     stepfx=stepfx,
                     jitter=200)
 
+                self.new_cycle = False
+
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
                 console.log_value('step_size','{:02.3f} x{:02.3f}'.format(step_size, step_mult))
@@ -113,7 +114,7 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.critical('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
+                log.warning('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
 
                 data.vis = data.caffe2rgb(Model.net,src.data[0])
                 data.vis = data.vis * (255.0 / np.percentile(data.vis, 99.98))
@@ -204,6 +205,7 @@ class Artist(object):
 
     def set_cycle_start_time(self, start_time):
         self.cycle_start_time = start_time
+        self.new_cycle = True
 # --------
 # INIT.
 # --------

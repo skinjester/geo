@@ -49,6 +49,7 @@ median_filter_default = {
     }
 },
 
+
 bilateral_filter_default = {
     'name': 'bilateral_filter',
     'radius': {
@@ -129,8 +130,8 @@ program = []
 program.append({
     'name': 'Places',
     'autofeature': True,
-    'iterations': 5,
-    'step_size': 2,
+    'iterations': 20,
+    'step_size': 1,
     'octaves': 5,
     'octave_cutoff': 4,
     'octave_scale': 1.8,
@@ -369,8 +370,16 @@ program.append({
         inception_xform_default
     ],
     'stepfx': [
-        # bilateral_filter_default,
-        # slowshutter_default,
+        {
+            'name': 'median_blur',
+            'params': {
+                'cycle_length': 10,
+                'frequency': 1,
+                'range_out':[0.0,3],
+                'wavetype': 'square',
+                'dutycycle': 0.4
+            }
+        }
     ]
 })
 
