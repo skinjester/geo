@@ -99,7 +99,7 @@ def octave_scaler(osc):
 # STEPFX
 def median_blur(image, osc):
     blur = int(osc.next())
-    log.critical('median_blur: {}'.format(blur))
+    log.warning('median_blur: {}'.format(blur))
     if blur == 0:
         return image
     return cv2.medianBlur(image, blur)
