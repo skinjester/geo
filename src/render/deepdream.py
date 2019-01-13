@@ -43,6 +43,7 @@ class Artist(object):
         self.cycle_start_time = 0
         self.repeat = 0
         self.Framebuffer = Framebuffer
+        self.new_cycle = True
 
     def paint(self,
         Model,
@@ -103,6 +104,8 @@ class Artist(object):
                     objective=objective,
                     stepfx=stepfx,
                     jitter=200)
+
+                self.new_cycle = False
 
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
@@ -202,6 +205,7 @@ class Artist(object):
 
     def set_cycle_start_time(self, start_time):
         self.cycle_start_time = start_time
+        self.new_cycle = True
 # --------
 # INIT.
 # --------

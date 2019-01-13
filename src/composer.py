@@ -12,7 +12,7 @@ class Composer(object):
         self.dreambuffer = emptybuffer
         self.opacity = 0
         self.stopped = False
-        self.counter = 0
+        self.was_motion_detected = True
 
     def start(self):
         threadlog.warning('start composer thread')
@@ -33,7 +33,6 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
-
             # dream: opacity = 1, webcam: opacity = 0
 
             # check for paused condition
@@ -42,30 +41,31 @@ class Composer(object):
             if not data.Webcam.get().motiondetector.is_paused:
                 # motion detected on this update
                 if motion.delta > motion.delta_trigger:
+                    self.was_motion_detected = True
+
                     # get new camera frame
                     data.Renderer.request_wakeup()
                     if data.Model.autofeature:
                         data.Model.update_feature(release=10)
 
-                    # reset delay counter
-                    self.counter = 0
-
                     # reduce dream opacity so we see more of the camera img
-                    self.opacity -= 0.1
-                    if self.opacity < 0:
-                        self.opacity = 0
-
                     data.img_dreambuffer = data.img_wakeup
+                    self.opacity -= 0.1
+                    if self.opacity < 0.3:
+                        self.opacity = 0.3
 
                 # motion not detected this update
                 else:
                     # delay before increasing opacity when coming from low opacity condition
-                    if self.counter < 10:
-                        self.counter += 1
-                    else:
-                        # clamp counter to max value, so next time thru there is no delay
+                    # using self.was_motion_detected as a "motion detected" flag, change shortly
+                    if data.Renderer.new_cycle and self.was_motion_detected:
+                        # data.img_dreambuffer = data.img_wakeup
                         data.img_dreambuffer = data.vis
-                        self.counter == 10
+
+                        # using self.counter as a "motion detected" flag, change shortly
+                        self.counter = False
+
+                    else:
                         self.opacity += 0.1
                         if self.opacity > 1.0:
                             self.opacity = 1.0
