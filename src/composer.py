@@ -45,7 +45,7 @@ class Composer(object):
                     # get new camera frame
                     data.Renderer.request_wakeup()
                     if data.Model.autofeature:
-                        postprocess.update_feature()
+                        data.Model.update_feature(release=10)
 
                     # reset delay counter
                     self.counter = 0
