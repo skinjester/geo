@@ -60,7 +60,6 @@ class Composer(object):
             self.send(1, data.img_wakeup)
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
             # data.playback = postprocess.equalize(self.dreambuffer)
-            # stepfx
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
                     if fx['name'] == 'slowshutter':
@@ -71,8 +70,8 @@ class Composer(object):
                             )
                     if fx['name'] == 'featuremap':
                         data.Model.set_featuremap(index=fx['osc1'].next())
-            # update the viewport
             data.Viewport.show(data.playback)
+
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))
             console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - data.Model.program_start_time, 2), data.Model.program_duration))
 
