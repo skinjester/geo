@@ -14,7 +14,7 @@ class Buffer(object):
         self.start_time = 0.0
         (self.rAvg, self.gAvg, self.bAvg) = (None, None, None)
         self.total = 0
-        self.frame = counter(9999999)
+        self.frame = counter()
         self.locked = False
         self.frame_repeat_count = 0
         self.total_frames = 0
@@ -49,7 +49,7 @@ class Buffer(object):
             self.storage=np.roll(self.storage,1,axis=0)
             self.storage[0] = img
             self.total_frames += 1
-            log.critical('frames added:{}'.format(self.total_frames))
+            log.debug('frames added:{}'.format(self.total_frames))
 
     def cycle(self,repeat):
         self.frame_repeat_count += 1
@@ -99,7 +99,7 @@ def octave_scaler(osc):
 # STEPFX
 def median_blur(image, osc):
     blur = int(osc.next())
-    log.debug('{}'.format(blur))
+    log.critical('median_blur: {}'.format(blur))
     if blur == 0:
         return image
     return cv2.medianBlur(image, blur)
@@ -129,7 +129,7 @@ def equalize(img):
     img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
     return img
 
-def counter(maxvalue=99999):
+def counter(maxvalue=9999999):
     value = 0
     yield value
     while True:
@@ -137,6 +137,16 @@ def counter(maxvalue=99999):
         if value > maxvalue:
             value = 0
         yield value
+
+def feature_release_counter(maxvalue=9999999):
+    value = 0
+    yield value
+    while True:
+        value += 1
+        if value > maxvalue:
+            value = 0
+        yield value
+
 
 def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wavetype='sin', dutycycle=0.5):
     timecounter = 0
@@ -153,6 +163,14 @@ def oscillator(cycle_length, frequency=1, range_in=[-1,1], range_out=[-1,1], wav
 def remap(value, range_in, range_out):
     return range_out[0] + (range_out[1] - range_out[0]) * ((value - range_in[0]) / (range_in[1] - range_in[0]))
 
+def update_feature():
+    counter = release.next()
+    throttle = counter % 10
+    log.critical('throttle: {}'.format(throttle))
+    if throttle == 0:
+        data.Model.next_feature()
+
+
 
 
 
@@ -162,3 +180,6 @@ def remap(value, range_in, range_out):
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
+
+# DEBUG
+release = feature_release_counter()

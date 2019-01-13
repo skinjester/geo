@@ -47,6 +47,7 @@ class Model(object):
         self.autofeature = program['autofeature']
         self.cyclefx = program['cyclefx']
         self.pool = None
+        self.release = self.feature_release_counter()
         for fx in self.cyclefx:
             if fx['name'] == 'octave_scaler':
                 # self.pool = self.setup_octave_scaler(**value['params'])
@@ -220,6 +221,12 @@ class Model(object):
     def reset_feature(self):
         pass
 
+    def update_feature(self, release):
+        counter = self.release.next()
+        throttle = counter % release
+        if throttle == 0:
+            self.next_feature()
+
     def prev_program(self):
         current_program = self.current_program - 1
         if current_program < 0:
@@ -245,6 +252,15 @@ class Model(object):
             self.current_feature = -1
         log.debug('index:{}'.format(self.current_feature))
         self.log_featuremap()
+
+    def feature_release_counter(maxvalue=9999999):
+        value = 0
+        yield value
+        while True:
+            value += 1
+            if value > maxvalue:
+                value = 0
+            yield value
 
 models = {
     'path': '../models',
@@ -376,4 +392,6 @@ guides = [
 # CRITICAL ERROR WARNING INFO DEBUG
 log = data.logging.getLogger('mainlog')
 log.setLevel(data.logging.CRITICAL)
+
+
 
