@@ -124,6 +124,7 @@ def step_mixer(osc):
 
 def equalize(img, clipLimit=4, tileGridSize=(8,8)):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = np.uint8(np.clip(gray, 0, 255))
     clahe = cv2.createCLAHE(clipLimit, tileGridSize)
     equalized = clahe.apply(gray)
     img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)

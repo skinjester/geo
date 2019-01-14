@@ -41,9 +41,9 @@ class Composer(object):
                     data.img_dreambuffer = data.img_wakeup
                     if data.Model.autofeature:
                         data.Model.update_feature(release=10)
-                    self.opacity -= 0.1
-                    if self.opacity < 0.0:
-                        self.opacity = 0.0
+                    self.opacity -= 0.05
+                    if self.opacity < 0.3:
+                        self.opacity = 0.3
                 # motion not detected this update
                 else:
                     if data.Renderer.new_cycle:
@@ -56,10 +56,11 @@ class Composer(object):
             else:
                 self.opacity = 1.0
 
-            self.send(0, data.img_dreambuffer)
+            if counter.next() % 3 == 0:
+                data.vis = postprocess.equalize(data.vis, 2, (10,10))
+            self.send(0, data.vis)
             self.send(1, data.img_wakeup)
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-            # data.playback = postprocess.equalize(self.dreambuffer)
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
                     if fx['name'] == 'slowshutter':
@@ -70,11 +71,10 @@ class Composer(object):
                             )
                     if fx['name'] == 'featuremap':
                         data.Model.set_featuremap(index=fx['osc1'].next())
-                    if fx['name'] == 'equalize':
-                        data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
+                    # if fx['name'] == 'equalize':
+                    #     data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
                     # if fx['name'] == 'grayscale':
                     #     data.playback = postprocess.grayscale(data.playback)
-                    data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
 
 
             data.Viewport.show(data.playback)
@@ -117,6 +117,15 @@ class Composer(object):
     def clear_message_request():
         pass
 
+def _counter(maxvalue=9999999):
+    value = 0
+    yield value
+    while True:
+        value += 1
+        if value > maxvalue:
+            value = 0
+        yield value
+
 # --------
 # INIT.
 # --------
@@ -133,3 +142,6 @@ osc = postprocess.oscillator(
             wavetype = 'sin',
             dutycycle = 0.5
             )
+
+counter = _counter()
+
