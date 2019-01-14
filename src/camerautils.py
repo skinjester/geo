@@ -151,7 +151,9 @@ class WebcamVideoStream(object):
 
     def read(self):
         log.debug('read camera:{} RGB:{}'.format(self.stream, self.frame.shape))
+        # return postprocess.equalize(self.frame)
         return self.frame
+
 
     def transpose(self, img):
         if self.portrait_alignment: img = cv2.transpose(img)

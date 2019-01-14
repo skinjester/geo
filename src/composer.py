@@ -42,14 +42,14 @@ class Composer(object):
                     if data.Model.autofeature:
                         data.Model.update_feature(release=10)
                     self.opacity -= 0.1
-                    if self.opacity < 0.3:
-                        self.opacity = 0.3
+                    if self.opacity < 0.0:
+                        self.opacity = 0.0
                 # motion not detected this update
                 else:
                     if data.Renderer.new_cycle:
                         data.img_dreambuffer = data.vis
                     else:
-                        self.opacity += 0.1
+                        self.opacity += 0.05
                         if self.opacity > 1.0:
                             self.opacity = 1.0
             # paused
@@ -70,6 +70,13 @@ class Composer(object):
                             )
                     if fx['name'] == 'featuremap':
                         data.Model.set_featuremap(index=fx['osc1'].next())
+                    if fx['name'] == 'equalize':
+                        data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
+                    # if fx['name'] == 'grayscale':
+                    #     data.playback = postprocess.grayscale(data.playback)
+                    data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
+
+
             data.Viewport.show(data.playback)
 
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))

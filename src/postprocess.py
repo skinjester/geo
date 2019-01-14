@@ -122,12 +122,16 @@ def nd_gaussian(image, osc):
 def step_mixer(osc):
     return osc.next()
 
-def equalize(img):
+def equalize(img, clipLimit=4, tileGridSize=(8,8)):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    clahe = cv2.createCLAHE(clipLimit=2, tileGridSize=(2,2))
+    clahe = cv2.createCLAHE(clipLimit, tileGridSize)
     equalized = clahe.apply(gray)
     img = cv2.cvtColor(equalized, cv2.COLOR_GRAY2BGR)
     return img
+
+def grayscale(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
 def counter(maxvalue=9999999):
     value = 0

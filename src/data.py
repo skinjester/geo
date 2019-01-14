@@ -65,7 +65,7 @@ pause_img = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 # using this to store camera ing at time of motion detection trigger
 img_wakeup = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 
-# using this for...?
+# using this for...
 img_dreambuffer = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 
 
