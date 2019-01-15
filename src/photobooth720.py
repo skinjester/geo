@@ -6,7 +6,6 @@ xform_array_default = {
     'params': {'amplitude': 20, 'wavelength': 50}
 }
 
-
 octave_scaler_default = {
     'name': 'octave_scaler',
     'params': {
@@ -17,6 +16,7 @@ octave_scaler_default = {
         'dutycycle': 0.5
     }
 }
+
 inception_xform_default = {
     'name': 'inception_xform',
     'params': {'scale': 0.1}
@@ -48,7 +48,6 @@ median_filter_default = {
         'dutycycle': 0.5
     }
 },
-
 
 bilateral_filter_default = {
     'name': 'bilateral_filter',
@@ -104,7 +103,6 @@ nd_gaussian_filter_default = {
     }
 }
 
-
 step_opacity_default = {
     'name': 'step_opacity',
     'params': {'opacity': 0.1}
@@ -122,8 +120,6 @@ stepfx_default = [
     # step_opacity_default,
     # duration_cutoff_default
 ]
-
-
 
 program = []
 
@@ -366,19 +362,53 @@ program.append({
         },
     ],
     'cyclefx': [
-        octave_scaler_default,
-        inception_xform_default
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 30,
+                'frequency': 1,
+                'range_out':[1.3,2.0],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        },
+        # inception_xform_default
     ],
     'stepfx': [
         {
             'name': 'median_blur',
             'params': {
-                'cycle_length': 10,
+                'cycle_length': 30,
                 'frequency': 1,
                 'range_out':[0.0,3],
                 'wavetype': 'square',
                 'dutycycle': 0.4
             }
+        },
+        # {
+        #     'name': 'slowshutter',
+        #     'samplesize': {
+        #         'cycle_length': 100,
+        #         'frequency': 1,
+        #         'range_out':[3,3],
+        #         'wavetype': 'sin',
+        #         'dutycycle': 0.5
+        #     },
+        #     'interval': {
+        #         'cycle_length': 100,
+        #         'frequency': 1,
+        #         'range_out':[1,1],
+        #         'wavetype': 'sin',
+        #         'dutycycle': 0.5
+        #     },
+        # },
+        {
+            'name': 'equalize',
+            'clip': 8,
+            'gridsize': (16,16)
+        },
+        {
+            'name': 'grayscale'
         }
     ]
 })
@@ -389,10 +419,10 @@ program.append({
     'iterations': 20,
     'step_size': 1,
     'octaves': 5,
-    'octave_cutoff': 4,
+    'octave_cutoff': 5,
     'octave_scale': 1.8,
     'iteration_mult': 0.0,
-    'step_mult': 0.1,
+    'step_mult': 0.0,
     'model': 'googlenet',
     'layers': data.layers_googlenet,
     'cyclefx': [
@@ -400,8 +430,8 @@ program.append({
         inception_xform_default
     ],
     'stepfx': [
-        bilateral_filter_default,
-        slowshutter_default,
+        # bilateral_filter_default,
+        # slowshutter_default,
     ]
 })
 
@@ -488,14 +518,14 @@ program.append({
             'samplesize': {
                 'cycle_length': 10000,
                 'frequency': 3,
-                'range_out':[10,10],
+                'range_out':[3,3],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             },
             'interval': {
                 'cycle_length': 10000,
                 'frequency': 1,
-                'range_out':[3,3],
+                'range_out':[1,3],
                 'wavetype': 'square',
                 'dutycycle': 0.5
             },

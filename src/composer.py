@@ -38,29 +38,31 @@ class Composer(object):
                 # motion detected on this update
                 if motion.delta > motion.delta_trigger:
                     data.Renderer.request_wakeup()
-                    data.img_dreambuffer = data.img_wakeup
-                    if data.Model.autofeature:
-                        data.Model.update_feature(release=10)
-                    self.opacity -= 0.05
-                    if self.opacity < 0.3:
-                        self.opacity = 0.3
+                    data.img_dreambuffer = self.buffer[1]
+                    self.opacity -= 0.1
+                    if self.opacity < 0.0:
+                        self.opacity = 0.0
+
                 # motion not detected this update
                 else:
-                    if data.Renderer.new_cycle:
-                        data.img_dreambuffer = data.vis
-                    else:
-                        self.opacity += 0.05
-                        if self.opacity > 1.0:
-                            self.opacity = 1.0
+                    self.opacity += 0.1
+                    if self.opacity > 1.0:
+                        self.opacity = 1.0
             # paused
             else:
                 self.opacity = 1.0
 
-            if counter.next() % 3 == 0:
-                data.vis = postprocess.equalize(data.vis, 2, (10,10))
-            self.send(0, data.vis)
-            self.send(1, data.img_wakeup)
+
+
+            if data.Model.autofeature:
+                data.Model.update_feature(release=10)
+
+            # if counter.next() % 3 == 0:
+            #     data.vis = postprocess.equalize(data.vis, 2, (10,10))
+            self.send(0, data.img_dreambuffer)
+            self.send(1, data.Webcam.get().read())
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
+
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
                     if fx['name'] == 'slowshutter':
@@ -69,15 +71,24 @@ class Composer(object):
                             samplesize=fx['osc1'].next(),
                             interval=fx['osc2'].next()
                             )
-                    if fx['name'] == 'featuremap':
-                        data.Model.set_featuremap(index=fx['osc1'].next())
+                    # if fx['name'] == 'featuremap':
+                    #     data.Model.set_featuremap(index=fx['osc1'].next())
                     # if fx['name'] == 'equalize':
                     #     data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
                     # if fx['name'] == 'grayscale':
                     #     data.playback = postprocess.grayscale(data.playback)
 
+            data.Framebuffer.write(data.playback)
+            img = data.Framebuffer.cycle(repeat=3)
+            data.Viewport.show(img)
 
-            data.Viewport.show(data.playback)
+            # if data.Renderer.was_wakeup_requested():
+                # data.Framebuffer.write(data.playback)
+                # img = data.Framebuffer.cycle(repeat=1)
+            # img = data.Framebuffer.cycle(repeat=1)
+            # else:
+                # data.Framebuffer.write(data.Webcam.get().read())
+
 
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))
             console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - data.Model.program_start_time, 2), data.Model.program_duration))

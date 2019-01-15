@@ -40,9 +40,9 @@ LANDSCAPE_720P = (1280,720)
 LANDSCAPE_480P = (864,480)
 PORTRAIT_1080P = (1080,1920)
 PORTRAIT_720P = (720,1280)
-PORTRAIT_480P = (480,864)
-capturesize = LANDSCAPE_480P
-viewsize = (480,853)
+PORTRAIT_480P = (540,800)
+capturesize = PORTRAIT_720P
+viewsize = PORTRAIT_720P
 
 # outreach
 username = "dev"  # can be overriden w commandline
@@ -58,6 +58,8 @@ floor_adjust = 5000  # default step size for motion floor adjustment
 
 # async playback?
 playback = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
+webcam = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
+
 
 # store paused image for photo mode
 pause_img = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)

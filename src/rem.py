@@ -157,7 +157,7 @@ if __name__ == "__main__":
     if args.username:
         data.username = args.username
     width, height = data.capturesize
-    data.Framebuffer = postprocess.Buffer(10,width,height)
+    data.Framebuffer = postprocess.Buffer(10,height,width)
     camera=[]
     camera.append(
         WebcamVideoStream(

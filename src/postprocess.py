@@ -45,9 +45,9 @@ class Buffer(object):
         if not self.locked:
             # input resized to match viewport dimensions
             img = cv2.resize(img,(data.viewsize[0], data.viewsize[1]),interpolation=cv2.INTER_LINEAR)
-
+            previous_img = self.storage[0].copy()
             self.storage=np.roll(self.storage,1,axis=0)
-            self.storage[0] = img
+            self.storage[0] = self.mix(img, previous_img, 0.5, gamma=1.0)
             self.total_frames += 1
             log.debug('frames added:{}'.format(self.total_frames))
 
@@ -60,6 +60,15 @@ class Buffer(object):
         else:
             self.locked = True
         return self.storage[self.playback_index]
+
+    def mix(self, image_front, image_back, front_opacity, gamma):
+        return cv2.addWeighted(
+            image_front,
+            front_opacity,  #
+            image_back,
+            1 - front_opacity,
+            gamma,
+        )
 
     def widetime(self,delay,interval):
         if delay % interval == 0:
