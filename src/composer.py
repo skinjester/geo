@@ -57,12 +57,12 @@ class Composer(object):
                 self.opacity = 1.0
 
             log.critical('requested:{} in progress: {} opacity: {:3.2f}'.format(data.Renderer.was_wakeup_requested(), self.motion_event_in_progress, self.opacity))
-            # if counter.next() % 3 == 0:
-            #     data.vis = postprocess.equalize(data.vis, 2, (10,10))
+
             self.send(0, data.vis)
             self.send(1, data.Webcam.get().read())
             playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
+            data.playback = postprocess.equalize(data.playback, 1, (16,16))
 
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
@@ -79,8 +79,6 @@ class Composer(object):
                     # if fx['name'] == 'grayscale':
                     #     data.playback = postprocess.grayscale(data.playback)
 
-            # data.Framebuffer.write(data.playback)
-            # img = data.Framebuffer.cycle(repeat=3)
 
             # display the update only if previous and current img are different
             # don't do anything if they're identical though
@@ -90,7 +88,10 @@ class Composer(object):
                 if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
                     # playback "ready" only when new dream cycle completes 1st iteration
                     if self.playback_ready:
-                        data.Viewport.show(data.playback)
+                        data.Framebuffer.write(data.playback)
+                        img = data.Framebuffer.cycle(repeat=3)
+                        # data.Viewport.show(data.playback)
+                        data.Viewport.show(img)
 
             self.playback_ready = not data.Renderer.new_cycle
 
