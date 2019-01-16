@@ -56,7 +56,6 @@ class WebcamVideoStream(object):
         height,
         portrait_alignment,
         Viewport,
-        Framebuffer,
         flip_h=False,
         flip_v=False,
         gamma=1.0,

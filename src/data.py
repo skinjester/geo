@@ -35,14 +35,19 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
 # image I/O
+_720P = (1280,720)
+_1080P = (1920,1080)
+_480P = (853,480)
+
 LANDSCAPE_1080P = (1920,1080)
 LANDSCAPE_720P = (1280,720)
 LANDSCAPE_480P = (864,480)
 PORTRAIT_1080P = (1080,1920)
 PORTRAIT_720P = (720,1280)
-PORTRAIT_480P = (540,800)
-capturesize = PORTRAIT_720P
-viewsize = PORTRAIT_720P
+PORTRAIT_480P = (480,853)
+
+capturesize = _1080P
+viewsize = PORTRAIT_480P
 
 # outreach
 username = "dev"  # can be overriden w commandline

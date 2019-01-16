@@ -36,14 +36,14 @@ def objective_guide(dst):
     A.argmax(1)]
 
 class Artist(object):
-    def __init__(self, id, Framebuffer):
+    def __init__(self, id, webcam):
         self.id = id
         self.b_wakeup = True
         self.b_capture_now = False
         self.cycle_start_time = 0
         self.repeat = 0
-        self.Framebuffer = Framebuffer
         self.new_cycle = True
+        self.webcam = webcam
 
     def paint(self,
         Model,
@@ -61,7 +61,6 @@ class Artist(object):
         stepfx,
         Webcam,
         Composer,
-        Framebuffer,
         clip=False
         ):
 
@@ -94,7 +93,7 @@ class Artist(object):
             while i <= iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    data.img_wakeup = Webcam.get().read()
+                    # data.img_wakeup = Webcam.get().read()
                     return
 
                 self.make_step(Model=Model,
@@ -183,6 +182,7 @@ class Artist(object):
 
     def request_wakeup(self):
         self.b_wakeup = True
+        data.img_wakeup = self.webcam.get().read()
         log.warning('request new')
 
     def was_wakeup_requested(self):

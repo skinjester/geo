@@ -12,6 +12,9 @@ class Composer(object):
         self.dreambuffer = emptybuffer
         self.opacity = 0
         self.stopped = False
+        self.motion_event_in_progress = False
+        self.playback_ready = True
+
 
     def start(self):
         threadlog.warning('start composer thread')
@@ -33,35 +36,40 @@ class Composer(object):
             motion.peak = motion.delta_history_peak
 
             data.img_dreambuffer = data.vis
+
             # not paused
             if not data.Webcam.get().motiondetector.is_paused:
-                # motion detected on this update
+
+                # motion event detected on this update
+                # only valid in another event not in progress
                 if motion.delta > motion.delta_trigger:
-                    data.Renderer.request_wakeup()
-                    data.img_dreambuffer = self.buffer[1]
-                    self.opacity -= 0.1
+                    if not self.motion_event_in_progress:
+                        self.motion_event_in_progress = True
+                if self.motion_event_in_progress:
+                    self.opacity -= 0.01
                     if self.opacity < 0.0:
                         self.opacity = 0.0
-
-                # motion not detected this update
+                        self.motion_event_in_progress = False
+                        data.Renderer.request_wakeup()
+                        data.img_dreambuffer = data.Webcam.get().read()
                 else:
-                    self.opacity += 0.1
+                    self.opacity += 0.01
                     if self.opacity > 1.0:
                         self.opacity = 1.0
+
             # paused
             else:
                 self.opacity = 1.0
 
 
-
-            if data.Model.autofeature:
-                data.Model.update_feature(release=10)
-
+            log.critical('requested:{} in progress: {} opacity: {:3.2f}'.format(data.Renderer.was_wakeup_requested(), self.motion_event_in_progress, self.opacity))
             # if counter.next() % 3 == 0:
             #     data.vis = postprocess.equalize(data.vis, 2, (10,10))
             self.send(0, data.img_dreambuffer)
             self.send(1, data.Webcam.get().read())
+            playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
+
 
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
@@ -78,16 +86,19 @@ class Composer(object):
                     # if fx['name'] == 'grayscale':
                     #     data.playback = postprocess.grayscale(data.playback)
 
-            data.Framebuffer.write(data.playback)
-            img = data.Framebuffer.cycle(repeat=3)
-            data.Viewport.show(img)
+            # data.Framebuffer.write(data.playback)
+            # img = data.Framebuffer.cycle(repeat=3)
 
-            # if data.Renderer.was_wakeup_requested():
-                # data.Framebuffer.write(data.playback)
-                # img = data.Framebuffer.cycle(repeat=1)
-            # img = data.Framebuffer.cycle(repeat=1)
-            # else:
-                # data.Framebuffer.write(data.Webcam.get().read())
+            # if playback_old.shape == data.playback.shape:
+            #     difference = cv2.subtract(data.playback, playback_old)
+            #     b, g, r = cv2.split(difference)
+            #     if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
+            if self.playback_ready:
+                data.Viewport.show(data.playback)
+
+            self.playback_ready = not data.Renderer.new_cycle
+
+
 
 
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))

@@ -126,13 +126,13 @@ program = []
 program.append({
     'name': 'Places',
     'autofeature': True,
-    'iterations': 20,
+    'iterations': 10,
     'step_size': 1,
     'octaves': 5,
-    'octave_cutoff': 4,
+    'octave_cutoff': 5,
     'octave_scale': 1.8,
     'iteration_mult': 0.0,
-    'step_mult': 0.1,
+    'step_mult': 0.01,
     'model': 'places365',
     'layers': [
         {
@@ -365,7 +365,7 @@ program.append({
         {
             'name': 'octave_scaler',
             'params': {
-                'cycle_length': 30,
+                'cycle_length': 10,
                 'frequency': 1,
                 'range_out':[1.3,2.0],
                 'wavetype': 'sin',
@@ -375,16 +375,16 @@ program.append({
         # inception_xform_default
     ],
     'stepfx': [
-        {
-            'name': 'median_blur',
-            'params': {
-                'cycle_length': 30,
-                'frequency': 1,
-                'range_out':[0.0,3],
-                'wavetype': 'square',
-                'dutycycle': 0.4
-            }
-        },
+        # {
+        #     'name': 'median_blur',
+        #     'params': {
+        #         'cycle_length': 30,
+        #         'frequency': 1,
+        #         'range_out':[0.0,3],
+        #         'wavetype': 'square',
+        #         'dutycycle': 0.8
+        #     }
+        # },
         # {
         #     'name': 'slowshutter',
         #     'samplesize': {

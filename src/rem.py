@@ -70,7 +70,7 @@ def main():
     # the madness begins
     initial_image = Webcam.get().read()
     Composer.send(1, initial_image)
-    data.playback = initial_image  # initial camera image for starting
+    data.playback= initial_image
 
     while True:
         log.warning('new cycle')
@@ -101,13 +101,12 @@ def main():
             stepfx = Model.stepfx,
             Webcam=Webcam,
             Composer=Composer,
-            Framebuffer = data.Framebuffer
-            )
+        )
 
         # logging
         later = time.time()
         duration_msg = '{:.2f}s'.format(later - now)
-        now = time.time()  # the new now
+        now = time.time()
         console.log_value('cycle_time',duration_msg)
         log.warning('cycle time: {}\n{}'.format(duration_msg, '-' * 80))
 
@@ -157,23 +156,22 @@ if __name__ == "__main__":
     if args.username:
         data.username = args.username
     width, height = data.capturesize
-    data.Framebuffer = postprocess.Buffer(10,height,width)
+    data.Framebuffer = postprocess.Buffer(10,width,height)
     camera=[]
     camera.append(
         WebcamVideoStream(
-            1,
+            0,
             width=width,
             height=height,
             portrait_alignment=True,
             Viewport=Viewport,
-            Framebuffer=data.Framebuffer,
             flip_h=True,
             flip_v=True,
             gamma=0.5,
             floor=5000,
             threshold_filter=8))
     Webcam = Cameras(source=camera, current_camera=0)
-    _Deepdreamer = dreamer.Artist('test', Framebuffer=data.Framebuffer)
+    _Deepdreamer = dreamer.Artist('test',webcam=Webcam)
     Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
