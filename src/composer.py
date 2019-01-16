@@ -89,14 +89,18 @@ class Composer(object):
             # data.Framebuffer.write(data.playback)
             # img = data.Framebuffer.cycle(repeat=3)
 
-            # if playback_old.shape == data.playback.shape:
-            #     difference = cv2.subtract(data.playback, playback_old)
-            #     b, g, r = cv2.split(difference)
-            #     if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
-            if self.playback_ready:
-                data.Viewport.show(data.playback)
+            # display the update only if previous and current img are different
+            # don't do anything if they're identical though
+            if playback_old.shape == data.playback.shape:
+                difference = cv2.subtract(data.playback, playback_old)
+                b, g, r = cv2.split(difference)
+                if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
+                    # playback "ready" only when new dream cycle completes 1st iteration
+                    if self.playback_ready:
+                        data.Viewport.show(data.playback)
 
             self.playback_ready = not data.Renderer.new_cycle
+
 
 
 
