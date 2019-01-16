@@ -104,7 +104,8 @@ class Artist(object):
                     stepfx=stepfx,
                     jitter=200)
 
-                self.new_cycle = False
+                if octave > 1:
+                    self.new_cycle = False
 
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
                 console.log_value('iteration', '{:0>3}:{:0>3} x{}'.format(i, iteration_max, iteration_mult))
@@ -113,7 +114,7 @@ class Artist(object):
                 console.log_value('height', h)
                 console.log_value('scale', octave_scale)
 
-                log.warning('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
+                log.critical('{}/{}({}) {}/{}'.format(octave+1, octave_n, octave_cutoff,i,iteration_max))
 
                 data.vis = data.caffe2rgb(Model.net,src.data[0])
                 data.vis = data.vis * (255.0 / np.percentile(data.vis, 99.98))
