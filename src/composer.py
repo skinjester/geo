@@ -8,6 +8,7 @@ class Composer(object):
         self.buffer = []
         self.buffer.append(emptybuffer)
         self.buffer.append(emptybuffer)
+        self.buffer.append(emptybuffer)
         self.mixbuffer = emptybuffer
         self.dreambuffer = emptybuffer
         self.opacity = 0
@@ -43,16 +44,17 @@ class Composer(object):
                         data.Model.update_feature(release=1)
                 # motion event in progress
                 if self.motion_event_in_progress:
-                    self.opacity -= 0.01
+                    self.opacity -= 0.005
                     if self.opacity < 0.0:
                         self.opacity = 0.0
                         self.motion_event_in_progress = False
                         data.Renderer.request_wakeup()
                 # no motion event in progress
                 else:
-                    self.opacity += 0.01
+                    self.opacity += 0.1
                     if self.opacity > 1.0:
                         self.opacity = 1.0
+
             # paused
             else:
                 self.opacity = 1.0
@@ -63,7 +65,7 @@ class Composer(object):
             self.send(1, data.Webcam.get().read())
             playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-            data.playback = postprocess.equalize(data.playback, 1, (16,16))
+            data.playback = postprocess.equalize(data.playback, 8, (2,2))
 
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
@@ -84,15 +86,17 @@ class Composer(object):
             # display the update only if previous and current img are different
             # don't do anything if they're identical though
             if playback_old.shape == data.playback.shape:
-                data.Framebuffer.write(data.playback)
                 difference = cv2.subtract(data.playback, playback_old)
                 b, g, r = cv2.split(difference)
                 if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
                     # playback "ready" only when new dream cycle completes 1st iteration
                     if self.playback_ready:
-                        img = data.Framebuffer.cycle(repeat=1)
-                        # data.Viewport.show(data.playback)
+                        data.Framebuffer.write(data.playback)
+                        img = data.Framebuffer.cycle(repeat=10)
                         data.Viewport.show(img)
+                else:
+                    img = data.Framebuffer.cycle(repeat=5)
+                    data.Viewport.show(img)
 
             self.playback_ready = not data.Renderer.new_cycle
 

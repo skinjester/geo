@@ -93,7 +93,7 @@ class Artist(object):
             while i <= iteration_max:
                 if self.was_wakeup_requested():
                     self.clear_request()
-                    # data.img_wakeup = Webcam.get().read()
+                    self.new_cycle = True
                     return
 
                 self.make_step(Model=Model,
@@ -104,7 +104,7 @@ class Artist(object):
                     stepfx=stepfx,
                     jitter=200)
 
-                if octave > 1:
+                if i > 1:
                     self.new_cycle = False
 
                 console.log_value('octave', '{}/{}({})'.format(octave+1, octave_n, octave_cutoff))
@@ -206,7 +206,7 @@ class Artist(object):
 
     def set_cycle_start_time(self, start_time):
         self.cycle_start_time = start_time
-        self.new_cycle = True
+
 # --------
 # INIT.
 # --------

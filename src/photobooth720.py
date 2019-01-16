@@ -372,7 +372,7 @@ program.append({
                 'dutycycle': 0.5
             }
         },
-        # inception_xform_default
+        inception_xform_default
     ],
     'stepfx': [
         # {
