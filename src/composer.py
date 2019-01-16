@@ -15,7 +15,6 @@ class Composer(object):
         self.motion_event_in_progress = False
         self.playback_ready = True
 
-
     def start(self):
         threadlog.warning('start composer thread')
         composer_thread = threading.Thread(target=self.update, name='composer')
@@ -35,41 +34,35 @@ class Composer(object):
             motion.peak_last = motion.peak
             motion.peak = motion.delta_history_peak
 
-            data.img_dreambuffer = data.vis
-
             # not paused
             if not data.Webcam.get().motiondetector.is_paused:
-
-                # motion event detected on this update
-                # only valid in another event not in progress
+                # only valid if detected when another event not in progress
                 if motion.delta > motion.delta_trigger:
                     if not self.motion_event_in_progress:
                         self.motion_event_in_progress = True
+                # motion event in progress
                 if self.motion_event_in_progress:
                     self.opacity -= 0.01
                     if self.opacity < 0.0:
                         self.opacity = 0.0
                         self.motion_event_in_progress = False
                         data.Renderer.request_wakeup()
-                        data.img_dreambuffer = data.Webcam.get().read()
+                # no motion event in progress
                 else:
                     self.opacity += 0.01
                     if self.opacity > 1.0:
                         self.opacity = 1.0
-
             # paused
             else:
                 self.opacity = 1.0
 
-
             log.critical('requested:{} in progress: {} opacity: {:3.2f}'.format(data.Renderer.was_wakeup_requested(), self.motion_event_in_progress, self.opacity))
             # if counter.next() % 3 == 0:
             #     data.vis = postprocess.equalize(data.vis, 2, (10,10))
-            self.send(0, data.img_dreambuffer)
+            self.send(0, data.vis)
             self.send(1, data.Webcam.get().read())
             playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-
 
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
@@ -101,10 +94,7 @@ class Composer(object):
 
             self.playback_ready = not data.Renderer.new_cycle
 
-
-
-
-
+            # HUD logging
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))
             console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - data.Model.program_start_time, 2), data.Model.program_duration))
 
@@ -126,7 +116,7 @@ class Composer(object):
     def mix(self, image_front, image_back, front_opacity, gamma):
         cv2.addWeighted(
             image_front,
-            front_opacity,  #
+            front_opacity,
             image_back,
             1 - front_opacity,
             gamma,
