@@ -40,6 +40,7 @@ class Composer(object):
                 if motion.delta > motion.delta_trigger:
                     if not self.motion_event_in_progress:
                         self.motion_event_in_progress = True
+                        data.Model.update_feature(release=1)
                 # motion event in progress
                 if self.motion_event_in_progress:
                     self.opacity -= 0.01
@@ -83,13 +84,13 @@ class Composer(object):
             # display the update only if previous and current img are different
             # don't do anything if they're identical though
             if playback_old.shape == data.playback.shape:
+                data.Framebuffer.write(data.playback)
                 difference = cv2.subtract(data.playback, playback_old)
                 b, g, r = cv2.split(difference)
                 if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
                     # playback "ready" only when new dream cycle completes 1st iteration
                     if self.playback_ready:
-                        data.Framebuffer.write(data.playback)
-                        img = data.Framebuffer.cycle(repeat=3)
+                        img = data.Framebuffer.cycle(repeat=1)
                         # data.Viewport.show(data.playback)
                         data.Viewport.show(img)
 

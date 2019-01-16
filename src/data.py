@@ -46,7 +46,7 @@ PORTRAIT_1080P = (1080,1920)
 PORTRAIT_720P = (720,1280)
 PORTRAIT_480P = (480,853)
 
-capturesize = _1080P
+capturesize = _720P
 viewsize = PORTRAIT_480P
 
 # outreach
