@@ -8,7 +8,7 @@ class Buffer(object):
         self.width = width
         self.height = height
         self.storage = np.empty((buffer_size, self.width, self.height, 3), np.dtype('uint8'))
-        self.widetime_storage = np.empty((buffer_size, self.width, self.height, 3), np.dtype('uint8'))
+        self.widetime_storage = np.empty((5, self.width, self.height, 3), np.dtype('uint8'))
         self.playback_counter = counter(buffer_size-1)
         self.playback_index = 0
         self.widetime_accumulated = np.zeros((self.width, self.height, 3), np.uint8)
@@ -84,9 +84,9 @@ class Buffer(object):
 
     def widetime(self, index, interval):
         if index % interval == 0:
-            alpha = 0.1
+            alpha = 0.25
             beta = 1 - alpha
-            gamma = 0.0
+            gamma = 1.0
             img = self.widetime_storage[0]
             self.widetime_accumulated = cv2.addWeighted(img, alpha, self.widetime_accumulated, beta, gamma)
         return self.widetime_accumulated

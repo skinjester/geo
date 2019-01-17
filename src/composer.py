@@ -45,7 +45,7 @@ class Composer(object):
                         data.Model.update_feature(release=1)
                 # motion event in progress
                 if self.motion_event_in_progress:
-                    self.opacity -= 1
+                    self.opacity -= 0.1
                     if self.opacity < 0.0:
                         self.opacity = 0.0
                         self.motion_event_in_progress = False
@@ -60,19 +60,18 @@ class Composer(object):
             else:
                 self.opacity = 1.0
 
-            log.warning('requested:{} in progress: {} opacity: {:3.2f}'.format(data.Renderer.was_wakeup_requested(), self.motion_event_in_progress, self.opacity))
-
             self.send(0, data.vis)
             self.send(1, data.Webcam.get().read())
 
-            data.Framebuffer.widetime_write(self.buffer[1])
-            frame = counter.next()
-            self.buffer[1] = data.Framebuffer.widetime(index=frame, interval=3)
+            if data.Model.widetime:
+                data.Framebuffer.widetime_write(self.buffer[1])
+                frame = counter.next()
+                self.buffer[1] = data.Framebuffer.widetime(index=frame, interval=25)
 
             playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
             data.playback = postprocess.equalize(data.playback, data.eq_clip, data.eq_grid)
-            log.critical('eq clip: {} eq_grid: {}'.format(data.eq_clip, data.eq_grid))
+
 
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
@@ -82,28 +81,28 @@ class Composer(object):
                             samplesize=fx['osc1'].next(),
                             interval=fx['osc2'].next()
                             )
-                    # if fx['name'] == 'featuremap':
-                    #     data.Model.set_featuremap(index=fx['osc1'].next())
-                    # if fx['name'] == 'equalize':
-                    #     data.playback = postprocess.equalize(self.dreambuffer, 2, (2,2))
+                    if fx['name'] == 'featuremap':
+                        data.Model.set_featuremap(index=fx['osc1'].next())
                     # if fx['name'] == 'grayscale':
                     #     data.playback = postprocess.grayscale(data.playback)
 
 
             # display the update only if previous and current img are different
             # don't do anything if they're identical though
-            img=data.playback
             if playback_old.shape == data.playback.shape:
                 difference = cv2.subtract(data.playback, playback_old)
                 b, g, r = cv2.split(difference)
                 if cv2.countNonZero(b) != 0 and cv2.countNonZero(g) != 0 and cv2.countNonZero(r) != 0:
                     # playback "ready" only when new dream cycle completes 1st iteration
                     if self.playback_ready:
+                        img=data.playback
                         data.Framebuffer.write(data.playback)
-                        # img = data.Framebuffer.cycle(repeat=6)
-                # else:
-                #     img = data.Framebuffer.cycle(repeat=5)
-                data.Viewport.show(img)
+                        if data.Model.timeloop:
+                            img = data.Framebuffer.cycle(repeat=5)
+                    else:
+                        img = postprocess.equalize(self.buffer[1], data.eq_clip, data.eq_grid)
+                        # img = data.Framebuffer.cycle(repeat=5)
+                    data.Viewport.show(img)
 
             self.playback_ready = not data.Renderer.new_cycle
 
@@ -112,6 +111,8 @@ class Composer(object):
             console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - data.Model.program_start_time, 2), data.Model.program_duration))
             console.log_value('eq_clip', data.eq_clip)
             console.log_value('eq_grid', data.eq_grid)
+            console.log_value('timeloop', data.Model.timeloop)
+            console.log_value('widetime', data.Model.widetime)
 
 
             # program sequencer. don't run if program_duration is -1 though

@@ -1,7 +1,7 @@
 import time, data, os, os.path, numpy as np
 from itertools import cycle
 import hud.console as console
-import photobooth720 as performer
+import p_ifsowhatvip as performer
 import postprocess
 
 
@@ -48,6 +48,8 @@ class Model(object):
         self.cyclefx = program['cyclefx']
         self.pool = None
         self.release = self.feature_release_counter()
+        self.timeloop = program['timeloop']
+        self.widetime = program['widetime']
         for fx in self.cyclefx:
             if fx['name'] == 'octave_scaler':
                 # self.pool = self.setup_octave_scaler(**value['params'])
