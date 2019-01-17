@@ -3,7 +3,7 @@ import data, cv2
 # keyboard event handler
 def listener():
     key = cv2.waitKey(1) & 0xFF
-    log.debug('key pressed: {}'.format(key))
+    log.critical('key pressed: {}'.format(key))
 
     if key == 85:  # PAGE UP : increase gamma
         log.warning('{}:{} {} {}'.format('B1', key, 'PAGEUP', 'GAMMA+'))
@@ -129,6 +129,17 @@ def listener():
         log.warning('{}:{} {} {}'.format('**', key, '0', 'EQUALIZE GRIDSIZE ++'))
         data.Postprocess.adjust_eq_grid(True)
         return
+
+    elif key == 123:  # { key: toggle widetime
+        log.warning('{}:{} {} {}'.format('**', key, '0', 'TOGGLE WIDETIME'))
+        data.Model.widetime = not data.Model.widetime
+        return
+
+    elif key == 125:  # } key: toggle timeloop
+        log.warning('{}:{} {} {}'.format('**', key, '0', 'TOGGLE TIMELOOP'))
+        data.Model.timeloop = not data.Model.timeloop
+        return
+
 
 # --------
 # INIT.

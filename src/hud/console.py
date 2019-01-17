@@ -37,6 +37,8 @@ def draw(image):
     layout('gamma')
     layout('eq_clip')
     layout('eq_grid')
+    layout('timeloop')
+    layout('widetime')
 
     layout.counter=0
     return cv2.addWeighted(screen, opacity, image, 1 - opacity, 0, image)
@@ -81,7 +83,8 @@ hud_log = {
     'gamma': [None, None],
     'eq_clip': [None, None],
     'eq_grid': [None, None],
-
+    'timeloop': [None, None],
+    'widetime': [None, None],
 }
 x = (40, 180) # col1, col2
 y = (150, 20) # row, row height
