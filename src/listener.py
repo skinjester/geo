@@ -130,10 +130,10 @@ def listener():
         data.Postprocess.adjust_eq_grid(True)
         return
 
-    elif key == 123:  # { key: toggle widetime
-        log.warning('{}:{} {} {}'.format('**', key, '0', 'TOGGLE WIDETIME'))
-        data.Model.widetime = not data.Model.widetime
-        return
+    # elif key == 123:  # { key: toggle widetime
+    #     log.warning('{}:{} {} {}'.format('**', key, '0', 'TOGGLE WIDETIME'))
+    #     data.Model.widetime = not data.Model.widetime
+    #     return
 
     elif key == 125:  # } key: toggle timeloop
         log.warning('{}:{} {} {}'.format('**', key, '0', 'TOGGLE TIMELOOP'))
