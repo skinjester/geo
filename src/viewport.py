@@ -19,7 +19,7 @@ class Viewport(object):
 
     def show(self, image):
         if self.b_show_HUD:
-            image = console.draw(image)
+            image = console.draw(image.copy())
         self.currentview = image
         cv2.imshow(self.window_name, self.currentview)
         self.monitor()
