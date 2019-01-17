@@ -42,7 +42,8 @@ class Composer(object):
                 if motion.delta > motion.delta_trigger:
                     if not self.motion_event_in_progress:
                         self.motion_event_in_progress = True
-                        data.Model.update_feature(release=1)
+                        if data.Model.autofeature:
+                            data.Model.update_feature(release=50)
                 # motion event in progress
                 if self.motion_event_in_progress:
                     self.opacity -= 0.1
@@ -63,10 +64,10 @@ class Composer(object):
             self.send(0, data.vis)
             self.send(1, data.Webcam.get().read())
 
+            data.Framebuffer.widetime_write(self.buffer[1])
+            frame = counter.next()
             if data.Model.widetime:
-                data.Framebuffer.widetime_write(self.buffer[1])
-                frame = counter.next()
-                self.buffer[1] = data.Framebuffer.widetime(index=frame, interval=25)
+                self.buffer[1] = data.Framebuffer.widetime(index=frame, interval=20)
 
             playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
@@ -98,7 +99,7 @@ class Composer(object):
                         img=data.playback
                         data.Framebuffer.write(data.playback)
                         if data.Model.timeloop:
-                            img = data.Framebuffer.cycle(repeat=5)
+                            img = data.Framebuffer.cycle(repeat=1)
                     else:
                         img = postprocess.equalize(self.buffer[1], data.eq_clip, data.eq_grid)
                         # img = data.Framebuffer.cycle(repeat=5)

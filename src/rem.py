@@ -160,7 +160,7 @@ if __name__ == "__main__":
     camera=[]
     camera.append(
         WebcamVideoStream(
-            1,
+            0,
             width=width,
             height=height,
             portrait_alignment=True,

@@ -27,6 +27,11 @@ inception_xform_small = {
     'params': {'scale': 0.01}
 }
 
+inception_xform_negative = {
+    'name': 'inception_xform',
+    'params': {'scale': -0.1}
+}
+
 cyclefx_default = [
     xform_array_default,
     octave_scaler_default,
@@ -79,14 +84,14 @@ slowshutter_default = {
     'samplesize': {
         'cycle_length': 1000,
         'frequency': 2,
-        'range_out':[1,30],
+        'range_out':[3,3],
         'wavetype': 'sin',
         'dutycycle': 0.5
     },
     'interval': {
         'cycle_length': 1000,
         'frequency': 1,
-        'range_out':[1,1],
+        'range_out':[10,10],
         'wavetype': 'sin',
         'dutycycle': 0.5
     },
@@ -96,9 +101,9 @@ nd_gaussian_filter_default = {
     'name': 'gaussian',
     'sigma': {
         'cycle_length': 100,
-        'frequency': 5,
-        'range_out':[0.1,0.5],
-        'wavetype': 'sin',
+        'frequency': 10,
+        'range_out':[0.1,0.6],
+        'wavetype': 'saw',
         'dutycycle': 0.5
     }
 }
@@ -123,13 +128,14 @@ stepfx_default = [
 
 program = []
 
+
 program.append({
-    'name': 'Places',
-    'autofeature': True,
-    'timeloop': True,
+    'name': 'Paris',
+    'autofeature': False,
+    'timeloop': False,
     'widetime': False,
-    'iterations': 10,
-    'step_size': 1,
+    'iterations': 20,
+    'step_size': 2,
     'octaves': 5,
     'octave_cutoff': 5,
     'octave_scale': 1.8,
@@ -138,229 +144,8 @@ program.append({
     'model': 'places365',
     'layers': [
         {
-            'name': 'inception_4a/5x5_reduce',
-            'features': range(-1,15)
-        },
-        {
-            'name': 'inception_4a/5x5',
-            'features': range(-1,47)
-        },
-        {
-            'name': 'inception_4a/pool',
-            'features': range(-1,479)
-        },
-        {
-            'name': 'inception_4a/pool_proj',
-            'features': range(-1,63)
-        },
-        {
-            'name': 'inception_4a/output',
-            'features': range(-1,511)
-        },
-
-        {
-            'name': 'inception_4b/1x1',
-            'features': range(-1,159)
-        },
-        {
-            'name': 'inception_4b/3x3_reduce',
-            'features': range(-1,112)
-        },
-        {
-            'name': 'inception_4b/3x3',
-            'features': range(-1,224)
-        },
-        {
-            'name': 'inception_4b/5x5_reduce',
-            'features': range(-1,23)
-        },
-        {
             'name': 'inception_4b/output',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4b/pool',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4b/pool_proj',
-            'features': range(-1,63)
-        },
-        {
-            'name': 'inception_4c/1x1',
-            'features': range(-1,127)
-        },
-        {
-            'name': 'inception_4c/3x3',
-            'features': range(-1,255)
-        },
-        {
-            'name': 'inception_4c/3x3_reduce',
-            'features': range(-1,127)
-        },
-        {
-            'name': 'inception_4c/5x5',
-            'features': range(-1,63)
-        },
-        {
-            'name': 'inception_4c/5x5_reduce',
-            'features': range(-1,23)
-        },
-        {
-            'name': 'inception_4c/output',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4c/pool',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4d/3x3',
-            'features': range(-1,288)
-        },
-        {
-            'name': 'inception_4d/5x5',
-            'features': range(-1,63)
-        },
-        {
-            'name': 'inception_4d/5x5_reduce',
-            'features': range(-1,31)
-        },
-        {
-            'name': 'inception_4d/output',
-            'features': range(-1,527)
-        },
-        {
-            'name': 'inception_4d/pool',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4e/1x1',
-            'features': range(-1,255)
-        },
-        {
-            'name': 'inception_4e/3x3',
-            'features': range(-1,319)
-        },
-        {
-            'name': 'inception_4c/5x5_reduce',
-            'features': range(-1,23)
-        },
-        {
-            'name': 'inception_4c/output',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4c/pool',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4d/3x3',
-            'features': range(-1,288)
-        },
-        {
-            'name': 'inception_4d/5x5',
-            'features': range(-1,63)
-        },
-        {
-            'name': 'inception_4d/output',
-            'features': range(-1,528)
-        },
-        {
-            'name': 'inception_4d/pool',
-            'features': range(-1,511)
-        },
-        {
-            'name': 'inception_4e/1x1',
-            'features': range(-1,255)
-        },
-        {
-            'name': 'inception_4e/3x3',
-            'features': range(-1,319)
-        },
-        {
-            'name': 'inception_4e/3x3_reduce',
-            'features': range(-1,159)
-        },
-        {
-            'name': 'inception_4e/5x5',
-            'features': range(-1,127)
-        },
-        {
-            'name': 'inception_4e/5x5_reduce',
-            'features': range(-1,32)
-        },
-        {
-            'name': 'inception_4e/output',
-            'features': range(-1,831)
-        },
-        {
-            'name': 'inception_4e/pool',
-            'features': range(-1,527)
-        },
-        {
-            'name': 'inception_4e/pool_proj',
-            'features': range(-1,127)
-        },
-        {
-            'name': 'inception_5a/1x1',
-            'features': range(-1,255)
-        },
-        {
-            'name': 'inception_5a/3x3',
-            'features': range(-1,319)
-        },
-        {
-            'name': 'inception_5a/3x3_reduce',
-            'features': range(-1,159)
-        },
-        {
-            'name': 'inception_5a/5x5',
-            'features': range(-1,127)
-        },
-        {
-            'name': 'inception_5a/5x5_reduce',
-            'features': range(-1,31)
-        },
-        {
-            'name': 'inception_5a/output',
-            'features': range(-1,831)
-        },
-        {
-            'name': 'inception_5a/pool',
-            'features': range(-1,831)
-        },
-        {
-            'name': 'inception_5b/1x1',
-            'features': range(-1,383)
-        },
-        {
-            'name': 'inception_5b/3x3',
-            'features': range(-1,383)
-        },
-        {
-            'name': 'inception_5b/3x3_reduce',
-            'features': range(-1,191)
-        },
-        {
-            'name': 'inception_5b/5x5',
-            'features': range(-1,127)
-        },
-        {
-            'name': 'inception_5b/5x5_reduce',
-            'features': range(-1,47)
-        },
-        {
-            'name': 'inception_5b/output',
-            'features': range(-1,1023)
-        },
-        {
-            'name': 'inception_5b/pool',
-            'features': range(-1,831)
-        },
-        {
-            'name': 'inception_5b/pool_proj',
-            'features': range(-1,127)
+            'features': range(32,56)
         },
     ],
     'cyclefx': [
@@ -369,7 +154,7 @@ program.append({
             'params': {
                 'cycle_length': 10,
                 'frequency': 1,
-                'range_out':[1.3,2.0],
+                'range_out':[1.5,2.0],
                 'wavetype': 'sin',
                 'dutycycle': 0.5
             }
@@ -377,43 +162,54 @@ program.append({
         inception_xform_default
     ],
     'stepfx': [
-        # {
-        #     'name': 'median_blur',
-        #     'params': {
-        #         'cycle_length': 30,
-        #         'frequency': 1,
-        #         'range_out':[0.0,3],
-        #         'wavetype': 'square',
-        #         'dutycycle': 0.8
-        #     }
-        # },
-        # {
-        #     'name': 'slowshutter',
-        #     'samplesize': {
-        #         'cycle_length': 100,
-        #         'frequency': 1,
-        #         'range_out':[3,3],
-        #         'wavetype': 'sin',
-        #         'dutycycle': 0.5
-        #     },
-        #     'interval': {
-        #         'cycle_length': 100,
-        #         'frequency': 1,
-        #         'range_out':[1,1],
-        #         'wavetype': 'sin',
-        #         'dutycycle': 0.5
-        #     },
-        # },
-
-
+        nd_gaussian_filter_default,
+        slowshutter_default
     ]
 })
 
 program.append({
-    'name': 'GoogLeNet w Stylized Motion',
+    'name': 'Vienna',
     'autofeature': True,
     'timeloop': False,
-    'widetime': False,
+    'widetime': True,
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 6,
+    'octave_cutoff': 5,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.25,
+    'step_mult': 0.0,
+    'model': 'places365',
+    'layers': [
+        {
+            'name': 'inception_4d/5x5',
+            'features': range(0,63)
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10,
+                'frequency': 1,
+                'range_out':[1.2,2.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+        inception_xform_default
+    ],
+    'stepfx': [
+        # nd_gaussian_filter_default,
+        slowshutter_default
+    ]
+})
+
+program.append({
+    'name': 'VECTOR',
+    'autofeature': False,
+    'timeloop': False,
+    'widetime': True,
     'iterations': 20,
     'step_size': 1,
     'octaves': 5,
@@ -425,19 +221,19 @@ program.append({
     'layers': data.layers_googlenet,
     'cyclefx': [
         octave_scaler_default,
-        inception_xform_default
+        # inception_xform_default
     ],
     'stepfx': [
         # bilateral_filter_default,
-        # slowshutter_default,
+        slowshutter_default,
     ]
 })
 
 program.append({
-    'name': 'magicmirror-1',
-    'autofeature': True,
+    'name': 'magicmirror-',
+    'autofeature': False,
     'timeloop': False,
-    'widetime': False,
+    'widetime': True,
     'iterations': 20,
     'step_size': 2,
     'octaves': 5,
@@ -490,7 +286,7 @@ program.append({
     'octave_cutoff': 3,
     'octave_scale': 1.2,
     'iteration_mult': 0.0,
-    'step_mult': 0.1,
+    'step_mult': 0.2,
     'model': 'vgg19',
     'layers': [
         {
@@ -502,8 +298,8 @@ program.append({
         {
             'name': 'octave_scaler',
             'params': {
-                'cycle_length': 10000,
-                'frequency': 10,
+                'cycle_length': 100,
+                'frequency': 1,
                 'range_out':[1.1,1.5],
                 'wavetype': 'square',
                 'dutycycle': 0.5
@@ -514,26 +310,7 @@ program.append({
             'params': {'scale': 0.15}
         },
     ],
-    'stepfx': [
-        {
-            'name': 'slowshutter',
-            'samplesize': {
-                'cycle_length': 10000,
-                'frequency': 3,
-                'range_out':[3,3],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            },
-            'interval': {
-                'cycle_length': 10000,
-                'frequency': 1,
-                'range_out':[1,3],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            },
-        },
-
-    ]
+    'stepfx': []
 })
 
 
