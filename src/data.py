@@ -75,6 +75,10 @@ img_wakeup = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 # using this for...
 img_dreambuffer = np.zeros((viewsize[1], viewsize[0], 3),np.uint8)
 
+# EQ PARAMETERS
+eq_clip = 2
+eq_grid = (2,2)
+
 
 # utility functions
 def rgb2caffe(net, image):

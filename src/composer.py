@@ -16,6 +16,7 @@ class Composer(object):
         self.motion_event_in_progress = False
         self.playback_ready = True
 
+
     def start(self):
         threadlog.warning('start composer thread')
         composer_thread = threading.Thread(target=self.update, name='composer')
@@ -44,14 +45,14 @@ class Composer(object):
                         data.Model.update_feature(release=1)
                 # motion event in progress
                 if self.motion_event_in_progress:
-                    self.opacity -= 0.005
+                    self.opacity -= 1
                     if self.opacity < 0.0:
                         self.opacity = 0.0
                         self.motion_event_in_progress = False
                         data.Renderer.request_wakeup()
                 # no motion event in progress
                 else:
-                    self.opacity += 0.1
+                    self.opacity += 0.01
                     if self.opacity > 1.0:
                         self.opacity = 1.0
 
@@ -59,13 +60,19 @@ class Composer(object):
             else:
                 self.opacity = 1.0
 
-            log.critical('requested:{} in progress: {} opacity: {:3.2f}'.format(data.Renderer.was_wakeup_requested(), self.motion_event_in_progress, self.opacity))
+            log.warning('requested:{} in progress: {} opacity: {:3.2f}'.format(data.Renderer.was_wakeup_requested(), self.motion_event_in_progress, self.opacity))
 
             self.send(0, data.vis)
             self.send(1, data.Webcam.get().read())
+
+            data.Framebuffer.widetime_write(self.buffer[1])
+            frame = counter.next()
+            self.buffer[1] = data.Framebuffer.widetime(index=frame, interval=3)
+
             playback_old = data.playback.copy()
             data.playback = self.mix(self.buffer[0], self.buffer[1], self.opacity, gamma=1.0)
-            data.playback = postprocess.equalize(data.playback, 8, (2,2))
+            data.playback = postprocess.equalize(data.playback, data.eq_clip, data.eq_grid)
+            log.critical('eq clip: {} eq_grid: {}'.format(data.eq_clip, data.eq_grid))
 
             if data.Model.stepfx is not None:
                 for fx in data.Model.stepfx:
@@ -85,6 +92,7 @@ class Composer(object):
 
             # display the update only if previous and current img are different
             # don't do anything if they're identical though
+            img=data.playback
             if playback_old.shape == data.playback.shape:
                 difference = cv2.subtract(data.playback, playback_old)
                 b, g, r = cv2.split(difference)
@@ -92,11 +100,10 @@ class Composer(object):
                     # playback "ready" only when new dream cycle completes 1st iteration
                     if self.playback_ready:
                         data.Framebuffer.write(data.playback)
-                        img = data.Framebuffer.cycle(repeat=10)
-                        data.Viewport.show(img)
-                else:
-                    img = data.Framebuffer.cycle(repeat=5)
-                    data.Viewport.show(img)
+                        # img = data.Framebuffer.cycle(repeat=6)
+                # else:
+                #     img = data.Framebuffer.cycle(repeat=5)
+                data.Viewport.show(img)
 
             self.playback_ready = not data.Renderer.new_cycle
 

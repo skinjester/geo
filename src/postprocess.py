@@ -8,8 +8,10 @@ class Buffer(object):
         self.width = width
         self.height = height
         self.storage = np.empty((buffer_size, self.width, self.height, 3), np.dtype('uint8'))
+        self.widetime_storage = np.empty((buffer_size, self.width, self.height, 3), np.dtype('uint8'))
         self.playback_counter = counter(buffer_size-1)
         self.playback_index = 0
+        self.widetime_accumulated = np.zeros((self.width, self.height, 3), np.uint8)
         self.accumulated = np.zeros((self.width, self.height, 3), np.uint8)
         self.start_time = 0.0
         (self.rAvg, self.gAvg, self.bAvg) = (None, None, None)
@@ -51,6 +53,16 @@ class Buffer(object):
             self.total_frames += 1
             log.debug('frames added:{}'.format(self.total_frames))
 
+    def widetime_write(self, img):
+        if not self.locked:
+            # input resized to match viewport dimensions
+            img = cv2.resize(img,(data.viewsize[0], data.viewsize[1]),interpolation=cv2.INTER_LINEAR)
+            previous_img = self.widetime_storage[0].copy()
+            self.widetime_storage=np.roll(self.widetime_storage,1,axis=0)
+            self.widetime_storage[0] = self.mix(img, previous_img, 0.5, gamma=1.0)
+            self.total_frames += 1
+            log.debug('frames added:{}'.format(self.total_frames))
+
     def cycle(self,repeat):
         self.frame_repeat_count += 1
         if self.frame_repeat_count >= repeat:
@@ -70,14 +82,14 @@ class Buffer(object):
             gamma,
         )
 
-    def widetime(self,delay,interval):
-        if delay % interval == 0:
+    def widetime(self, index, interval):
+        if index % interval == 0:
             alpha = 0.1
             beta = 1 - alpha
             gamma = 0.0
-            img = self.storage[0]
-            self.accumulated = cv2.addWeighted(img, alpha, self.accumulated, beta, gamma)
-        return self.accumulated
+            img = self.widetime_storage[0]
+            self.widetime_accumulated = cv2.addWeighted(img, alpha, self.widetime_accumulated, beta, gamma)
+        return self.widetime_accumulated
 
     def slowshutter(self,img,samplesize,interval):
         if self.frame.next() % int(interval) != 0:
@@ -180,11 +192,23 @@ def remap(value, range_in, range_out):
 def update_feature():
     counter = release.next()
     throttle = counter % 10
-    log.critical('throttle: {}'.format(throttle))
     if throttle == 0:
         data.Model.next_feature()
 
+def adjust_eq_clip(b_increase=True):
+    if b_increase:
+        data.eq_clip += 1
+    else:
+        data.eq_clip -= 1
 
+def adjust_eq_grid(b_increase=True):
+    increment = -1
+    if b_increase:
+        increment = 1
+    grid_x = data.eq_grid[0]
+    grid_y = data.eq_grid[1]
+    if grid_x + increment > 0 and grid_y + increment > 0:
+        data.eq_grid = (grid_x + increment, grid_y + increment)
 
 
 
@@ -197,3 +221,5 @@ log.setLevel(data.logging.CRITICAL)
 
 # DEBUG
 release = feature_release_counter()
+
+

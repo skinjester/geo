@@ -109,6 +109,27 @@ def listener():
         data.Renderer.request_photo()
         return
 
+    elif key==55: # 7 key: reduce equalization clipping
+        log.warning('{}:{} {} {}'.format('**',key,'7','EQUALIZE CLIP --'))
+        data.Postprocess.adjust_eq_clip(False)
+        return
+
+    elif key==56: # 8 key: increase equalization clipping
+        log.warning('{}:{} {} {}'.format('**',key,'8','EQUALIZE CLIP ++'))
+        data.Postprocess.adjust_eq_clip(True)
+        return
+
+
+    elif key == 57:  # 9 key: reduce equalization gridsize
+        log.critical('{}:{} {} {}'.format('**', key, '9', 'EQUALIZE GRIDSIZE --'))
+        data.Postprocess.adjust_eq_grid(False)
+        return
+
+    elif key == 48:  # \ key: increase equalization grid size
+        log.critical('{}:{} {} {}'.format('**', key, '0', 'EQUALIZE GRIDSIZE ++'))
+        data.Postprocess.adjust_eq_grid(True)
+        return
+
 # --------
 # INIT.
 # --------
