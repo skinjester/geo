@@ -129,6 +129,90 @@ stepfx_default = [
 program = []
 
 program.append({
+    'name': 'Vienna',
+    'autofeature': True,
+    'timeloop': False,
+    'widetime': True,
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 6,
+    'octave_cutoff': 5,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.25,
+    'step_mult': 0.0,
+    'model': 'places365',
+    'layers': [
+        {
+            'name': 'inception_4d/5x5',
+            'features': range(0,63)
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10,
+                'frequency': 1,
+                'range_out':[1.2,2.0],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+        inception_xform_default
+    ],
+    'stepfx': [
+        nd_gaussian_filter_default,
+        slowshutter_default
+    ]
+})
+
+program.append({
+    'name': 'magicmirror-',
+    'autofeature': False,
+    'timeloop': False,
+    'widetime': True,
+    'iterations': 10,
+    'step_size': 2,
+    'octaves': 5,
+    'octave_cutoff': 4,
+    'octave_scale': 1.8,
+    'iteration_mult': 0.1,
+    'step_mult': 0.0,
+    'model': 'googlenet',
+    'layers': [
+        {
+            'name': 'inception_4c/pool',
+            'features': range(-1,511)
+        },
+    ],
+    'cyclefx': [
+        {
+            'name': 'octave_scaler',
+            'params': {
+                'cycle_length': 10,
+                'frequency': 1,
+                'range_out':[1.2,1.7],
+                'wavetype': 'sin',
+                'dutycycle': 0.5
+            }
+        }
+    ],
+    'stepfx': [
+        {
+            'name': 'median_blur',
+            'params': {
+                'cycle_length': 1000,
+                'frequency': 250,
+                'range_out':[0.0,3],
+                'wavetype': 'square',
+                'dutycycle': 0.5
+            }
+        },
+        slowshutter_default,
+    ]
+})
+
+program.append({
     'name': 'neomorph-neo-prime',
     'autofeature': True,
     'timeloop': False,
@@ -219,50 +303,44 @@ program.append({
 })
 
 program.append({
-    'name': 'magicmirror-',
+    'name': 'peyoteworld-v5',
     'autofeature': False,
     'timeloop': False,
-    'widetime': True,
-    'iterations': 20,
+    'widetime': False,
+    'iterations': 5,
     'step_size': 2,
     'octaves': 5,
-    'octave_cutoff': 4,
-    'octave_scale': 1.8,
-    'iteration_mult': 0.1,
-    'step_mult': 0.0,
-    'model': 'googlenet',
+    'octave_cutoff': 3,
+    'octave_scale': 1.2,
+    'iteration_mult': 0.0,
+    'step_mult': 0.2,
+    'model': 'vgg19',
     'layers': [
         {
-            'name': 'inception_4c/pool',
-            'features': range(-1,511)
+            'name':'conv3_2',
+            'features':range(-1, 255)
         },
     ],
     'cyclefx': [
         {
             'name': 'octave_scaler',
             'params': {
-                'cycle_length': 10,
+                'cycle_length': 100,
                 'frequency': 1,
-                'range_out':[1.6,1.9],
-                'wavetype': 'sin',
-                'dutycycle': 0.5
-            }
-        }
-    ],
-    'stepfx': [
-        {
-            'name': 'median_blur',
-            'params': {
-                'cycle_length': 1000,
-                'frequency': 250,
-                'range_out':[0.0,3],
+                'range_out':[1.1,1.5],
                 'wavetype': 'square',
                 'dutycycle': 0.5
             }
         },
-        slowshutter_default,
-    ]
+        {
+            'name': 'inception_xform',
+            'params': {'scale': 0.15}
+        },
+    ],
+    'stepfx': []
 })
+
+
 
 program.append({
     'name': 'Rivendell-1',
@@ -529,43 +607,6 @@ program.append({
     ]
 })
 
-program.append({
-    'name': 'Vienna',
-    'autofeature': True,
-    'timeloop': False,
-    'widetime': True,
-    'iterations': 10,
-    'step_size': 2,
-    'octaves': 6,
-    'octave_cutoff': 5,
-    'octave_scale': 1.8,
-    'iteration_mult': 0.25,
-    'step_mult': 0.0,
-    'model': 'places365',
-    'layers': [
-        {
-            'name': 'inception_4d/5x5',
-            'features': range(0,63)
-        },
-    ],
-    'cyclefx': [
-        {
-            'name': 'octave_scaler',
-            'params': {
-                'cycle_length': 10,
-                'frequency': 1,
-                'range_out':[1.2,2.0],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            }
-        },
-        inception_xform_default
-    ],
-    'stepfx': [
-        # nd_gaussian_filter_default,
-        slowshutter_default
-    ]
-})
 
 program.append({
     'name': 'Paris',
@@ -629,43 +670,6 @@ program.append({
     ]
 })
 
-program.append({
-    'name': 'peyoteworld-v5',
-    'autofeature': False,
-    'timeloop': False,
-    'widetime': False,
-    'iterations': 5,
-    'step_size': 2,
-    'octaves': 5,
-    'octave_cutoff': 3,
-    'octave_scale': 1.2,
-    'iteration_mult': 0.0,
-    'step_mult': 0.2,
-    'model': 'vgg19',
-    'layers': [
-        {
-            'name':'conv3_2',
-            'features':range(-1, 255)
-        },
-    ],
-    'cyclefx': [
-        {
-            'name': 'octave_scaler',
-            'params': {
-                'cycle_length': 100,
-                'frequency': 1,
-                'range_out':[1.1,1.5],
-                'wavetype': 'square',
-                'dutycycle': 0.5
-            }
-        },
-        {
-            'name': 'inception_xform',
-            'params': {'scale': 0.15}
-        },
-    ],
-    'stepfx': []
-})
 
 
 

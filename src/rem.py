@@ -172,7 +172,7 @@ if __name__ == "__main__":
             threshold_filter=8))
     Webcam = Cameras(source=camera, current_camera=0)
     _Deepdreamer = dreamer.Artist('test',webcam=Webcam)
-    Model = neuralnet.Model(program_duration=-1, current_program=0, Renderer=_Deepdreamer)
+    Model = neuralnet.Model(program_duration=30, current_program=0, Renderer=_Deepdreamer)
     Viewport = Viewport(window_name='deepdreamvisionquest', monitor=data.MONITOR_MAIN, fullscreen=False, listener=listener)
     Composer = Composer()
 
