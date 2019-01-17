@@ -121,12 +121,12 @@ def listener():
 
 
     elif key == 57:  # 9 key: reduce equalization gridsize
-        log.critical('{}:{} {} {}'.format('**', key, '9', 'EQUALIZE GRIDSIZE --'))
+        log.warning('{}:{} {} {}'.format('**', key, '9', 'EQUALIZE GRIDSIZE --'))
         data.Postprocess.adjust_eq_grid(False)
         return
 
     elif key == 48:  # \ key: increase equalization grid size
-        log.critical('{}:{} {} {}'.format('**', key, '0', 'EQUALIZE GRIDSIZE ++'))
+        log.warning('{}:{} {} {}'.format('**', key, '0', 'EQUALIZE GRIDSIZE ++'))
         data.Postprocess.adjust_eq_grid(True)
         return
 

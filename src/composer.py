@@ -110,6 +110,9 @@ class Composer(object):
             # HUD logging
             console.log_value('runtime', '{:0>2}'.format(round(time.time() - data.Model.installation_startup, 2)))
             console.log_value('interval', '{:01.2f}/{:01.2f}'.format(round(time.time() - data.Model.program_start_time, 2), data.Model.program_duration))
+            console.log_value('eq_clip', data.eq_clip)
+            console.log_value('eq_grid', data.eq_grid)
+
 
             # program sequencer. don't run if program_duration is -1 though
             if data.Model.program_running and data.Model.program_duration > 0:

@@ -35,6 +35,9 @@ def draw(image):
     layout('step_size')
     layout('cycle_time')
     layout('gamma')
+    layout('eq_clip')
+    layout('eq_grid')
+
     layout.counter=0
     return cv2.addWeighted(screen, opacity, image, 1 - opacity, 0, image)
 
@@ -75,7 +78,10 @@ hud_log = {
     'interval': [None, None],
     'runtime': [None, None],
     'floor': [None, None],
-    'gamma': [None, None]
+    'gamma': [None, None],
+    'eq_clip': [None, None],
+    'eq_grid': [None, None],
+
 }
 x = (40, 180) # col1, col2
 y = (150, 20) # row, row height
